@@ -1,0 +1,61 @@
+BasedOnStyle: LLVM
+IndentWidth:  4
+TabWidth:     4
+UseTab:       Never
+ColumnLimit:  100
+
+AlwaysBreakAfterReturnType:           TopLevel
+AlwaysBreakAfterDefinitionReturnType: TopLevel
+AlwaysBreakTemplateDeclarations:      Yes
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction:         false
+  AfterControlStatement: Never
+  BeforeElse:            false
+  BeforeWhile:           false
+  IndentBraces:          false
+
+ContinuationIndentWidth:      4
+BracedInitializerIndentWidth: 4
+AlignArrayOfStructures:       None
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments:   true
+  AlignCompound:    true
+  PadOperators:     true
+AlignConsecutiveDeclarations:
+  Enabled:          true
+  AcrossEmptyLines: false
+  AcrossComments:   true
+AlignConsecutiveMacros:
+  Enabled:          true
+  AcrossEmptyLines: false
+  AcrossComments:   true
+AlignConsecutiveShortCaseStatements:
+  Enabled:          true
+  AlignCaseColons:  true
+
+AllowShortFunctionsOnASingleLine:    None
+AllowShortBlocksOnASingleLine:       Always
+AllowShortCaseLabelsOnASingleLine:   true
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine:        false
+BinPackParameters:                   false
+BinPackArguments:                    false
+SpaceBeforeParens:                   ControlStatements
+IndentCaseLabels:                    false
+IndentCaseBlocks:                    false
+IndentPPDirectives:                  AfterHash
+InsertBraces:                        true
+InsertTrailingCommas:                Wrapped
+InsertNewlineAtEOF:                  true
+SpacesInContainerLiterals:           false
+ReflowComments:                      true
+Cpp11BracedListStyle:                true
+
+PointerAlignment:       Right
+AlignTrailingComments:  true
+AlignEscapedNewlines:   Left
+
