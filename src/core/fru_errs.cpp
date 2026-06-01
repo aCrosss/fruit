@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "fru_errs.hpp"
 
 void
@@ -20,7 +22,13 @@ FRU_errs::getSectionErrs(std::string section) {
 
 std::string
 FRU_errs::getPlainText() {
-    return std::string();
+    std::stringstream s;
+
+    for (auto &&e : errs) {
+        s << std::get<0>(e) << ":" << std::get<1>(e) << " " << std::get<2>(e) << std::endl;
+    }
+
+    return s.str();
 }
 
 FRU_errs::FRU_errs(/* args */) {

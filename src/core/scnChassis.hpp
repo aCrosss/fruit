@@ -4,18 +4,22 @@
 
 class scnChassis : public Section {
   private:
-    /* data */
+    encodedStr              type;
+    encodedStr              part_number;
+    encodedStr              serial_number;
+    std::vector<encodedStr> custom;
+
+    // void initFields();
+    void debug_printOutVals();
+
   public:
-    bool   validate();
-    void   emmitBinary(bytes &out_bin);
-    size_t getByteLen();
+    bool   validate() override;
+    bool   tryParseJSON(nlohmann::json j, FRU_errs &errs) override;
+    bool   tryParseTOML() override;
+    void   emmitBinary(bytes &out_bin) override;
+    bool   decodeBinary(bytes &out_bin) override;
+    size_t getByteLen() override;
 
     scnChassis(/* args */);
     ~scnChassis();
 };
-
-scnChassis::scnChassis(/* args */) : Section("chassis", "Chassis Info Area") {
-}
-
-scnChassis::~scnChassis() {
-}

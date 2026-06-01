@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 typedef std::vector<std::byte> bytes;
@@ -7,7 +9,7 @@ typedef std::vector<std::byte> bytes;
 enum valType {
     VAL_TYPE_NONE,
     VAL_TYPE_INT,
-    VAL_TYPE_STRING,
+    VAL_TYPE_TEXT,
 };
 
 enum Encoding {
@@ -16,3 +18,9 @@ enum Encoding {
     ENCODING_ASCII_6b      = 2, // 10
     ENCODING_LANG_CODE     = 3, // 11
 };
+
+//||ascii6bit|langcode
+extern std::unordered_map<std::string, Encoding> encoding_map;
+
+std::string
+encodingToString(Encoding enc);
