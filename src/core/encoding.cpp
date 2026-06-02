@@ -3,7 +3,7 @@
 #include "encoding.hpp"
 
 char
-nibble_to_hex(unsigned char d) {
+nibble_to_hex(uchar d) {
     char c = 0;
 
     if (d < 10) {
@@ -18,7 +18,7 @@ nibble_to_hex(unsigned char d) {
 void
 debugPrintBytes(bytes &bs) {
     for (size_t i = 0; i < bs.size(); i++) {
-        char b  = static_cast<unsigned char>(bs[i]);
+        char b  = static_cast<uchar>(bs[i]);
         char hi = nibble_to_hex((b >> 4) & 0x0F);
         char lo = nibble_to_hex((b >> 0) & 0x0F);
         std::cout << hi << lo << " ";
@@ -38,7 +38,7 @@ encode_bcdp(std::string text, bytes &out, std::string &err) {
     const char *str = text.c_str();
 
     while (*str != '\0') {
-        unsigned char b;
+        uchar b;
 
         switch (*str) {
         case '0': b = 0x0; break;
@@ -75,8 +75,8 @@ bool
 encode_ascii6bit(std::string text, bytes &out, std::string &err) {
     const char *str = text.c_str();
 
-    unsigned char cpack[4] = {0};
-    std::byte     bytes[3];
+    uchar     cpack[4] = {0};
+    std::byte bytes[3];
 
     size_t i;
     for (i = 0; *str != '\0'; i++, str++) {
@@ -103,7 +103,8 @@ encode_ascii6bit(std::string text, bytes &out, std::string &err) {
 
     // have leftovers
     if (i % 4 != 0) {
-        ASCII_6BIT_PACK_CHARS(cpack[0], cpack[1], cpack[2], cpack[3], bytes[0], bytes[1], bytes[2]);
+        ASCII_6BIT_PACK_CHARS(
+            cpack[0], cpack[1], cpack[2], cpack[3], bytes[0], bytes[1], bytes[2]);
         out.insert(out.end(), std::begin(bytes), std::end(bytes));
     }
 
@@ -119,6 +120,34 @@ encode(std::string text, Encoding enc, bytes &outb, std::string &err) {
     case ENCODING_ASCII_6b     : return encode_ascii6bit(text, outb, err);
 
     // TODO: ASCII+Latin, fn unicode
-    default: return false;
+    default: std::cout << "encode: unknown encoding" << std::endl; return false;
     }
+}
+
+//@brief Make byte describing type/length of a encoded string. Must be less or equal than
+// 31 bytes, otherwise will return false and err
+//@param enc type code of encoded field
+//@param byte_count number of bytes of ALREADY ENCODED text; must be less than 31
+//@param &err out error string
+bool
+makeTypeLengthByte(Encoding enc, uchar byte_count, std::byte &outb, std::string &err) {
+    uchar type_code = 0;
+
+    // can't encode more than 31 bytes
+    if (byte_count > ENCODED_MAX_BYTE_LENGTH) {
+        err = "encoded more than 31 bytes";
+        return false;
+    }
+
+    switch (enc) {
+    case ENCODING_BINARY_UNSPEC:
+    case ENCODING_BCDp:
+    case ENCODING_ASCII_6b:
+    case ENCODING_LANG_CODE    : type_code = static_cast<uchar>(enc); break;
+    default                    : err = "unknown type code"; return false;
+    }
+
+    uchar byte = static_cast<uchar>(type_code << 6 | (byte_count & ENCODED_MAX_BYTE_LENGTH));
+    outb       = std::byte{byte};
+    return true;
 }

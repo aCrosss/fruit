@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -11,24 +12,24 @@ main() {
        {
         "type": {
             "type": "bcdp",
-            "data": "typeabc"
+            "data": "666"
         },
         "part_number": {
             "type": "bcdp",
-            "data": "part_numberabc"
+            "data": "22.22"
         },
         "serial_number": {
-            "type": "bcdp",
-            "data": "serial_numberabc"
+            "type": "ascii6bit",
+            "data": "IPMI"
         },
         "custom": [
             {
-            "type": "bcdp",
-            "data": "custom1"
+            "type": "ascii6bit",
+            "data": "IPMI"
             },
             {
-            "type": "bcdp",
-            "data": "custom2"
+            "type": "ascii6bit",
+            "data": "BEAR"
             }
         ]
     }
@@ -39,6 +40,20 @@ main() {
     chassis.tryParseJSON(j, jerrs);
     std::string eplain = jerrs.getPlainText();
     std::cout << eplain;
+
+    std::ofstream foutb("out.bin", std::ios::binary);
+    bytes         outb;
+
+    if (chassis.emmitBinary(outb, jerrs)) {
+        std::cout << "bin len=" << outb.size() << std::endl;
+
+        foutb.write(reinterpret_cast<const char *>(outb.data()), outb.size());
+        foutb.close();
+    } else {
+        std::cout << "=== errors ===" << std::endl;
+        std::string eplain = jerrs.getPlainText();
+        std::cout << eplain;
+    }
 
     return 0;
 }

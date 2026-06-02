@@ -4,6 +4,13 @@
 #include <unordered_map>
 #include <vector>
 
+// 7:4 - reserved, written as 0000b
+// 0:3 - format version number = 1h
+#define DEFAULT_SECTION_HEADER_BYTE std::byte{0x01}
+
+#define END_OF_FIELDS_BYTE std::byte{0xC1}
+
+typedef unsigned char          uchar;
 typedef std::vector<std::byte> bytes;
 
 enum valType {

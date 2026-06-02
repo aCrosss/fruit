@@ -6,6 +6,8 @@
 
 #include "types.hpp"
 
+#define ENCODED_MAX_BYTE_LENGTH 31
+
 #define ASCII_6BIT_MAX_IND 0x3F // '_' aka 111111b
 // pack charachters c1-c4 into bytes b1-b3
 // it supposed to work with charachers from ascii_6b_table!
@@ -14,7 +16,7 @@
     b2 = std::byte(((c2 >> 2) & 0x0F) | ((c3 & 0x0F) << 4));        \
     b3 = std::byte(((c3 >> 4) & 0x03) | ((c4 & ASCII_6BIT_MAX_IND) << 2))
 
-const std::map<const char, unsigned char> ascii_6b_table = {
+const std::map<const char, uchar> ascii_6b_table = {
     {' ', 0x00},  {'!', 0x01}, {'"', 0x02}, {'#', 0x03}, {'$', 0x04},  {'%', 0x05}, {'&', 0x06},
     {'\'', 0x07}, {'(', 0x08}, {')', 0x09}, {'*', 0x0A}, {'+', 0x0B},  {',', 0x0C}, {'-', 0x0D},
     {'.', 0x0E},  {'/', 0x0F}, {'0', 0x10}, {'1', 0x11}, {'2', 0x12},  {'3', 0x13}, {'4', 0x14},
@@ -29,3 +31,5 @@ const std::map<const char, unsigned char> ascii_6b_table = {
 
 bool
 encode(std::string text, Encoding enc, bytes &outb, std::string &err);
+bool
+makeTypeLengthByte(Encoding enc, uchar byte_count, std::byte &outb, std::string &err);

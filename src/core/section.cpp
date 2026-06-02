@@ -1,4 +1,58 @@
+#include <iostream>
+
 #include "section.hpp"
+
+//    ##     ## ####  ######   ######
+//    ###   ###  ##  ##    ## ##    ##
+//    #### ####  ##  ##       ##
+//    ## ### ##  ##   ######  ##
+//    ##     ##  ##        ## ##
+//    ##     ##  ##  ##    ## ##    ##
+//    ##     ## ####  ######   ######
+
+bool
+Section::tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, FRU_errs &errs) {
+    std::string err;
+    bytes       bs;
+
+    if (!encode(str.str, str.enc, bs, err)) {
+        errs.append(tag, ftag, err);
+        return false;
+    }
+
+    std::byte head_byte;
+    if (!makeTypeLengthByte(str.enc, bs.size(), head_byte, err)) {
+        errs.append(tag, ftag, err);
+        return false;
+    }
+
+    outb.emplace_back(static_cast<std::byte>(head_byte));
+    outb.insert(outb.end(), bs.begin(), bs.end());
+    return true;
+}
+
+std::byte
+Section::calcZeroChecksum(bytes bs) {
+    uchar sum = 0;
+
+    for (auto &&b : bs) {
+        sum += static_cast<uchar>(b);
+    }
+
+    if (sum == 0) {
+        return std::byte{0};
+    } else {
+        return std::byte{static_cast<uchar>(256 - sum)};
+    }
+}
+
+//          ##  ######   #######  ##    ##    ########  ########   ######  ########
+//          ## ##    ## ##     ## ###   ##    ##     ## ##     ## ##    ## ##     ##
+//          ## ##       ##     ## ####  ##    ##     ## ##     ## ##       ##     ##
+//          ##  ######  ##     ## ## ## ##    ########  ########   ######  ########
+//    ##    ##       ## ##     ## ##  ####    ##        ##   ##         ## ##   ##
+//    ##    ## ##    ## ##     ## ##   ###    ##        ##    ##  ##    ## ##    ##
+//     ######   ######   #######  ##    ##    ##        ##     ##  ######  ##     ##
 
 //@brief Try read value from JSON object into val. Return true on success and false and
 // error string in err otherwise
@@ -132,6 +186,14 @@ Section::tryParseFieldJSON_encStr(json j, encodedStr &val, std::string &err) {
 
     return true;
 }
+
+//    #### ##    ## #### ########
+//     ##  ###   ##  ##     ##
+//     ##  ####  ##  ##     ##
+//     ##  ## ## ##  ##     ##
+//     ##  ##  ####  ##     ##
+//     ##  ##   ###  ##     ##
+//    #### ##    ## ####    ##
 
 Section::Section(std::string tag, std::string label) {
     this->tag   = tag;
