@@ -37,12 +37,17 @@ class Section {
     bool tryParseFieldJSON_encStr(json j, encodedStr &val, std::string &err);
 
   public:
-    virtual bool   validate()                                     = 0;
-    virtual bool   tryParseJSON(nlohmann::json j, FRU_errs &errs) = 0;
-    virtual bool   tryParseTOML()                                 = 0;
-    virtual bool   emmitBinary(bytes &out_bin, FRU_errs &errs)    = 0;
-    virtual bool   decodeBinary(bytes &out_bin)                   = 0;
-    virtual size_t getByteLen()                                   = 0;
+    virtual bool validate() = 0; // MAYBE UNUSED
+
+    virtual bool tryParseJSON(nlohmann::json j, FRU_errs &errs) = 0;
+    virtual bool tryParseTOML()                                 = 0;
+    virtual bool tryParseBinary(bytes &in_bin)                  = 0;
+
+    virtual void emitJSON(nlohmann::json &j)                = 0;
+    virtual void emitTOML()                                 = 0;
+    virtual bool emitBinary(bytes &out_bin, FRU_errs &errs) = 0;
+
+    virtual size_t getByteLen() = 0; // MAYBE UNUSED
 
     Section(std::string tag, std::string label);
     ~Section();

@@ -44,7 +44,7 @@ main() {
     std::ofstream foutb("out.bin", std::ios::binary);
     bytes         outb;
 
-    if (chassis.emmitBinary(outb, jerrs)) {
+    if (chassis.emitBinary(outb, jerrs)) {
         std::cout << "bin len=" << outb.size() << std::endl;
 
         foutb.write(reinterpret_cast<const char *>(outb.data()), outb.size());

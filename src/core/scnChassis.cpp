@@ -40,6 +40,14 @@ scnChassis::validate() {
     return true;
 }
 
+//    ########     ###    ########   ######  #### ##    ##  ######
+//    ##     ##   ## ##   ##     ## ##    ##  ##  ###   ## ##    ##
+//    ##     ##  ##   ##  ##     ## ##        ##  ####  ## ##
+//    ########  ##     ## ########   ######   ##  ## ## ## ##   ####
+//    ##        ######### ##   ##         ##  ##  ##  #### ##    ##
+//    ##        ##     ## ##    ##  ##    ##  ##  ##   ### ##    ##
+//    ##        ##     ## ##     ##  ######  #### ##    ##  ######
+
 bool
 scnChassis::tryParseJSON(nlohmann::json j, FRU_errs &errs) {
 
@@ -88,7 +96,28 @@ scnChassis::tryParseTOML() {
 }
 
 bool
-scnChassis::emmitBinary(bytes &out_bin, FRU_errs &errs) {
+scnChassis::tryParseBinary(bytes &out_bin) {
+    return false;
+}
+
+//    ######## ##     ## #### ######## #### ##    ##  ######
+//    ##       ###   ###  ##     ##     ##  ###   ## ##    ##
+//    ##       #### ####  ##     ##     ##  ####  ## ##
+//    ######   ## ### ##  ##     ##     ##  ## ## ## ##   ####
+//    ##       ##     ##  ##     ##     ##  ##  #### ##    ##
+//    ##       ##     ##  ##     ##     ##  ##   ### ##    ##
+//    ######## ##     ## ####    ##    #### ##    ##  ######
+
+void
+scnChassis::emitJSON(nlohmann::json &j) {
+}
+
+void
+scnChassis::emitTOML() {
+}
+
+bool
+scnChassis::emitBinary(bytes &out_bin, FRU_errs &errs) {
     bytes bs;
 
     std::string err;
@@ -157,10 +186,13 @@ scnChassis::emmitBinary(bytes &out_bin, FRU_errs &errs) {
     return true;
 }
 
-bool
-scnChassis::decodeBinary(bytes &out_bin) {
-    return false;
-}
+//    #### ##    ## #### ########
+//     ##  ###   ##  ##     ##
+//     ##  ####  ##  ##     ##
+//     ##  ## ## ##  ##     ##
+//     ##  ##  ####  ##     ##
+//     ##  ##   ###  ##     ##
+//    #### ##    ## ####    ##
 
 size_t
 scnChassis::getByteLen() {

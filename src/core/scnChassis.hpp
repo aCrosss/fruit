@@ -13,11 +13,16 @@ class scnChassis : public Section {
     void debug_printOutVals();
 
   public:
-    bool   validate() override;
-    bool   tryParseJSON(nlohmann::json j, FRU_errs &errs) override;
-    bool   tryParseTOML() override;
-    bool   emmitBinary(bytes &out_bin, FRU_errs &errs) override;
-    bool   decodeBinary(bytes &out_bin) override;
+    bool validate() override;
+
+    bool tryParseJSON(nlohmann::json j, FRU_errs &errs) override;
+    bool tryParseTOML() override;
+    bool tryParseBinary(bytes &in_bin) override;
+
+    void emitJSON(nlohmann::json &j) override;
+    void emitTOML() override;
+    bool emitBinary(bytes &out_bin, FRU_errs &errs) override;
+
     size_t getByteLen() override;
 
     scnChassis(/* args */);
