@@ -19,8 +19,8 @@ main() {
             "data": "22.22"
         },
         "serial_number": {
-            "type": "ascii6bit",
-            "data": "IPMI"
+            "type": "binary",
+            "data": "AF 00 FA"
         },
         "custom": [
             {

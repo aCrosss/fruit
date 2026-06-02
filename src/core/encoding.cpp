@@ -15,6 +15,18 @@ nibble_to_hex(uchar d) {
     return c;
 }
 
+int
+hex_to_nibble(char c) {
+    if (c >= '0' && c <= '9') {
+        return c - '0';
+    } else if (c >= 'A' && c <= 'F') {
+        return c - 'A' + 10;
+    } else if (c >= 'a' && c <= 'f') {
+        return c - 'a' + 10;
+    }
+    return -1;
+}
+
 void
 debugPrintBytes(bytes &bs) {
     for (size_t i = 0; i < bs.size(); i++) {
@@ -24,6 +36,45 @@ debugPrintBytes(bytes &bs) {
         std::cout << hi << lo << " ";
     }
     std::cout << std::endl;
+}
+
+bool
+encode_binary(std::string text, bytes &out, std::string &err) {
+    const char *str = text.c_str();
+
+    // remove spaces and validate
+    std::string buff;
+    for (size_t i = 0; i < text.size(); i++, str++) {
+        if (*str == ' ') {
+            continue;
+        }
+
+        if (hex_to_nibble(*str) < 0) {
+            std::stringstream s;
+            s << "unsupported charachter " << *str;
+            err += s.str();
+            return false;
+        }
+
+        buff += *str;
+    }
+
+    // can't make binary from odd number of hex digits
+    if (buff.size() % 2 != 0) {
+        err = "uneven number of hexadeciamal charachters";
+        return false;
+    }
+
+    str = buff.c_str();
+    for (size_t i = 0; i < buff.size() / 2; i++) {
+        uchar     hi = (uchar)hex_to_nibble(str[2 * i + 0]);
+        uchar     lo = (uchar)hex_to_nibble(str[2 * i + 1]);
+        std::byte b{static_cast<uchar>((hi << 4) | (lo << 0))};
+        out.emplace_back(b);
+    }
+
+    debugPrintBytes(out);
+    return true;
 }
 
 // 0h - 9h = digits 0 through 9
@@ -115,7 +166,7 @@ encode_ascii6bit(std::string text, bytes &out, std::string &err) {
 bool
 encode(std::string text, Encoding enc, bytes &outb, std::string &err) {
     switch (enc) {
-    case ENCODING_BINARY_UNSPEC: return true;
+    case ENCODING_BINARY_UNSPEC: return encode_binary(text, outb, err);
     case ENCODING_BCDp         : return encode_bcdp(text, outb, err);
     case ENCODING_ASCII_6b     : return encode_ascii6bit(text, outb, err);
 
