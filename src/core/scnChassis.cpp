@@ -19,19 +19,22 @@
     }
 
 void
+debug_printEncStr(std::string tag, encodedStr str) {
+    std::cout << tag << " {data=\'" << str.str << "'"
+              << " encoding=" << encodingToString(str.enc) << "}" << std::endl;
+}
+
+void
 scnChassis::debug_printOutVals() {
-    std::cout << "type: {data=" << type.str << "; encoding=" << encodingToString(type.enc)
-              << "}" << std::endl;
-    std::cout << "part_number: {data=" << part_number.str
-              << "; encoding=" << encodingToString(part_number.enc) << "}" << std::endl;
-    std::cout << "serial_number: {data=" << serial_number.str
-              << "; encoding=" << encodingToString(serial_number.enc) << "}" << std::endl;
+    debug_printEncStr("type", type);
+    debug_printEncStr("part_number", part_number);
+    debug_printEncStr("serial_number", serial_number);
 
     std::cout << "custom:" << std::endl;
     for (size_t i = 0; i < custom.size(); i++) {
-        encodedStr es = custom[i];
-        std::cout << "  [" << i << "]: {data=" << es.str
-                  << "; encoding=" << encodingToString(es.enc) << "}" << std::endl;
+        std::stringstream s;
+        s << "  [" << i << "]";
+        debug_printEncStr(s.str(), custom[i]);
     }
 }
 
@@ -50,6 +53,7 @@ scnChassis::validate() {
 
 bool
 scnChassis::tryParseJSON(nlohmann::json j, FRU_errs &errs) {
+    clear();
 
     std::string err;
     bool        valid = true;
@@ -96,8 +100,50 @@ scnChassis::tryParseTOML() {
 }
 
 bool
-scnChassis::tryParseBinary(bytes &out_bin) {
-    return false;
+scnChassis::tryParseBinary(bytes::iterator in_bin, FRU_errs &errs) {
+    clear();
+
+    bytes::iterator begin = in_bin;
+
+    // get area length byte at index 1
+    uchar length = static_cast<uchar>(*(++in_bin)) * 8;
+
+    uchar checksum     = static_cast<uchar>(*(begin + length - 1));
+    uchar checksum_rec = static_cast<uchar>(calcZeroChecksum(begin, begin + length - 1));
+    if (checksum != checksum_rec) {
+        std::cout << std::hex << checksum << std::endl;
+        std::cout << std::hex << checksum_rec << std::endl;
+        errs.append(tag, "common", "checksum is invalid");
+        return false;
+    }
+
+    if (!tryDecodeStr("type", type, ++in_bin, errs)) {
+        return false;
+    }
+    if (!tryDecodeStr("part_number", part_number, in_bin, errs)) {
+        return false;
+    }
+
+    if (!tryDecodeStr("serial_number", serial_number, in_bin, errs)) {
+        return false;
+    }
+
+    size_t i = 0;
+    while (*(in_bin) != END_OF_FIELDS_BYTE) {
+        encodedStr        es;
+        std::stringstream s;
+        s << "custom[" << i++ << "]";
+
+        if (!tryDecodeStr(s.str(), es, in_bin, errs)) {
+            return false;
+        }
+
+        custom.emplace_back(es);
+    }
+
+    std::cout << "Parsed binary:" << std::endl;
+    debug_printOutVals();
+    return true;
 }
 
 //    ######## ##     ## #### ######## #### ##    ##  ######
@@ -196,7 +242,21 @@ scnChassis::emitBinary(bytes &out_bin, FRU_errs &errs) {
 
 size_t
 scnChassis::getByteLen() {
-    //
+    return 0;
+}
+
+void
+scnChassis::clear() {
+    type.str.clear();
+    type.enc = ENCODING_BINARY_UNSPEC;
+
+    part_number.str.clear();
+    part_number.enc = ENCODING_BINARY_UNSPEC;
+
+    serial_number.str.clear();
+    serial_number.enc = ENCODING_BINARY_UNSPEC;
+
+    custom.clear();
 }
 
 scnChassis::scnChassis(/* args */) : Section("chassis", "Chassis Info Area") {

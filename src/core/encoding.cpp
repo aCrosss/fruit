@@ -28,7 +28,7 @@ hex_to_nibble(char c) {
 }
 
 void
-debugPrintBytes(bytes &bs) {
+debug_PrintBytes(bytes &bs) {
     for (size_t i = 0; i < bs.size(); i++) {
         char b  = static_cast<uchar>(bs[i]);
         char hi = nibble_to_hex((b >> 4) & 0x0F);
@@ -37,6 +37,22 @@ debugPrintBytes(bytes &bs) {
     }
     std::cout << std::endl;
 }
+
+void
+debug_PrintByte(std::byte byte) {
+    char b  = static_cast<uchar>(byte);
+    char hi = nibble_to_hex((b >> 4) & 0x0F);
+    char lo = nibble_to_hex((b >> 0) & 0x0F);
+    std::cout << hi << lo << std::endl;
+}
+
+//    ######## ##    ##  ######   #######  ########  #### ##    ##  ######
+//    ##       ###   ## ##    ## ##     ## ##     ##  ##  ###   ## ##    ##
+//    ##       ####  ## ##       ##     ## ##     ##  ##  ####  ## ##
+//    ######   ## ## ## ##       ##     ## ##     ##  ##  ## ## ## ##   ####
+//    ##       ##  #### ##       ##     ## ##     ##  ##  ##  #### ##    ##
+//    ##       ##   ### ##    ## ##     ## ##     ##  ##  ##   ### ##    ##
+//    ######## ##    ##  ######   #######  ########  #### ##    ##  ######
 
 bool
 encode_binary(std::string text, bytes &out, std::string &err) {
@@ -73,7 +89,7 @@ encode_binary(std::string text, bytes &out, std::string &err) {
         out.emplace_back(b);
     }
 
-    debugPrintBytes(out);
+    debug_PrintBytes(out);
     return true;
 }
 
@@ -118,7 +134,7 @@ encode_bcdp(std::string text, bytes &out, std::string &err) {
         str++;
     }
 
-    debugPrintBytes(out);
+    debug_PrintBytes(out);
     return true;
 }
 
@@ -159,7 +175,7 @@ encode_ascii6bit(std::string text, bytes &out, std::string &err) {
         out.insert(out.end(), std::begin(bytes), std::end(bytes));
     }
 
-    debugPrintBytes(out);
+    debug_PrintBytes(out);
     return true;
 }
 
@@ -174,6 +190,133 @@ encode(std::string text, Encoding enc, bytes &outb, std::string &err) {
     default: std::cout << "encode: unknown encoding" << std::endl; return false;
     }
 }
+
+//    ########  ########  ######   #######  ########  #### ##    ##  ######
+//    ##     ## ##       ##    ## ##     ## ##     ##  ##  ###   ## ##    ##
+//    ##     ## ##       ##       ##     ## ##     ##  ##  ####  ## ##
+//    ##     ## ######   ##       ##     ## ##     ##  ##  ## ## ## ##   ####
+//    ##     ## ##       ##       ##     ## ##     ##  ##  ##  #### ##    ##
+//    ##     ## ##       ##    ## ##     ## ##     ##  ##  ##   ### ##    ##
+//    ########  ########  ######   #######  ########  #### ##    ##  ######
+
+bool
+decode_binary(std::string &text, bytes::iterator &inb, uchar byte_count, std::string &err) {
+    for (size_t i = 0; i < byte_count; i++, inb++) {
+        uchar hi = (static_cast<uchar>(*inb) >> 4) & 0x0F;
+        uchar lo = (static_cast<uchar>(*inb) >> 0) & 0x0F;
+
+        text += nibble_to_hex(hi);
+        text += nibble_to_hex(lo);
+    }
+
+    return true;
+}
+
+bool
+decode_bcdp(std::string &text, bytes::iterator &inb, uchar byte_count, std::string &err) {
+    for (size_t i = 0; i < byte_count; i++, inb++) {
+        uchar b = static_cast<uchar>(*inb);
+        uchar c;
+
+        switch (b) {
+        case 0x0: c = '0'; break;
+        case 0x1: c = '1'; break;
+        case 0x2: c = '2'; break;
+        case 0x3: c = '3'; break;
+        case 0x4: c = '4'; break;
+        case 0x5: c = '5'; break;
+        case 0x6: c = '6'; break;
+        case 0x7: c = '7'; break;
+        case 0x8: c = '8'; break;
+        case 0x9: c = '9'; break;
+        case 0xA: c = ' '; break;
+        case 0xB: c = '-'; break;
+        case 0xC: c = '.'; break;
+
+        // other symbols not supported
+        default:
+            std::stringstream s;
+            s << "unsupported charachter " << std::hex << b;
+            err += s.str();
+            return false;
+        }
+
+        text += c;
+    }
+
+    return true;
+}
+
+bool
+decode_ascii6bit(std::string &text, bytes::iterator &inb, uchar byte_count, std::string &err) {
+    // encoded by 3 bytes
+    if ((byte_count) % 3) {
+        err = "6 bit ascii text must be encoded in groups of 3 bytes";
+        return false;
+    }
+
+    std::string buff;
+    for (size_t i = 0; i < byte_count; i += 3, inb += 3) {
+        uchar b1   = static_cast<uchar>(inb[0]);
+        uchar b2   = static_cast<uchar>(inb[1]);
+        uchar b3   = static_cast<uchar>(inb[2]);
+        uchar c[4] = {0};
+
+        ASCII_6BIT_UNPACK_CHARS(b1, b2, b3, c[0], c[1], c[2], c[3])
+
+        for (size_t j = 0; j < 4; j++) {
+            if (c[j] >= ascii_6b_table_reverse.size()) {
+                std::stringstream s;
+                s << "unsupported charachter " << std::hex << c[j];
+                err += s.str();
+                return false;
+            }
+
+            buff += ascii_6b_table_reverse[c[j]];
+        }
+    }
+
+    // remove trailing spaces if they present
+    if (*(buff.end() - 1) == ' ') {
+        size_t sp_pos = buff.find_last_not_of(' ');
+        text          = buff.substr(0, sp_pos + 1);
+    } else {
+        text = buff;
+    }
+
+    return true;
+}
+
+bool
+decode(std::string &text, Encoding &enc, bytes::iterator &inb, std::string &err) {
+    std::string str;
+    uchar       byte_count = 0;
+
+    if (!decodeTypeLengthByte(enc, byte_count, *(inb++), err)) {
+        return false;
+    }
+
+    switch (enc) {
+    case ENCODING_BINARY_UNSPEC: return decode_binary(text, inb, byte_count, err);
+    case ENCODING_BCDp         : return decode_bcdp(text, inb, byte_count, err);
+    case ENCODING_ASCII_6b     : return decode_ascii6bit(text, inb, byte_count, err);
+
+    // TODO: ASCII+Latin, fn unicode
+    default:
+        std::stringstream s;
+        s << "unknown encoding " << static_cast<int>(enc);
+        err = s.str();
+        return false;
+    }
+}
+
+//    ##     ## ####  ######   ######
+//    ###   ###  ##  ##    ## ##    ##
+//    #### ####  ##  ##       ##
+//    ## ### ##  ##   ######  ##
+//    ##     ##  ##        ## ##
+//    ##     ##  ##  ##    ## ##    ##
+//    ##     ## ####  ######   ######
 
 //@brief Make byte describing type/length of a encoded string. Must be less or equal than
 // 31 bytes, otherwise will return false and err
@@ -200,5 +343,31 @@ makeTypeLengthByte(Encoding enc, uchar byte_count, std::byte &outb, std::string 
 
     uchar byte = static_cast<uchar>(type_code << 6 | (byte_count & ENCODED_MAX_BYTE_LENGTH));
     outb       = std::byte{byte};
+    return true;
+}
+
+bool
+decodeTypeLengthByte(Encoding &enc, uchar &byte_count, std::byte inb, std::string &err) {
+    uchar byte = static_cast<uchar>(inb);
+
+    int type_code = (byte >> 6) & 0x03;
+    int length    = byte & ENCODED_MAX_BYTE_LENGTH;
+
+    if (type_code < ENCODING_BINARY_UNSPEC || type_code > ENCODING_LANG_CODE) {
+        std::stringstream s;
+        s << "invalid type code " << type_code;
+        err += s.str();
+        return false;
+    }
+
+    if (length < 0 || length > ENCODED_MAX_BYTE_LENGTH) {
+        std::stringstream s;
+        s << "invalid byte count " << length;
+        err += s.str();
+        return false;
+    }
+
+    enc        = Encoding(type_code);
+    byte_count = static_cast<uchar>(length);
     return true;
 }

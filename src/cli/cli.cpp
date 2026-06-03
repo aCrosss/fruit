@@ -5,6 +5,11 @@
 #include "json.hpp"
 #include "scnChassis.hpp"
 
+void
+foo(std::vector<int>::iterator &it) {
+    it++;
+}
+
 int
 main() {
     // Test section parsing
@@ -29,7 +34,7 @@ main() {
             },
             {
             "type": "ascii6bit",
-            "data": "BEAR"
+            "data": "BEAR!"
             }
         ]
     }
@@ -53,6 +58,23 @@ main() {
         std::cout << "=== errors ===" << std::endl;
         std::string eplain = jerrs.getPlainText();
         std::cout << eplain;
+    }
+
+    std::ifstream finb("out.bin", std::ios::binary | std::ios::ate);
+
+    std::streamsize file_size = finb.tellg();
+    finb.seekg(0, std::ios::beg);
+
+    bytes in_bin(file_size);
+
+    finb.read(reinterpret_cast<char *>(in_bin.data()), file_size);
+    finb.close();
+
+    FRU_errs berrs;
+    if (!chassis.tryParseBinary(in_bin.begin(), berrs)) {
+        std::cout << "=== errors ===" << std::endl;
+        std::string bplain = berrs.getPlainText();
+        std::cout << bplain;
     }
 
     return 0;

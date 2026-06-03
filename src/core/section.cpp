@@ -31,12 +31,39 @@ Section::tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, FRU_errs &e
     return true;
 }
 
+bool
+Section::tryDecodeStr(std::string ftag, encodedStr &str, bytes::iterator &inb, FRU_errs &errs) {
+    std::string err;
+
+    if (!decode(str.str, str.enc, inb, err)) {
+        errs.append(tag, ftag, err);
+        return false;
+    }
+
+    return true;
+}
+
 std::byte
 Section::calcZeroChecksum(bytes bs) {
     uchar sum = 0;
 
     for (auto &&b : bs) {
         sum += static_cast<uchar>(b);
+    }
+
+    if (sum == 0) {
+        return std::byte{0};
+    } else {
+        return std::byte{static_cast<uchar>(256 - sum)};
+    }
+}
+
+std::byte
+Section::calcZeroChecksum(bytes::iterator begin, bytes::iterator end) {
+    uchar sum = 0;
+
+    for (bytes::iterator it = begin; it < end; it++) {
+        sum += static_cast<uchar>(*it);
     }
 
     if (sum == 0) {

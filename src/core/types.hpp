@@ -20,10 +20,10 @@ enum valType {
 };
 
 enum Encoding {
-    ENCODING_BINARY_UNSPEC = 0, // 00
-    ENCODING_BCDp          = 1, // 01
-    ENCODING_ASCII_6b      = 2, // 10
-    ENCODING_LANG_CODE     = 3, // 11
+    ENCODING_BINARY_UNSPEC = 0, // 00b
+    ENCODING_BCDp          = 1, // 01b
+    ENCODING_ASCII_6b      = 2, // 10b
+    ENCODING_LANG_CODE     = 3, // 11b
 };
 
 //||ascii6bit|langcode
