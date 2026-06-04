@@ -1,14 +1,14 @@
 #include <sstream>
 
-#include "fru_errs.hpp"
+#include "errs.hpp"
 
 void
-FRU_errs::append(std::string section, std::string field, std::string text) {
+Errs::append(std::string section, std::string field, std::string text) {
     errs.emplace_back(section, field, text);
 }
 
 errors
-FRU_errs::getSectionErrs(std::string section) {
+Errs::getSectionErrs(std::string section) {
     errors sec_errs;
     for (size_t i = 0; i < errs.size(); i++) {
         auto e = errs.at(i);
@@ -21,7 +21,7 @@ FRU_errs::getSectionErrs(std::string section) {
 }
 
 std::string
-FRU_errs::getPlainText() {
+Errs::getPlainText() {
     std::stringstream s;
 
     for (auto &&e : errs) {
@@ -31,8 +31,8 @@ FRU_errs::getPlainText() {
     return s.str();
 }
 
-FRU_errs::FRU_errs(/* args */) {
+Errs::Errs(/* args */) {
 }
 
-FRU_errs::~FRU_errs() {
+Errs::~Errs() {
 }

@@ -6,7 +6,7 @@
 #include <variant>
 
 #include "encoding.hpp"
-#include "fru_errs.hpp"
+#include "errs.hpp"
 #include "json.hpp"
 #include "types.hpp"
 
@@ -26,8 +26,9 @@ class Section {
     std::string label;
     bool        present;
 
-    bool tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, FRU_errs &errs);
-    bool tryDecodeStr(std::string ftag, encodedStr &str, bytes::iterator &inb, FRU_errs &errs);
+    bool      tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs);
+    bool      tryDecodeStr(bytes::iterator &inb, std::string ftag, encodedStr &str, Errs &errs);
+    bool      tryDecodeStr(nlohmann::json j, std::string ftag, encodedStr &str, Errs &errs);
     std::byte calcZeroChecksum(bytes bs);
     std::byte calcZeroChecksum(bytes::iterator begin, bytes::iterator end);
 
@@ -41,13 +42,13 @@ class Section {
   public:
     virtual bool validate() = 0; // MAYBE UNUSED
 
-    virtual bool tryParseJSON(nlohmann::json j, FRU_errs &errs)         = 0;
-    virtual bool tryParseTOML()                                         = 0;
-    virtual bool tryParseBinary(bytes::iterator in_bin, FRU_errs &errs) = 0;
+    virtual bool tryParseJSON(nlohmann::json j, Errs &errs)         = 0;
+    virtual bool tryParseTOML()                                     = 0;
+    virtual bool tryParseBinary(bytes::iterator in_bin, Errs &errs) = 0;
 
-    virtual void emitJSON(nlohmann::json &j)                = 0;
-    virtual void emitTOML()                                 = 0;
-    virtual bool emitBinary(bytes &out_bin, FRU_errs &errs) = 0;
+    virtual void emitJSON(nlohmann::json &j)            = 0;
+    virtual void emitTOML()                             = 0;
+    virtual bool emitBinary(bytes &out_bin, Errs &errs) = 0;
 
     virtual size_t getByteLen() = 0; // MAYBE UNUSED
     virtual void   clear()      = 0;

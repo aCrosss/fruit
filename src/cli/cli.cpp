@@ -5,11 +5,6 @@
 #include "json.hpp"
 #include "scnChassis.hpp"
 
-void
-foo(std::vector<int>::iterator &it) {
-    it++;
-}
-
 int
 main() {
     // Test section parsing
@@ -41,7 +36,7 @@ main() {
     )"_json;
 
     scnChassis chassis;
-    FRU_errs   jerrs;
+    Errs       jerrs;
     chassis.tryParseJSON(j, jerrs);
     std::string eplain = jerrs.getPlainText();
     std::cout << eplain;
@@ -70,7 +65,7 @@ main() {
     finb.read(reinterpret_cast<char *>(in_bin.data()), file_size);
     finb.close();
 
-    FRU_errs berrs;
+    Errs berrs;
     if (!chassis.tryParseBinary(in_bin.begin(), berrs)) {
         std::cout << "=== errors ===" << std::endl;
         std::string bplain = berrs.getPlainText();

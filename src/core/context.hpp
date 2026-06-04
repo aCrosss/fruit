@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "fru_errs.hpp"
+#include "errs.hpp"
 #include "section.hpp"
 #include "types.hpp"
 

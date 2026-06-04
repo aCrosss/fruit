@@ -11,7 +11,7 @@
 //    ##     ## ####  ######   ######
 
 bool
-Section::tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, FRU_errs &errs) {
+Section::tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs) {
     std::string err;
     bytes       bs;
 
@@ -31,12 +31,46 @@ Section::tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, FRU_errs &e
     return true;
 }
 
+//@brief Try read encoded string from binary
+//@param &inb bytes::iterator pointing at type/length byte of encoded string in binary; will
+// point at end of string +1 byte after successful read
+//@param ftag std::string naming encoded string, for error text only
+//@param &str out encoded string
+//@param Err class object for errors output
 bool
-Section::tryDecodeStr(std::string ftag, encodedStr &str, bytes::iterator &inb, FRU_errs &errs) {
+Section::tryDecodeStr(bytes::iterator &inb, std::string ftag, encodedStr &str, Errs &errs) {
     std::string err;
 
     if (!decode(str.str, str.enc, inb, err)) {
         errs.append(tag, ftag, err);
+        return false;
+    }
+
+    return true;
+}
+
+//@brief Try read encoded string from JSON. JSON can contain encoded string named by ftag
+// or BE encoded string, then ftag only used in error text
+//@param j nlohmann::json containing encoded string object OR encoded string object itself
+//@param ftag std::string naming encoded string in j or just used in error text
+//@param &str out encoded string
+//@param Err class object for errors output
+bool
+Section::tryDecodeStr(nlohmann::json j, std::string ftag, encodedStr &str, Errs &errs) {
+    std::string err;
+
+    // j contains encoded string root
+    if (j.contains(ftag)) {
+        json jval = j[ftag];
+        if (!tryParseFieldJSON_encStr(jval, str, err)) {
+            errs.append(tag, ftag, err);
+            return false;
+        }
+    }
+
+    // j IS encoded string root
+    if (!tryParseFieldJSON_encStr(j, str, err)) {
+        errs.append(tag, ftag, "field is missing");
         return false;
     }
 

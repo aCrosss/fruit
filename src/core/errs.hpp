@@ -7,7 +7,7 @@
 typedef std::tuple<std::string, std::string, std::string> error;
 typedef std::vector<error>                                errors;
 
-class FRU_errs {
+class Errs {
   private:
     errors errs;
 
@@ -16,6 +16,6 @@ class FRU_errs {
     errors      getSectionErrs(std::string section);
     std::string getPlainText();
 
-    FRU_errs();
-    ~FRU_errs();
+    Errs();
+    ~Errs();
 };

@@ -2,22 +2,6 @@
 
 #include "scnChassis.hpp"
 
-// nlohmann::json j, FRU_errs &errs and std::string err must be provided
-#define TRY_PARSE_ENC_STR(ftag, field)                     \
-    if (j.contains(ftag)) {                                \
-        json jval = j[ftag];                               \
-        if (!tryParseFieldJSON_encStr(jval, field, err)) { \
-            valid = false;                                 \
-            errs.append(tag, ftag, err);                   \
-            err.clear();                                   \
-        }                                                  \
-    } else {                                               \
-        std::stringstream s;                               \
-        s << "field '" << ftag << "' is missing";          \
-        errs.append(tag, ftag, s.str());                   \
-        valid = false;                                     \
-    }
-
 void
 debug_printEncStr(std::string tag, encodedStr str) {
     std::cout << tag << " {data=\'" << str.str << "'"
@@ -52,15 +36,23 @@ scnChassis::validate() {
 //    ##        ##     ## ##     ##  ######  #### ##    ##  ######
 
 bool
-scnChassis::tryParseJSON(nlohmann::json j, FRU_errs &errs) {
+scnChassis::tryParseJSON(nlohmann::json j, Errs &errs) {
     clear();
 
     std::string err;
     bool        valid = true;
 
-    TRY_PARSE_ENC_STR("type", type)
-    TRY_PARSE_ENC_STR("part_number", part_number)
-    TRY_PARSE_ENC_STR("serial_number", serial_number)
+    if (!tryDecodeStr(j, "type", type, errs)) {
+        valid = false;
+    }
+
+    if (!tryDecodeStr(j, "part_number", part_number, errs)) {
+        valid = false;
+    }
+
+    if (!tryDecodeStr(j, "serial_number", serial_number, errs)) {
+        valid = false;
+    }
 
     // custom field is optional
     if (!j.contains("custom")) {
@@ -78,12 +70,11 @@ scnChassis::tryParseJSON(nlohmann::json j, FRU_errs &errs) {
     for (size_t i = 0; i < jarray.size(); i++) {
         json       jentry = jarray[i];
         encodedStr estr;
-        if (!tryParseFieldJSON_encStr(jentry, estr, err)) {
+
+        std::stringstream s;
+        s << "custom[" << i << "]";
+        if (!tryDecodeStr(jentry, s.str(), estr, errs)) {
             valid = false;
-            std::stringstream s;
-            s << "custom[" << i << "]";
-            errs.append(tag, s.str(), err);
-            err.clear();
             continue;
         }
 
@@ -100,7 +91,7 @@ scnChassis::tryParseTOML() {
 }
 
 bool
-scnChassis::tryParseBinary(bytes::iterator in_bin, FRU_errs &errs) {
+scnChassis::tryParseBinary(bytes::iterator in_bin, Errs &errs) {
     clear();
 
     bytes::iterator begin = in_bin;
@@ -117,14 +108,14 @@ scnChassis::tryParseBinary(bytes::iterator in_bin, FRU_errs &errs) {
         return false;
     }
 
-    if (!tryDecodeStr("type", type, ++in_bin, errs)) {
+    if (!tryDecodeStr(++in_bin, "type", type, errs)) {
         return false;
     }
-    if (!tryDecodeStr("part_number", part_number, in_bin, errs)) {
+    if (!tryDecodeStr(in_bin, "part_number", part_number, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr("serial_number", serial_number, in_bin, errs)) {
+    if (!tryDecodeStr(in_bin, "serial_number", serial_number, errs)) {
         return false;
     }
 
@@ -134,7 +125,7 @@ scnChassis::tryParseBinary(bytes::iterator in_bin, FRU_errs &errs) {
         std::stringstream s;
         s << "custom[" << i++ << "]";
 
-        if (!tryDecodeStr(s.str(), es, in_bin, errs)) {
+        if (!tryDecodeStr(in_bin, s.str(), es, errs)) {
             return false;
         }
 
@@ -163,7 +154,7 @@ scnChassis::emitTOML() {
 }
 
 bool
-scnChassis::emitBinary(bytes &out_bin, FRU_errs &errs) {
+scnChassis::emitBinary(bytes &out_bin, Errs &errs) {
     bytes bs;
 
     std::string err;
