@@ -15,6 +15,15 @@ using namespace nlohmann;
 typedef std::vector<json>              jarray;
 typedef std::variant<int, std::string> fieldVal;
 
+enum Areas {
+    AREA_COMMON_HEADER,
+    AREA_INTERNAL_USE,
+    AREA_CHASSIS_INFO,
+    AREA_BOARD_INFO,
+    AREA_PRODUCT_INFO,
+    AREA_MULTIRECORD,
+};
+
 struct encodedStr {
     std::string str;
     Encoding    enc;
@@ -40,6 +49,8 @@ class Section {
     bool tryParseFieldJSON_encStr(json j, encodedStr &val, std::string &err);
 
   public:
+    std::string getTag();
+
     virtual bool validate() = 0; // MAYBE UNUSED
 
     virtual bool tryParseJSON(nlohmann::json j, Errs &errs)         = 0;

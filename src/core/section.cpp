@@ -10,6 +10,11 @@
 //    ##     ##  ##  ##    ## ##    ##
 //    ##     ## ####  ######   ######
 
+std::string
+Section::getTag() {
+    return tag;
+}
+
 bool
 Section::tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs) {
     std::string err;
@@ -66,6 +71,8 @@ Section::tryDecodeStr(nlohmann::json j, std::string ftag, encodedStr &str, Errs 
             errs.append(tag, ftag, err);
             return false;
         }
+
+        return true;
     }
 
     // j IS encoded string root
