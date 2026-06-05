@@ -14,12 +14,11 @@ class Manager {
 
   public:
     bool loadJSON(std::string path, nlohmann::json &j, std::string &err);
-    // TODO: TOML
+    bool loadTOML(std::string path, toml::value &t, std::string &err);
     bool loadBinary(std::string path, bytes &bs, std::string &err);
 
     bool parseJSON(nlohmann::json &j, Errs &errs);
-    //
-    // TODO: TOML
+    bool parseTOML(toml::value &t, Errs &errs);
     bool parseBinary(bytes &bs, Errs &errs);
 
     bool saveJSON(std::string patch, Errs &errs);

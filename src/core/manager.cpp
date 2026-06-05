@@ -26,6 +26,27 @@ Manager::loadJSON(std::string path, nlohmann::json &j, std::string &err) {
 }
 
 bool
+Manager::loadTOML(std::string path, toml::value &t, std::string &err) {
+    std::stringstream s;
+
+    if (!std::filesystem::exists(path)) {
+        s << "file " << path << " doesn't exist";
+        err = s.str();
+        return false;
+    }
+
+    auto input = toml::try_parse(path);
+    if (!input.is_ok()) {
+        s << "failed to parse " << path << " as TOML file";
+        err = s.str();
+        return false;
+    }
+
+    t = input.unwrap();
+    return true;
+}
+
+bool
 Manager::loadBinary(std::string path, bytes &bs, std::string &err) {
     if (!std::filesystem::exists(path)) {
         std::stringstream s;
@@ -58,6 +79,19 @@ Manager::parseJSON(nlohmann::json &j, Errs &errs) {
 
     jarea = j[area->getTag()];
     return area->tryParseJSON(jarea, errs);
+}
+
+bool
+Manager::parseTOML(toml::value &t, Errs &errs) {
+    auto       &area = sections[0];
+    toml::value tarea;
+
+    if (!t.contains(area->getTag())) {
+        return false;
+    }
+
+    tarea = t.at(area->getTag());
+    return area->tryParseTOML(tarea, errs);
 }
 
 bool

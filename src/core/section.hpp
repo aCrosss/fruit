@@ -8,6 +8,7 @@
 #include "encoding.hpp"
 #include "errs.hpp"
 #include "json.hpp"
+#include "toml.hpp"
 #include "types.hpp"
 
 using namespace nlohmann;
@@ -35,9 +36,11 @@ class Section {
     std::string label;
     bool        present;
 
-    bool      tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs);
-    bool      tryDecodeStr(bytes::iterator &inb, std::string ftag, encodedStr &str, Errs &errs);
-    bool      tryDecodeStr(nlohmann::json j, std::string ftag, encodedStr &str, Errs &errs);
+    bool tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs);
+    bool tryDecodeStr(bytes::iterator &inb, std::string ftag, encodedStr &str, Errs &errs);
+    bool tryDecodeStr(nlohmann::json &j, std::string ftag, encodedStr &str, Errs &errs);
+    bool tryDecodeStr(toml::value &t, std::string ftag, encodedStr &str, Errs &errs);
+
     std::byte calcZeroChecksum(bytes bs);
     std::byte calcZeroChecksum(bytes::iterator begin, bytes::iterator end);
 
@@ -48,13 +51,20 @@ class Section {
     bool tryParseFieldJSON_str(json j, std::string &val, std::string &err);
     bool tryParseFieldJSON_encStr(json j, encodedStr &val, std::string &err);
 
+    bool tryParseFieldTOML_bool(toml::value t, bool &val, std::string &err);
+    bool tryParseFieldTOML_int(toml::value t, int &val, std::string &err);
+    bool tryParseFieldTOML_table(toml::value t, toml::value &val, std::string &err);
+    bool tryParseFieldTOML_arr(toml::value t, toml::value &val, std::string &err);
+    bool tryParseFieldTOML_str(toml::value t, std::string &val, std::string &err);
+    bool tryParseFieldTOML_encStr(toml::value t, encodedStr &val, std::string &err);
+
   public:
     std::string getTag();
 
     virtual bool validate() = 0; // MAYBE UNUSED
 
     virtual bool tryParseJSON(nlohmann::json j, Errs &errs)         = 0;
-    virtual bool tryParseTOML()                                     = 0;
+    virtual bool tryParseTOML(toml::value &t, Errs &errs)           = 0;
     virtual bool tryParseBinary(bytes::iterator in_bin, Errs &errs) = 0;
 
     virtual void emitJSON(nlohmann::json &j)            = 0;

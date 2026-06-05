@@ -56,12 +56,12 @@ Section::tryDecodeStr(bytes::iterator &inb, std::string ftag, encodedStr &str, E
 
 //@brief Try read encoded string from JSON. JSON can contain encoded string named by ftag
 // or BE encoded string, then ftag only used in error text
-//@param j nlohmann::json containing encoded string object OR encoded string object itself
+//@param &j nlohmann::json containing encoded string object OR encoded string object itself
 //@param ftag std::string naming encoded string in j or just used in error text
 //@param &str out encoded string
 //@param Err class object for errors output
 bool
-Section::tryDecodeStr(nlohmann::json j, std::string ftag, encodedStr &str, Errs &errs) {
+Section::tryDecodeStr(nlohmann::json &j, std::string ftag, encodedStr &str, Errs &errs) {
     std::string err;
 
     // j contains encoded string root
@@ -77,6 +77,36 @@ Section::tryDecodeStr(nlohmann::json j, std::string ftag, encodedStr &str, Errs 
 
     // j IS encoded string root
     if (!tryParseFieldJSON_encStr(j, str, err)) {
+        errs.append(tag, ftag, "field is missing");
+        return false;
+    }
+
+    return true;
+}
+
+//@brief Try read encoded string from TOML. TOML can contain encoded string named by ftag
+// or BE encoded string, then ftag only used in error text
+//@param &t toml::value containing encoded string object OR encoded string object itself
+//@param ftag std::string naming encoded string in j or just used in error text
+//@param &str out encoded string
+//@param Err class object for errors output
+bool
+Section::tryDecodeStr(toml::value &t, std::string ftag, encodedStr &str, Errs &errs) {
+    std::string err;
+
+    // j contains encoded string root
+    if (t.contains(ftag)) {
+        auto val = t.at(ftag);
+        if (!tryParseFieldTOML_encStr(val, str, err)) {
+            errs.append(tag, ftag, err);
+            return false;
+        }
+
+        return true;
+    }
+
+    // j IS encoded string root
+    if (!tryParseFieldTOML_encStr(t, str, err)) {
         errs.append(tag, ftag, "field is missing");
         return false;
     }
@@ -251,6 +281,118 @@ Section::tryParseFieldJSON_encStr(json j, encodedStr &val, std::string &err) {
 
     val.enc = encoding_map.at(enc_str);
     val.str = j["data"].get<std::string>();
+
+    return true;
+}
+
+//    ########  #######  ##     ## ##          ########  ########   ######  ########
+//       ##    ##     ## ###   ### ##          ##     ## ##     ## ##    ## ##     ##
+//       ##    ##     ## #### #### ##          ##     ## ##     ## ##       ##     ##
+//       ##    ##     ## ## ### ## ##          ########  ########   ######  ########
+//       ##    ##     ## ##     ## ##          ##        ##   ##         ## ##   ##
+//       ##    ##     ## ##     ## ##          ##        ##    ##  ##    ## ##    ##
+//       ##     #######  ##     ## ########    ##        ##     ##  ######  ##     ##
+
+bool
+Section::tryParseFieldTOML_bool(toml::value t, bool &val, std::string &err) {
+    std::stringstream s;
+
+    if (!t.is_boolean()) {
+        s << "have invalid type: expected boolean";
+        err += s.str();
+        return false;
+    }
+
+    val = t.as_boolean();
+    return true;
+}
+
+bool
+Section::tryParseFieldTOML_int(toml::value t, int &val, std::string &err) {
+    std::stringstream s;
+
+    if (!t.is_integer()) {
+        s << "have invalid type: expected integer";
+        err += s.str();
+        return false;
+    }
+
+    val = t.as_integer();
+    return true;
+}
+
+bool
+Section::tryParseFieldTOML_table(toml::value t, toml::value &val, std::string &err) {
+    std::stringstream s;
+
+    if (!t.is_table()) {
+        s << "have invalid type: expected TOML table";
+        err += s.str();
+        return false;
+    }
+
+    val = t.as_table();
+    return true;
+}
+
+bool
+Section::tryParseFieldTOML_arr(toml::value t, toml::value &val, std::string &err) {
+    std::stringstream s;
+
+    if (!t.is_array()) {
+        s << "have invalid type: expected TOML array";
+        err += s.str();
+        return false;
+    }
+
+    val = t.as_array();
+    return true;
+}
+
+bool
+Section::tryParseFieldTOML_str(toml::value t, std::string &val, std::string &err) {
+    std::stringstream s;
+
+    if (!t.is_string()) {
+        s << "have invalid type: expected string";
+        err += s.str();
+        return false;
+    }
+
+    val = t.as_string();
+    return true;
+}
+
+bool
+Section::tryParseFieldTOML_encStr(toml::value t, encodedStr &val, std::string &err) {
+    std::stringstream s;
+
+    if (!t.is_table() || !t.contains("type") || !t.contains("data")) {
+        if (!t["type"].is_string() || !t["data"].is_string()) {
+            s << "have invalid type: expected TOML table:";
+            s << std::endl << "..." << std::endl;
+            s << tag << ": { ";
+            s << "type: \"<binary|bcdp|ascii6bit|langcode>\", ";
+            s << "data: \"<data string>\" ";
+            s << "}" << std::endl;
+            s << "...";
+
+            err += s.str();
+            return false;
+        }
+    }
+
+    std::string enc_str;
+    enc_str = toml::find<std::string>(t, "type");
+    if (encoding_map.find(enc_str) == encoding_map.end()) {
+        s << "invalid encoding type " << enc_str << " ";
+        s << "expected <binary|bcdp|ascii6bit|langcode>";
+        err += s.str();
+        return false;
+    }
+
+    val.enc = encoding_map.at(enc_str);
+    val.str = toml::find<std::string>(t, "data");
 
     return true;
 }

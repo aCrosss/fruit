@@ -86,8 +86,53 @@ AreaChassis::tryParseJSON(nlohmann::json j, Errs &errs) {
 }
 
 bool
-AreaChassis::tryParseTOML() {
-    return false;
+AreaChassis::tryParseTOML(toml::value &t, Errs &errs) {
+    clear();
+
+    std::string err;
+    bool        valid = true;
+
+    if (!tryDecodeStr(t, "type", type, errs)) {
+        valid = false;
+    }
+
+    if (!tryDecodeStr(t, "part_number", part_number, errs)) {
+        valid = false;
+    }
+
+    if (!tryDecodeStr(t, "serial_number", serial_number, errs)) {
+        valid = false;
+    }
+
+    // custom field is optional
+    if (!t.contains("custom")) {
+        debug_printOutVals();
+        return valid;
+    }
+
+    toml::value tarray;
+    if (!tryParseFieldTOML_arr(t.at("custom"), tarray, err)) {
+        errs.append(tag, "custom", err);
+        err.clear();
+    }
+
+    std::cout << err << std::endl;
+    for (size_t i = 0; i < tarray.size(); i++) {
+        toml::value tentry = toml::find<toml::table>(tarray, i);
+        encodedStr  estr;
+
+        std::stringstream s;
+        s << "custom[" << i << "]";
+        if (!tryDecodeStr(tentry, s.str(), estr, errs)) {
+            valid = false;
+            continue;
+        }
+
+        custom.emplace_back(estr);
+    }
+
+    debug_printOutVals();
+    return valid;
 }
 
 bool
