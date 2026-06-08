@@ -3,7 +3,7 @@
 
 #include "manager.hpp"
 
-#include "areaChassis.hpp"
+#include "areas/areaChassis.hpp"
 
 void
 Manager::initSections() {
