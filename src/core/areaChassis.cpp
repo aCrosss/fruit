@@ -22,9 +22,18 @@ AreaChassis::debug_printOutVals() {
     }
 }
 
-bool
-AreaChassis::validate() {
-    return true;
+void
+AreaChassis::clear() {
+    type.str.clear();
+    type.enc = ENCODING_BINARY_UNSPEC;
+
+    part_number.str.clear();
+    part_number.enc = ENCODING_BINARY_UNSPEC;
+
+    serial_number.str.clear();
+    serial_number.enc = ENCODING_BINARY_UNSPEC;
+
+    custom.clear();
 }
 
 //    ########     ###    ########   ######  #### ##    ##  ######
@@ -240,8 +249,8 @@ AreaChassis::emitBinary(bytes &out_bin, Errs &errs) {
         return false;
     }
 
-    uchar length = 1 /*header byte*/ + 1 /*length*/ + type_bs.size() + part_number_bs.size() +
-                   serial_number_bs.size() + custom_bs.size() + 1 /*end of fields*/ + 1 /*crc*/;
+    uchar length = const_len + type_bs.size() + part_number_bs.size() +
+                   serial_number_bs.size() + custom_bs.size();
     // total length
     uchar total  = length / 8 + 1;
     // byte count of zero filled unused space
@@ -275,25 +284,6 @@ AreaChassis::emitBinary(bytes &out_bin, Errs &errs) {
 //     ##  ##  ####  ##     ##
 //     ##  ##   ###  ##     ##
 //    #### ##    ## ####    ##
-
-size_t
-AreaChassis::getByteLen() {
-    return 0;
-}
-
-void
-AreaChassis::clear() {
-    type.str.clear();
-    type.enc = ENCODING_BINARY_UNSPEC;
-
-    part_number.str.clear();
-    part_number.enc = ENCODING_BINARY_UNSPEC;
-
-    serial_number.str.clear();
-    serial_number.enc = ENCODING_BINARY_UNSPEC;
-
-    custom.clear();
-}
 
 AreaChassis::AreaChassis(/* args */) : Section("chassis", "Chassis Info Area") {
     //

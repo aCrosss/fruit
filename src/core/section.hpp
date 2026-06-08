@@ -36,6 +36,8 @@ class Section {
     std::string label;
     bool        present;
 
+    virtual void clear() = 0;
+
     bool tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs);
     bool tryDecodeStr(bytes::iterator &inb, std::string ftag, encodedStr &str, Errs &errs);
     bool tryDecodeStr(nlohmann::json &j, std::string ftag, encodedStr &str, Errs &errs);
@@ -61,8 +63,6 @@ class Section {
   public:
     std::string getTag();
 
-    virtual bool validate() = 0; // MAYBE UNUSED
-
     virtual bool tryParseJSON(nlohmann::json j, Errs &errs)         = 0;
     virtual bool tryParseTOML(toml::value &t, Errs &errs)           = 0;
     virtual bool tryParseBinary(bytes::iterator in_bin, Errs &errs) = 0;
@@ -70,9 +70,6 @@ class Section {
     virtual void emitJSON(nlohmann::json &j)            = 0;
     virtual void emitTOML()                             = 0;
     virtual bool emitBinary(bytes &out_bin, Errs &errs) = 0;
-
-    virtual size_t getByteLen() = 0; // MAYBE UNUSED
-    virtual void   clear()      = 0;
 
     Section(std::string tag, std::string label);
     ~Section();

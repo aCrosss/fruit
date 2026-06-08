@@ -4,6 +4,9 @@
 
 class AreaChassis : public Section {
   private:
+    // 1 header byte + 1 length byte + 1 end of fields byte + 1 checkusm byte
+    uchar const_len = 4;
+
     encodedStr              type;
     encodedStr              part_number;
     encodedStr              serial_number;
@@ -13,7 +16,7 @@ class AreaChassis : public Section {
     void debug_printOutVals();
 
   public:
-    bool validate() override;
+    void clear() override;
 
     bool tryParseJSON(nlohmann::json j, Errs &errs) override;
     bool tryParseTOML(toml::value &t, Errs &errs) override;
@@ -22,9 +25,6 @@ class AreaChassis : public Section {
     void emitJSON(nlohmann::json &j) override;
     void emitTOML() override;
     bool emitBinary(bytes &out_bin, Errs &errs) override;
-
-    size_t getByteLen() override;
-    void   clear() override;
 
     AreaChassis(/* args */);
     ~AreaChassis();
