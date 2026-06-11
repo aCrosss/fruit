@@ -10,6 +10,8 @@
 
 #define END_OF_FIELDS_BYTE std::byte{0xC1}
 
+#define LANG_CODE_CAP 136 // Zulu!
+
 typedef unsigned char          uchar;
 typedef std::vector<std::byte> bytes;
 

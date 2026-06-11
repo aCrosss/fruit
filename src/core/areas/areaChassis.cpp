@@ -10,6 +10,7 @@ debug_printEncStr(std::string tag, encodedStr str) {
 
 void
 AreaChassis::debug_printOutVals() {
+    std::cout << "=== " << label << " ===" << std::endl;
     debug_printEncStr("type", type);
     debug_printEncStr("part_number", part_number);
     debug_printEncStr("serial_number", serial_number);
@@ -151,7 +152,7 @@ AreaChassis::tryParseBinary(bytes::iterator in_bin, Errs &errs) {
     bytes::iterator begin = in_bin;
 
     // get area length byte at index 1
-    uchar length = static_cast<uchar>(*(++in_bin)) * 8;
+    uchar length = static_cast<uchar>(*(++in_bin));
 
     uchar checksum     = static_cast<uchar>(*(begin + length - 1));
     uchar checksum_rec = static_cast<uchar>(calcZeroChecksum(begin, begin + length - 1));
@@ -165,6 +166,7 @@ AreaChassis::tryParseBinary(bytes::iterator in_bin, Errs &errs) {
     if (!tryDecodeStr(++in_bin, "type", type, errs)) {
         return false;
     }
+
     if (!tryDecodeStr(in_bin, "part_number", part_number, errs)) {
         return false;
     }
