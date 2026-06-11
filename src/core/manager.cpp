@@ -3,11 +3,15 @@
 
 #include "manager.hpp"
 
+// clang-format off
 #include "areas/areaChassis.hpp"
+#include "areas/areaBoard.hpp"
+// clang-format on
 
 void
 Manager::initSections() {
     sections.push_back(std::make_unique<AreaChassis>());
+    sections.push_back(std::make_unique<AreaBoard>());
 }
 
 bool
@@ -70,15 +74,22 @@ Manager::loadBinary(std::string path, bytes &bs, std::string &err) {
 bool
 Manager::parseJSON(nlohmann::json &j, Errs &errs) {
     // TODO: add proper sections parsing loop
-    auto          &area = sections[0];
-    nlohmann::json jarea;
+    // auto          &area = sections[0];
+    bool valid = true;
 
-    if (!j.contains(area->getTag())) {
-        return false;
+    for (auto &&area : sections) {
+        if (!j.contains(area->getTag())) {
+            std::cout << "> area " << area->getTag() << " not present";
+            continue;
+        }
+
+        nlohmann::json jarea = j[area->getTag()];
+        if (!area->tryParseJSON(jarea, errs)) {
+            valid = false;
+        }
     }
 
-    jarea = j[area->getTag()];
-    return area->tryParseJSON(jarea, errs);
+    return valid;
 }
 
 bool
@@ -110,14 +121,14 @@ Manager::saveBinary(std::string path, Errs &errs) {
     bytes bs;
     bool  valid = true;
 
-    auto &area = sections[0];
-    bytes out_bin;
+    for (auto &&area : sections) {
+        bytes out_bin;
 
-    if (!area->emitBinary(out_bin, errs)) {
-        // TODO: redo to actualu use common header offsets
-        valid = false;
-    } else {
-        bs.insert(bs.end(), out_bin.begin(), out_bin.end());
+        if (!area->emitBinary(out_bin, errs)) {
+            valid = false;
+        } else {
+            bs.insert(bs.end(), out_bin.begin(), out_bin.end());
+        }
     }
 
     if (valid) {
