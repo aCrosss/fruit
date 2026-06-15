@@ -18,6 +18,8 @@ class AreaChassis : public Section {
   public:
     void clear() override;
 
+    template <typename T>
+    bool tryParseImpl(T v, Errs &errs);
     bool tryParseJSON(nlohmann::json j, Errs &errs) override;
     bool tryParseTOML(toml::value &t, Errs &errs) override;
     bool tryParseBinary(bytes::iterator in_bin, Errs &errs) override;

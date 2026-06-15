@@ -45,45 +45,43 @@ AreaChassis::clear() {
 //    ##        ##     ## ##    ##  ##    ##  ##  ##   ### ##    ##
 //    ##        ##     ## ##     ##  ######  #### ##    ##  ######
 
-bool
-AreaChassis::tryParseJSON(nlohmann::json j, Errs &errs) {
-    clear();
-
+template <typename T>
+inline bool
+AreaChassis::tryParseImpl(T v, Errs &errs) {
     std::string err;
     bool        valid = true;
 
-    if (!tryDecodeStr(j, "type", type, errs)) {
+    if (!tryDecodeStr(v, "type", type, errs)) {
         valid = false;
     }
 
-    if (!tryDecodeStr(j, "part_number", part_number, errs)) {
+    if (!tryDecodeStr(v, "part_number", part_number, errs)) {
         valid = false;
     }
 
-    if (!tryDecodeStr(j, "serial_number", serial_number, errs)) {
+    if (!tryDecodeStr(v, "serial_number", serial_number, errs)) {
         valid = false;
     }
 
     // custom field is optional
-    if (!j.contains("custom")) {
+    if (!v.contains("custom")) {
         debug_printOutVals();
         return valid;
     }
 
-    jarray jarray;
-    if (!tryParseFieldJSON_arr(j["custom"], jarray, err)) {
+    T array;
+    if (!tryParseField_arr(v["custom"], array, err)) {
         errs.append(tag, "custom", err);
         err.clear();
     }
 
-    std::cout << err << std::endl;
-    for (size_t i = 0; i < jarray.size(); i++) {
-        json       jentry = jarray[i];
+    for (size_t i = 0; i < array.size(); i++) {
+        T          entry = array[i];
         encodedStr estr;
 
         std::stringstream s;
         s << "custom[" << i << "]";
-        if (!tryDecodeStr(jentry, s.str(), estr, errs)) {
+        if (!tryDecodeStr(entry, s.str(), estr, errs)) {
             valid = false;
             continue;
         }
@@ -96,53 +94,17 @@ AreaChassis::tryParseJSON(nlohmann::json j, Errs &errs) {
 }
 
 bool
+AreaChassis::tryParseJSON(nlohmann::json j, Errs &errs) {
+    clear();
+
+    return tryParseImpl(j, errs);
+}
+
+bool
 AreaChassis::tryParseTOML(toml::value &t, Errs &errs) {
     clear();
 
-    std::string err;
-    bool        valid = true;
-
-    if (!tryDecodeStr(t, "type", type, errs)) {
-        valid = false;
-    }
-
-    if (!tryDecodeStr(t, "part_number", part_number, errs)) {
-        valid = false;
-    }
-
-    if (!tryDecodeStr(t, "serial_number", serial_number, errs)) {
-        valid = false;
-    }
-
-    // custom field is optional
-    if (!t.contains("custom")) {
-        debug_printOutVals();
-        return valid;
-    }
-
-    toml::value tarray;
-    if (!tryParseFieldTOML_arr(t.at("custom"), tarray, err)) {
-        errs.append(tag, "custom", err);
-        err.clear();
-    }
-
-    std::cout << err << std::endl;
-    for (size_t i = 0; i < tarray.size(); i++) {
-        toml::value tentry = toml::find<toml::table>(tarray, i);
-        encodedStr  estr;
-
-        std::stringstream s;
-        s << "custom[" << i << "]";
-        if (!tryDecodeStr(tentry, s.str(), estr, errs)) {
-            valid = false;
-            continue;
-        }
-
-        custom.emplace_back(estr);
-    }
-
-    debug_printOutVals();
-    return valid;
+    return tryParseImpl(t, errs);
 }
 
 bool

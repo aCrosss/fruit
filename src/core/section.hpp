@@ -2,6 +2,7 @@
 
 #include <string>
 #include <tuple>
+#include <type_traits>
 #include <unordered_map>
 #include <variant>
 
@@ -46,19 +47,19 @@ class Section {
     std::byte calcZeroChecksum(bytes bs);
     std::byte calcZeroChecksum(bytes::iterator begin, bytes::iterator end);
 
-    bool tryParseFieldJSON_bool(json j, bool &val, std::string &err);
-    bool tryParseFieldJSON_int(json j, int &val, std::string &err);
-    bool tryParseFieldJSON_obj(json j, json &val, std::string &err);
-    bool tryParseFieldJSON_arr(json j, jarray &val, std::string &err);
-    bool tryParseFieldJSON_str(json j, std::string &val, std::string &err);
-    bool tryParseFieldJSON_encStr(json j, encodedStr &val, std::string &err);
+    bool tryParseField_bool(json j, bool &val, std::string &err);
+    bool tryParseField_int(json j, int &val, std::string &err);
+    bool tryParseField_obj(json j, json &val, std::string &err);
+    bool tryParseField_arr(json j, json &val, std::string &err);
+    bool tryParseField_str(json j, std::string &val, std::string &err);
+    bool tryParseField_encStr(json j, encodedStr &val, std::string &err);
 
-    bool tryParseFieldTOML_bool(toml::value t, bool &val, std::string &err);
-    bool tryParseFieldTOML_int(toml::value t, int &val, std::string &err);
-    bool tryParseFieldTOML_table(toml::value t, toml::value &val, std::string &err);
-    bool tryParseFieldTOML_arr(toml::value t, toml::value &val, std::string &err);
-    bool tryParseFieldTOML_str(toml::value t, std::string &val, std::string &err);
-    bool tryParseFieldTOML_encStr(toml::value t, encodedStr &val, std::string &err);
+    bool tryParseField_bool(toml::value t, bool &val, std::string &err);
+    bool tryParseField_int(toml::value t, int &val, std::string &err);
+    bool tryParseField_obj(toml::value t, toml::value &val, std::string &err);
+    bool tryParseField_arr(toml::value t, toml::value &val, std::string &err);
+    bool tryParseField_str(toml::value t, std::string &val, std::string &err);
+    bool tryParseField_encStr(toml::value t, encodedStr &val, std::string &err);
 
   public:
     std::string getTag();

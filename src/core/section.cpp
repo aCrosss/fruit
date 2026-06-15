@@ -67,7 +67,7 @@ Section::tryDecodeStr(nlohmann::json &j, std::string ftag, encodedStr &str, Errs
     // j contains encoded string root
     if (j.contains(ftag)) {
         json jval = j[ftag];
-        if (!tryParseFieldJSON_encStr(jval, str, err)) {
+        if (!tryParseField_encStr(jval, str, err)) {
             errs.append(tag, ftag, err);
             return false;
         }
@@ -76,7 +76,7 @@ Section::tryDecodeStr(nlohmann::json &j, std::string ftag, encodedStr &str, Errs
     }
 
     // j IS encoded string root
-    if (!tryParseFieldJSON_encStr(j, str, err)) {
+    if (!tryParseField_encStr(j, str, err)) {
         errs.append(tag, ftag, "field is missing");
         return false;
     }
@@ -97,7 +97,7 @@ Section::tryDecodeStr(toml::value &t, std::string ftag, encodedStr &str, Errs &e
     // j contains encoded string root
     if (t.contains(ftag)) {
         auto val = t.at(ftag);
-        if (!tryParseFieldTOML_encStr(val, str, err)) {
+        if (!tryParseField_encStr(val, str, err)) {
             errs.append(tag, ftag, err);
             return false;
         }
@@ -106,7 +106,7 @@ Section::tryDecodeStr(toml::value &t, std::string ftag, encodedStr &str, Errs &e
     }
 
     // j IS encoded string root
-    if (!tryParseFieldTOML_encStr(t, str, err)) {
+    if (!tryParseField_encStr(t, str, err)) {
         errs.append(tag, ftag, "field is missing");
         return false;
     }
@@ -158,7 +158,7 @@ Section::calcZeroChecksum(bytes::iterator begin, bytes::iterator end) {
 //@param val output bool value
 //@param err output error string
 bool
-Section::tryParseFieldJSON_bool(json j, bool &val, std::string &err) {
+Section::tryParseField_bool(json j, bool &val, std::string &err) {
     std::stringstream s;
 
     if (!j.is_boolean()) {
@@ -177,7 +177,7 @@ Section::tryParseFieldJSON_bool(json j, bool &val, std::string &err) {
 //@param val output int value
 //@param err output error string
 bool
-Section::tryParseFieldJSON_int(json j, int &val, std::string &err) {
+Section::tryParseField_int(json j, int &val, std::string &err) {
     std::stringstream s;
 
     if (!j.is_number_integer()) {
@@ -196,7 +196,7 @@ Section::tryParseFieldJSON_int(json j, int &val, std::string &err) {
 //@param val output nlohmann::json value
 //@param err output error string
 bool
-Section::tryParseFieldJSON_obj(json j, json &val, std::string &err) {
+Section::tryParseField_obj(json j, json &val, std::string &err) {
     std::stringstream s;
 
     if (!j.is_object()) {
@@ -215,7 +215,7 @@ Section::tryParseFieldJSON_obj(json j, json &val, std::string &err) {
 //@param val output std::vector<nlohmann::json> value
 //@param err output error string
 bool
-Section::tryParseFieldJSON_arr(json j, jarray &val, std::string &err) {
+Section::tryParseField_arr(json j, json &val, std::string &err) {
     std::stringstream s;
 
     if (!j.is_array()) {
@@ -224,7 +224,7 @@ Section::tryParseFieldJSON_arr(json j, jarray &val, std::string &err) {
         return false;
     }
 
-    val = j.get<jarray>();
+    val = j.get<nlohmann::json::array_t>();
     return true;
 }
 
@@ -234,7 +234,7 @@ Section::tryParseFieldJSON_arr(json j, jarray &val, std::string &err) {
 //@param val output std::string value
 //@param err output error string
 bool
-Section::tryParseFieldJSON_str(json j, std::string &val, std::string &err) {
+Section::tryParseField_str(json j, std::string &val, std::string &err) {
     std::stringstream s;
 
     if (!j.is_string()) {
@@ -253,7 +253,7 @@ Section::tryParseFieldJSON_str(json j, std::string &val, std::string &err) {
 //@param val output encodedStr value
 //@param err output error string
 bool
-Section::tryParseFieldJSON_encStr(json j, encodedStr &val, std::string &err) {
+Section::tryParseField_encStr(json j, encodedStr &val, std::string &err) {
     std::stringstream s;
 
     if (!j.is_object() || !j.contains("type") || !j.contains("data")) {
@@ -294,7 +294,7 @@ Section::tryParseFieldJSON_encStr(json j, encodedStr &val, std::string &err) {
 //       ##     #######  ##     ## ########    ##        ##     ##  ######  ##     ##
 
 bool
-Section::tryParseFieldTOML_bool(toml::value t, bool &val, std::string &err) {
+Section::tryParseField_bool(toml::value t, bool &val, std::string &err) {
     std::stringstream s;
 
     if (!t.is_boolean()) {
@@ -308,7 +308,7 @@ Section::tryParseFieldTOML_bool(toml::value t, bool &val, std::string &err) {
 }
 
 bool
-Section::tryParseFieldTOML_int(toml::value t, int &val, std::string &err) {
+Section::tryParseField_int(toml::value t, int &val, std::string &err) {
     std::stringstream s;
 
     if (!t.is_integer()) {
@@ -322,7 +322,7 @@ Section::tryParseFieldTOML_int(toml::value t, int &val, std::string &err) {
 }
 
 bool
-Section::tryParseFieldTOML_table(toml::value t, toml::value &val, std::string &err) {
+Section::tryParseField_obj(toml::value t, toml::value &val, std::string &err) {
     std::stringstream s;
 
     if (!t.is_table()) {
@@ -336,7 +336,7 @@ Section::tryParseFieldTOML_table(toml::value t, toml::value &val, std::string &e
 }
 
 bool
-Section::tryParseFieldTOML_arr(toml::value t, toml::value &val, std::string &err) {
+Section::tryParseField_arr(toml::value t, toml::value &val, std::string &err) {
     std::stringstream s;
 
     if (!t.is_array()) {
@@ -350,7 +350,7 @@ Section::tryParseFieldTOML_arr(toml::value t, toml::value &val, std::string &err
 }
 
 bool
-Section::tryParseFieldTOML_str(toml::value t, std::string &val, std::string &err) {
+Section::tryParseField_str(toml::value t, std::string &val, std::string &err) {
     std::stringstream s;
 
     if (!t.is_string()) {
@@ -364,7 +364,7 @@ Section::tryParseFieldTOML_str(toml::value t, std::string &val, std::string &err
 }
 
 bool
-Section::tryParseFieldTOML_encStr(toml::value t, encodedStr &val, std::string &err) {
+Section::tryParseField_encStr(toml::value t, encodedStr &val, std::string &err) {
     std::stringstream s;
 
     if (!t.is_table() || !t.contains("type") || !t.contains("data")) {

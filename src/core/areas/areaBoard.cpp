@@ -136,16 +136,15 @@ AreaBoard::debug_printOutVals() {
 //    ##        ##     ## ##    ##  ##    ##  ##  ##   ### ##    ##
 //    ##        ##     ## ##     ##  ######  #### ##    ##  ######
 
-bool
-AreaBoard::tryParseJSON(nlohmann::json j, Errs &errs) {
-    clear();
-
+template <typename T>
+inline bool
+AreaBoard::tryParseImpl(T v, Errs &errs) {
     std::string err;
     bool        valid = true;
 
-    if (j.contains("language_code")) {
-        nlohmann::json jv = j["language_code"];
-        if (tryParseFieldJSON_int(jv, language_code, err)) {
+    if (v.contains("language_code")) {
+        T lv = v["language_code"];
+        if (tryParseField_int(lv, language_code, err)) {
             if (language_code > 136) {
                 errs.append(tag, "language_code", "lanugage codes capped at 136");
                 valid = false;
@@ -157,9 +156,9 @@ AreaBoard::tryParseJSON(nlohmann::json j, Errs &errs) {
         errs.append(tag, "language_code", "field is missing");
     }
 
-    if (j.contains("date_time")) {
+    if (v.contains("date_time")) {
         std::string dtime_str;
-        if (tryParseFieldJSON_str(j["date_time"], dtime_str, err)) {
+        if (tryParseField_str(v["date_time"], dtime_str, err)) {
             date_time = parseDateTime(dtime_str, err);
             if (date_time < 0) {
                 valid = false;
@@ -173,42 +172,41 @@ AreaBoard::tryParseJSON(nlohmann::json j, Errs &errs) {
         errs.append(tag, "date_time", "field is missing");
     }
 
-    if (!tryDecodeStr(j, "manufacturer", manufacturer, errs)) {
+    if (!tryDecodeStr(v, "manufacturer", manufacturer, errs)) {
         valid = false;
     }
 
-    if (!tryDecodeStr(j, "product_name", product_name, errs)) {
+    if (!tryDecodeStr(v, "product_name", product_name, errs)) {
         valid = false;
     }
 
-    if (!tryDecodeStr(j, "serial_number", serial_number, errs)) {
+    if (!tryDecodeStr(v, "serial_number", serial_number, errs)) {
         valid = false;
     }
 
-    if (!tryDecodeStr(j, "file_id", file_id, errs)) {
+    if (!tryDecodeStr(v, "file_id", file_id, errs)) {
         valid = false;
     }
 
     // custom field is optional
-    if (!j.contains("custom")) {
+    if (!v.contains("custom")) {
         debug_printOutVals();
         return valid;
     }
 
-    jarray jarray;
-    if (!tryParseFieldJSON_arr(j["custom"], jarray, err)) {
+    T array;
+    if (!tryParseField_arr(v["custom"], array, err)) {
         errs.append(tag, "custom", err);
         err.clear();
     }
 
-    std::cout << err << std::endl;
-    for (size_t i = 0; i < jarray.size(); i++) {
-        json       jentry = jarray[i];
+    for (size_t i = 0; i < array.size(); i++) {
+        T          entry = array[i];
         encodedStr estr;
 
         std::stringstream s;
         s << "custom[" << i << "]";
-        if (!tryDecodeStr(jentry, s.str(), estr, errs)) {
+        if (!tryDecodeStr(entry, s.str(), estr, errs)) {
             valid = false;
             continue;
         }
@@ -220,106 +218,18 @@ AreaBoard::tryParseJSON(nlohmann::json j, Errs &errs) {
     return valid;
 }
 
-/*
-#define TRY_PARSE(func, val, ftag, field, body)
-    std::string err;
-    if (func(val, ftag, field, err))
-        body
-    else {
-        valid = false;
-        errs.append(tag, ftag, err);
-        err.clear();
-    }
+bool
+AreaBoard::tryParseJSON(nlohmann::json j, Errs &errs) {
+    clear();
 
-TRY_PARSE(tryParseField_int, t, "language_code", language_code, {
-    if (language_code > 136) {
-        err   = "lanugage codes capped at 136";
-        valid = false;
-    }
-})
-*/
+    return tryParseImpl(j, errs);
+}
 
 bool
 AreaBoard::tryParseTOML(toml::value &t, Errs &errs) {
     clear();
 
-    std::string err;
-    bool        valid = true;
-
-    if (t.contains("language_code")) {
-        if (tryParseFieldTOML_int(t, language_code, err)) {
-            if (language_code > 136) {
-                err   = "lanugage codes capped at 136";
-                valid = false;
-            }
-        } else {
-            valid = false;
-        }
-    } else {
-        errs.append(tag, "language_code", "field is missing");
-    }
-
-    if (t.contains("date_time")) {
-        std::string dtime_str;
-        if (tryParseFieldTOML_str(t.at("date_time"), dtime_str, err)) {
-            date_time = parseDateTime(dtime_str, err);
-            if (date_time < 0) {
-                valid = false;
-                errs.append(tag, "date_time", err);
-            }
-        } else {
-            valid = false;
-            errs.append(tag, "date_time", err);
-        }
-    } else {
-        errs.append(tag, "date_time", "field is missing");
-    }
-
-    if (!tryDecodeStr(t, "manufacturer", manufacturer, errs)) {
-        valid = false;
-    }
-
-    if (!tryDecodeStr(t, "product_name", product_name, errs)) {
-        valid = false;
-    }
-
-    if (!tryDecodeStr(t, "serial_number", serial_number, errs)) {
-        valid = false;
-    }
-
-    if (!tryDecodeStr(t, "file_id", file_id, errs)) {
-        valid = false;
-    }
-
-    // custom field is optional
-    if (!t.contains("custom")) {
-        debug_printOutVals();
-        return valid;
-    }
-
-    toml::value tarray;
-    if (!tryParseFieldTOML_arr(t.at("custom"), tarray, err)) {
-        errs.append(tag, "custom", err);
-        err.clear();
-    }
-
-    std::cout << err << std::endl;
-    for (size_t i = 0; i < tarray.size(); i++) {
-        toml::value tentry = toml::find<toml::table>(tarray, i);
-        encodedStr  estr;
-
-        std::stringstream s;
-        s << "custom[" << i << "]";
-        if (!tryDecodeStr(tentry, s.str(), estr, errs)) {
-            valid = false;
-            continue;
-        }
-
-        custom.emplace_back(estr);
-    }
-
-    debug_printOutVals();
-    return valid;
+    return tryParseImpl(t, errs);
 }
 
 bool
