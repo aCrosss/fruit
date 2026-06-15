@@ -108,20 +108,15 @@ AreaChassis::tryParseTOML(toml::value &t, Errs &errs) {
 }
 
 bool
-AreaChassis::tryParseBinary(bytes::iterator in_bin, Errs &errs) {
+AreaChassis::tryParseBinary(biterator in_bin, Errs &errs) {
     clear();
 
-    bytes::iterator begin = in_bin;
+    biterator begin = in_bin;
 
     // get area length byte at index 1
     uchar length = static_cast<uchar>(*(++in_bin));
 
-    uchar checksum     = static_cast<uchar>(*(begin + length - 1));
-    uchar checksum_rec = static_cast<uchar>(calcZeroChecksum(begin, begin + length - 1));
-    if (checksum != checksum_rec) {
-        std::cout << std::hex << checksum << std::endl;
-        std::cout << std::hex << checksum_rec << std::endl;
-        errs.append(tag, "common", "checksum is invalid");
+    if (!checkChecksums(begin + length - 1, begin, begin + length - 1, errs)) {
         return false;
     }
 

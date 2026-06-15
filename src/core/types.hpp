@@ -14,6 +14,7 @@
 
 typedef unsigned char          uchar;
 typedef std::vector<std::byte> bytes;
+typedef bytes::iterator        biterator;
 
 enum valType {
     VAL_TYPE_NONE,

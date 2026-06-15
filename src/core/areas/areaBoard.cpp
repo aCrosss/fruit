@@ -57,7 +57,7 @@ parseDateTime(std::string dtime, std::string &err) {
 //@param &err output error
 //@return minutes from 00:00 01-01-1996 or -1 on error
 int
-parseDateTime(bytes::iterator dtb, std::string &err) {
+parseDateTime(biterator dtb, std::string &err) {
     int dtime = 0;
 
     for (size_t i = 0; i < 3; i++) {
@@ -90,9 +90,9 @@ bool
 encodeDateTime(bytes &bs, int minutes, std::string &err) {
     std::byte b1, b2, b3;
 
-    b1 = std::byte{minutes >> 16 & 0xFF};
-    b2 = std::byte{minutes >> 8 & 0xFF};
-    b3 = std::byte{minutes >> 0 & 0xFF};
+    b1 = std::byte{static_cast<uchar>(minutes >> 16 & 0xFF)};
+    b2 = std::byte{static_cast<uchar>(minutes >> 8 & 0xFF)};
+    b3 = std::byte{static_cast<uchar>(minutes >> 0 & 0xFF)};
 
     bs.emplace_back(b1);
     bs.emplace_back(b2);
@@ -233,21 +233,15 @@ AreaBoard::tryParseTOML(toml::value &t, Errs &errs) {
 }
 
 bool
-AreaBoard::tryParseBinary(bytes::iterator in_bin, Errs &errs) {
+AreaBoard::tryParseBinary(biterator in_bin, Errs &errs) {
     clear();
 
-    bytes::iterator begin = in_bin;
+    biterator begin = in_bin;
 
     // get area length byte at index 1
     uchar length = static_cast<uchar>(*(++in_bin));
 
-    // TODO: Boilerplate code
-    uchar checksum     = static_cast<uchar>(*(begin + length - 1));
-    uchar checksum_rec = static_cast<uchar>(calcZeroChecksum(begin, begin + length - 1));
-    if (checksum != checksum_rec) {
-        std::cout << std::hex << checksum << std::endl;
-        std::cout << std::hex << checksum_rec << std::endl;
-        errs.append(tag, "common", "checksum is invalid");
+    if (!checkChecksums(begin + length - 1, begin, begin + length - 1, errs)) {
         return false;
     }
 

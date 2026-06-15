@@ -22,7 +22,7 @@ class AreaChassis : public Section {
     bool tryParseImpl(T v, Errs &errs);
     bool tryParseJSON(nlohmann::json j, Errs &errs) override;
     bool tryParseTOML(toml::value &t, Errs &errs) override;
-    bool tryParseBinary(bytes::iterator in_bin, Errs &errs) override;
+    bool tryParseBinary(biterator in_bin, Errs &errs) override;
 
     void emitJSON(nlohmann::json &j) override;
     void emitTOML() override;

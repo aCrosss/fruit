@@ -43,7 +43,7 @@ Section::tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs)
 //@param &str out encoded string
 //@param Err class object for errors output
 bool
-Section::tryDecodeStr(bytes::iterator &inb, std::string ftag, encodedStr &str, Errs &errs) {
+Section::tryDecodeStr(biterator &inb, std::string ftag, encodedStr &str, Errs &errs) {
     std::string err;
 
     if (!decode(str.str, str.enc, inb, err)) {
@@ -130,10 +130,10 @@ Section::calcZeroChecksum(bytes bs) {
 }
 
 std::byte
-Section::calcZeroChecksum(bytes::iterator begin, bytes::iterator end) {
+Section::calcZeroChecksum(biterator begin, biterator end) {
     uchar sum = 0;
 
-    for (bytes::iterator it = begin; it < end; it++) {
+    for (biterator it = begin; it < end; it++) {
         sum += static_cast<uchar>(*it);
     }
 
@@ -142,6 +142,20 @@ Section::calcZeroChecksum(bytes::iterator begin, bytes::iterator end) {
     } else {
         return std::byte{static_cast<uchar>(256 - sum)};
     }
+}
+
+bool
+Section::checkChecksums(biterator cs1p, biterator cs2beg, biterator cs2end, Errs &errs) {
+    uchar checksum     = static_cast<uchar>(*(cs1p));
+    uchar checksum_rec = static_cast<uchar>(calcZeroChecksum(cs2beg, cs2end));
+    if (checksum != checksum_rec) {
+        std::cout << std::hex << checksum << std::endl;
+        std::cout << std::hex << checksum_rec << std::endl;
+        errs.append(tag, "common", "checksum is invalid");
+        return false;
+    }
+
+    return true;
 }
 
 //          ##  ######   #######  ##    ##    ########  ########   ######  ########
