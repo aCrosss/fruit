@@ -14,6 +14,12 @@
 
 using namespace nlohmann;
 
+#define FILED_MISSING_GUARD(v)                      \
+    if (!v.contains(ftag)) {                        \
+        errs.append(tag, ftag, "field is missing"); \
+        return false;                               \
+    }
+
 typedef std::vector<json>              jarray;
 typedef std::variant<int, std::string> fieldVal;
 
@@ -41,26 +47,36 @@ class Section {
 
     bool tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs);
     bool tryDecodeStr(biterator &inb, std::string ftag, encodedStr &str, Errs &errs);
-    bool tryDecodeStr(nlohmann::json &j, std::string ftag, encodedStr &str, Errs &errs);
-    bool tryDecodeStr(toml::value &t, std::string ftag, encodedStr &str, Errs &errs);
 
     std::byte calcZeroChecksum(bytes bs);
     std::byte calcZeroChecksum(biterator begin, biterator end);
     bool      checkChecksums(biterator cs1p, biterator cs2beg, biterator cs2end, Errs &errs);
 
-    bool tryParseField_bool(json j, bool &val, std::string &err);
-    bool tryParseField_int(json j, int &val, std::string &err);
-    bool tryParseField_obj(json j, json &val, std::string &err);
-    bool tryParseField_arr(json j, json &val, std::string &err);
-    bool tryParseField_str(json j, std::string &val, std::string &err);
-    bool tryParseField_encStr(json j, encodedStr &val, std::string &err);
+    bool tryParseField_bool(json j, std::string ftag, bool &val, Errs &errs);
+    bool tryParseField_bool(toml::value t, std::string ftag, bool &val, Errs &errs);
 
-    bool tryParseField_bool(toml::value t, bool &val, std::string &err);
-    bool tryParseField_int(toml::value t, int &val, std::string &err);
-    bool tryParseField_obj(toml::value t, toml::value &val, std::string &err);
-    bool tryParseField_arr(toml::value t, toml::value &val, std::string &err);
-    bool tryParseField_str(toml::value t, std::string &val, std::string &err);
-    bool tryParseField_encStr(toml::value t, encodedStr &val, std::string &err);
+    bool tryParseField_int(json j, std::string ftag, int &val, Errs &errs);
+    bool tryParseField_int(toml::value t, std::string ftag, int &val, Errs &errs);
+
+    bool tryParseField_obj(json j, std::string ftag, json &val, Errs &errs);
+    bool tryParseField_obj(toml::value t, std::string ftag, toml::value &val, Errs &errs);
+
+    bool tryParseField_arr(json j, std::string ftag, json &val, Errs &errs);
+    bool tryParseField_arr(toml::value t, std::string ftag, toml::value &val, Errs &errs);
+
+    bool tryParseField_str(json j, std::string ftag, std::string &val, Errs &errs);
+    bool tryParseField_str(toml::value t, std::string ftag, std::string &val, Errs &errs);
+
+    template <typename T>
+    bool tryParseEncStrImpl(T v, std::string ftag, encodedStr &val, Errs &errs);
+    bool tryParseField_encStr(json j, std::string ftag, encodedStr &val, Errs &errs);
+    bool tryParseField_encStr(toml::value t, std::string ftag, encodedStr &val, Errs &errs);
+    bool
+    tryParseField_encStrArr(json j, std::string ftag, std::vector<encodedStr> &val, Errs &errs);
+    bool tryParseField_encStrArr(toml::value              t,
+                                 std::string              ftag,
+                                 std::vector<encodedStr> &val,
+                                 Errs                    &errs);
 
   public:
     std::string getTag();

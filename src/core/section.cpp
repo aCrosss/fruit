@@ -54,66 +54,6 @@ Section::tryDecodeStr(biterator &inb, std::string ftag, encodedStr &str, Errs &e
     return true;
 }
 
-//@brief Try read encoded string from JSON. JSON can contain encoded string named by ftag
-// or BE encoded string, then ftag only used in error text
-//@param &j nlohmann::json containing encoded string object OR encoded string object itself
-//@param ftag std::string naming encoded string in j or just used in error text
-//@param &str out encoded string
-//@param Err class object for errors output
-bool
-Section::tryDecodeStr(nlohmann::json &j, std::string ftag, encodedStr &str, Errs &errs) {
-    std::string err;
-
-    // j contains encoded string root
-    if (j.contains(ftag)) {
-        json jval = j[ftag];
-        if (!tryParseField_encStr(jval, str, err)) {
-            errs.append(tag, ftag, err);
-            return false;
-        }
-
-        return true;
-    }
-
-    // j IS encoded string root
-    if (!tryParseField_encStr(j, str, err)) {
-        errs.append(tag, ftag, "field is missing");
-        return false;
-    }
-
-    return true;
-}
-
-//@brief Try read encoded string from TOML. TOML can contain encoded string named by ftag
-// or BE encoded string, then ftag only used in error text
-//@param &t toml::value containing encoded string object OR encoded string object itself
-//@param ftag std::string naming encoded string in j or just used in error text
-//@param &str out encoded string
-//@param Err class object for errors output
-bool
-Section::tryDecodeStr(toml::value &t, std::string ftag, encodedStr &str, Errs &errs) {
-    std::string err;
-
-    // j contains encoded string root
-    if (t.contains(ftag)) {
-        auto val = t.at(ftag);
-        if (!tryParseField_encStr(val, str, err)) {
-            errs.append(tag, ftag, err);
-            return false;
-        }
-
-        return true;
-    }
-
-    // j IS encoded string root
-    if (!tryParseField_encStr(t, str, err)) {
-        errs.append(tag, ftag, "field is missing");
-        return false;
-    }
-
-    return true;
-}
-
 std::byte
 Section::calcZeroChecksum(bytes bs) {
     uchar sum = 0;
@@ -158,121 +98,275 @@ Section::checkChecksums(biterator cs1p, biterator cs2beg, biterator cs2end, Errs
     return true;
 }
 
-//          ##  ######   #######  ##    ##    ########  ########   ######  ########
-//          ## ##    ## ##     ## ###   ##    ##     ## ##     ## ##    ## ##     ##
-//          ## ##       ##     ## ####  ##    ##     ## ##     ## ##       ##     ##
-//          ##  ######  ##     ## ## ## ##    ########  ########   ######  ########
-//    ##    ##       ## ##     ## ##  ####    ##        ##   ##         ## ##   ##
-//    ##    ## ##    ## ##     ## ##   ###    ##        ##    ##  ##    ## ##    ##
-//     ######   ######   #######  ##    ##    ##        ##     ##  ######  ##     ##
+//    ########     ###    ########   ######  #### ##    ##  ######
+//    ##     ##   ## ##   ##     ## ##    ##  ##  ###   ## ##    ##
+//    ##     ##  ##   ##  ##     ## ##        ##  ####  ## ##
+//    ########  ##     ## ########   ######   ##  ## ## ## ##   ####
+//    ##        ######### ##   ##         ##  ##  ##  #### ##    ##
+//    ##        ##     ## ##    ##  ##    ##  ##  ##   ### ##    ##
+//    ##        ##     ## ##     ##  ######  #### ##    ##  ######
+
+//     #####   ####   ####  #
+//     #    # #    # #    # #
+//     #####  #    # #    # #
+//     #    # #    # #    # #
+//     #    # #    # #    # #
+//     #####   ####   ####  ######
 
 //@brief Try read value from JSON object into val. Return true on success and false and
-// error string in err otherwise
+// error in errs otherwise. Will handle missing field. Will handle missing field
 //@param j nlohmann::json field object
+//@param ftag std::string field tag
 //@param val output bool value
-//@param err output error string
+//@param errs output error
 bool
-Section::tryParseField_bool(json j, bool &val, std::string &err) {
-    std::stringstream s;
+Section::tryParseField_bool(json j, std::string ftag, bool &val, Errs &errs) {
+    FILED_MISSING_GUARD(j);
 
-    if (!j.is_boolean()) {
-        s << "have invalid type: expected boolean";
-        err += s.str();
+    json jval = j[ftag];
+
+    if (!jval.is_boolean()) {
+        errs.append(tag, ftag, "have invalid type: expected boolean");
         return false;
     }
 
-    val = j.get<bool>();
+    val = jval.get<bool>();
     return true;
 }
 
+//@brief Try read value from TOML object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field. Will handle missing field
+//@param t toml::value field object
+//@param ftag std::string field tag
+//@param val output bool value
+//@param errs output error
+bool
+Section::tryParseField_bool(toml::value t, std::string ftag, bool &val, Errs &errs) {
+    FILED_MISSING_GUARD(t);
+
+    toml::value tval = t[ftag];
+
+    if (!tval.is_boolean()) {
+        errs.append(tag, ftag, "have invalid type: expected boolean");
+        return false;
+    }
+
+    val = tval.as_boolean();
+    return true;
+}
+
+//     # #    # #####
+//     # ##   #   #
+//     # # #  #   #
+//     # #  # #   #
+//     # #   ##   #
+//     # #    #   #
+
 //@brief Try read value from JSON object into val. Return true on success and false and
-// error string in err otherwise
+// error in errs otherwise. Will handle missing field. Will handle missing field
 //@param j nlohmann::json field object
+//@param ftag std::string field tag
 //@param val output int value
-//@param err output error string
+//@param errs output error
 bool
-Section::tryParseField_int(json j, int &val, std::string &err) {
-    std::stringstream s;
+Section::tryParseField_int(json j, std::string ftag, int &val, Errs &errs) {
+    FILED_MISSING_GUARD(j);
 
-    if (!j.is_number_integer()) {
-        s << "have invalid type: expected integer";
-        err += s.str();
+    json jval = j[ftag];
+
+    if (!jval.is_number_integer()) {
+        errs.append(tag, ftag, "have invalid type: expected integer");
         return false;
     }
 
-    val = j.get<int>();
+    val = jval.get<int>();
     return true;
 }
 
-//@brief Try read value from JSON object into val. Return true on success and false and
-// error string in err otherwise
-//@param j nlohmann::json field object
-//@param val output nlohmann::json value
-//@param err output error string
+//@brief Try read value from TOML object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field. Will handle missing field
+//@param t toml::value field object
+//@param ftag std::string field tag
+//@param val output int value
+//@param errs output error
 bool
-Section::tryParseField_obj(json j, json &val, std::string &err) {
-    std::stringstream s;
+Section::tryParseField_int(toml::value t, std::string ftag, int &val, Errs &errs) {
+    FILED_MISSING_GUARD(t);
 
-    if (!j.is_object()) {
-        s << "have invalid type: expected JSON object";
-        err += s.str();
+    toml::value tval = t[ftag];
+
+    if (!tval.is_integer()) {
+        errs.append(tag, ftag, "have invalid type: expected integer");
         return false;
     }
 
-    val = j.get<json>();
+    val = tval.as_integer();
     return true;
 }
 
-//@brief Try read value from JSON object into val. Return true on success and false and
-// error string in err otherwise
-//@param j nlohmann::json field object
-//@param val output std::vector<nlohmann::json> value
-//@param err output error string
-bool
-Section::tryParseField_arr(json j, json &val, std::string &err) {
-    std::stringstream s;
+//      ####  #####       #
+//     #    # #    #      #
+//     #    # #####       #
+//     #    # #    #      #
+//     #    # #    # #    #
+//      ####  #####   ####
 
-    if (!j.is_array()) {
-        s << "have invalid type: expected JSON array";
-        err += s.str();
+//@brief Try read value from JSON object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field. Will handle missing field
+//@param j nlohmann::json field object
+//@param ftag std::string field tag
+//@param val output nlohmann::json object value
+//@param errs output error
+bool
+Section::tryParseField_obj(json j, std::string ftag, json &val, Errs &errs) {
+    FILED_MISSING_GUARD(j);
+
+    json jval = j[ftag];
+
+    if (!jval.is_object()) {
+        errs.append(tag, ftag, "have invalid type: expected JSON object");
         return false;
     }
 
-    val = j.get<nlohmann::json::array_t>();
+    val = jval.get<json>();
     return true;
 }
 
-//@brief Try read value from JSON object into val. Return true on success and false and
-// error string in err otherwise
-//@param j nlohmann::json field object
-//@param val output std::string value
-//@param err output error string
+//@brief Try read value from TOML object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field. Will handle missing field
+//@param t toml::value field object
+//@param ftag std::string field tag
+//@param val output toml::value table value
+//@param errs output error
 bool
-Section::tryParseField_str(json j, std::string &val, std::string &err) {
-    std::stringstream s;
+Section::tryParseField_obj(toml::value t, std::string ftag, toml::value &val, Errs &errs) {
+    FILED_MISSING_GUARD(t);
 
-    if (!j.is_string()) {
-        s << "have invalid type: expected string";
-        err += s.str();
+    toml::value tval = t[ftag];
+
+    if (!tval.is_table()) {
+        errs.append(tag, ftag, "have invalid type: expected TOML table");
         return false;
     }
 
-    val = j.get<std::string>();
+    val = tval.as_table();
     return true;
 }
 
-//@brief Try read value from JSON object into val. Return true on success and false and
-// error string in err otherwise
-//@param j nlohmann::json field object
-//@param val output encodedStr value
-//@param err output error string
-bool
-Section::tryParseField_encStr(json j, encodedStr &val, std::string &err) {
-    std::stringstream s;
+//       ##   #####  #####    ##   #   #
+//      #  #  #    # #    #  #  #   # #
+//     #    # #    # #    # #    #   #
+//     ###### #####  #####  ######   #
+//     #    # #   #  #   #  #    #   #
+//     #    # #    # #    # #    #   #
 
-    if (!j.is_object() || !j.contains("type") || !j.contains("data")) {
-        if (!j["type"].is_string() || !j["data"].is_string()) {
-            s << "have invalid type: expected JSON object of type";
+//@brief Try read value from JSON object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field. Will handle missing field
+//@param j nlohmann::json field object
+//@param ftag std::string field tag
+//@param val output nlohmann::json array value
+//@param errs output error
+bool
+Section::tryParseField_arr(json j, std::string ftag, json &val, Errs &errs) {
+    FILED_MISSING_GUARD(j);
+
+    json jval = j[ftag];
+
+    if (!jval.is_array()) {
+        errs.append(tag, ftag, "have invalid type: expected JSON array");
+        return false;
+    }
+
+    val = jval.get<nlohmann::json::array_t>();
+    return true;
+}
+
+//@brief Try read value from TOML object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field
+//@param t toml::value field object
+//@param ftag std::string field tag
+//@param val output toml::value array value
+//@param errs output error
+bool
+Section::tryParseField_arr(toml::value t, std::string ftag, toml::value &val, Errs &errs) {
+    FILED_MISSING_GUARD(t);
+
+    toml::value tval = t[ftag];
+
+    if (!tval.is_array()) {
+        errs.append(tag, ftag, "have invalid type: expected TOML array");
+        return false;
+    }
+
+    val = tval.as_array();
+    return true;
+}
+
+//      ####  ##### #####  # #    #  ####
+//     #        #   #    # # ##   # #    #
+//      ####    #   #    # # # #  # #
+//          #   #   #####  # #  # # #  ###
+//     #    #   #   #   #  # #   ## #    #
+//      ####    #   #    # # #    #  ####
+
+//@brief Try read value from JSON object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field
+//@param j nlohmann::json field object
+//@param ftag std::string field tag
+//@param val output string value
+//@param errs output error
+bool
+Section::tryParseField_str(json j, std::string ftag, std::string &val, Errs &errs) {
+    FILED_MISSING_GUARD(j);
+
+    json jval = j[ftag];
+
+    if (!jval.is_string()) {
+        errs.append(tag, ftag, "have invalid type: expected string");
+        return false;
+    }
+
+    val = jval.get<std::string>();
+    return true;
+}
+
+//@brief Try read value from TOML object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field
+//@param t toml::value field object
+//@param ftag std::string field tag
+//@param val output string value
+//@param errs output error
+bool
+Section::tryParseField_str(toml::value t, std::string ftag, std::string &val, Errs &errs) {
+    FILED_MISSING_GUARD(t);
+
+    toml::value tval = t[ftag];
+
+    if (!tval.is_string()) {
+        errs.append(tag, ftag, "have invalid type: expected string");
+        return false;
+    }
+
+    val = tval.as_string();
+    return true;
+}
+
+//     ###### #    #  ####   ####  #####  ###### #####      ####  ##### #####
+//     #      ##   # #    # #    # #    # #      #    #    #        #   #    #
+//     #####  # #  # #      #    # #    # #####  #    #     ####    #   #    #
+//     #      #  # # #      #    # #    # #      #    #         #   #   #####
+//     #      #   ## #    # #    # #    # #      #    #    #    #   #   #   #
+//     ###### #    #  ####   ####  #####  ###### #####      ####    #   #    #
+
+//@brief Impementation of parsing single encoded string. Expects v, that already IS encoded
+// string object. Field tag used only for error output
+template <typename T>
+inline bool
+Section::tryParseEncStrImpl(T v, std::string ftag, encodedStr &val, Errs &errs) {
+    std::stringstream s;
+    if (!v.contains("type") || !v.contains("data")) {
+        if (!v["type"].is_string() || !v["data"].is_string()) {
+            s << "have invalid type: expected object of a type:";
             s << std::endl << "..." << std::endl;
             s << tag << ": {" << std::endl;
             s << "  type: \"<binary|bcdp|ascii6bit|langcode>\"," << std::endl;
@@ -280,135 +374,128 @@ Section::tryParseField_encStr(json j, encodedStr &val, std::string &err) {
             s << "}" << std::endl;
             s << "...";
 
-            err += s.str();
-            return false;
-        }
-    }
-
-    std::string enc_str = j["type"].get<std::string>();
-    if (encoding_map.find(enc_str) == encoding_map.end()) {
-        s << "invalid encoding type " << enc_str << " ";
-        s << "expected <binary|bcdp|ascii6bit|langcode>";
-        err += s.str();
-        return false;
-    }
-
-    val.enc = encoding_map.at(enc_str);
-    val.str = j["data"].get<std::string>();
-
-    return true;
-}
-
-//    ########  #######  ##     ## ##          ########  ########   ######  ########
-//       ##    ##     ## ###   ### ##          ##     ## ##     ## ##    ## ##     ##
-//       ##    ##     ## #### #### ##          ##     ## ##     ## ##       ##     ##
-//       ##    ##     ## ## ### ## ##          ########  ########   ######  ########
-//       ##    ##     ## ##     ## ##          ##        ##   ##         ## ##   ##
-//       ##    ##     ## ##     ## ##          ##        ##    ##  ##    ## ##    ##
-//       ##     #######  ##     ## ########    ##        ##     ##  ######  ##     ##
-
-bool
-Section::tryParseField_bool(toml::value t, bool &val, std::string &err) {
-    std::stringstream s;
-
-    if (!t.is_boolean()) {
-        s << "have invalid type: expected boolean";
-        err += s.str();
-        return false;
-    }
-
-    val = t.as_boolean();
-    return true;
-}
-
-bool
-Section::tryParseField_int(toml::value t, int &val, std::string &err) {
-    std::stringstream s;
-
-    if (!t.is_integer()) {
-        s << "have invalid type: expected integer";
-        err += s.str();
-        return false;
-    }
-
-    val = t.as_integer();
-    return true;
-}
-
-bool
-Section::tryParseField_obj(toml::value t, toml::value &val, std::string &err) {
-    std::stringstream s;
-
-    if (!t.is_table()) {
-        s << "have invalid type: expected TOML table";
-        err += s.str();
-        return false;
-    }
-
-    val = t.as_table();
-    return true;
-}
-
-bool
-Section::tryParseField_arr(toml::value t, toml::value &val, std::string &err) {
-    std::stringstream s;
-
-    if (!t.is_array()) {
-        s << "have invalid type: expected TOML array";
-        err += s.str();
-        return false;
-    }
-
-    val = t.as_array();
-    return true;
-}
-
-bool
-Section::tryParseField_str(toml::value t, std::string &val, std::string &err) {
-    std::stringstream s;
-
-    if (!t.is_string()) {
-        s << "have invalid type: expected string";
-        err += s.str();
-        return false;
-    }
-
-    val = t.as_string();
-    return true;
-}
-
-bool
-Section::tryParseField_encStr(toml::value t, encodedStr &val, std::string &err) {
-    std::stringstream s;
-
-    if (!t.is_table() || !t.contains("type") || !t.contains("data")) {
-        if (!t["type"].is_string() || !t["data"].is_string()) {
-            s << "have invalid type: expected TOML table:";
-            s << std::endl << "..." << std::endl;
-            s << tag << ": { ";
-            s << "type: \"<binary|bcdp|ascii6bit|langcode>\", ";
-            s << "data: \"<data string>\" ";
-            s << "}" << std::endl;
-            s << "...";
-
-            err += s.str();
+            errs.append(tag, ftag, s.str());
             return false;
         }
     }
 
     std::string enc_str;
-    enc_str = toml::find<std::string>(t, "type");
+    tryParseField_str(v, "type", enc_str, errs);
+    std::string val_str;
+    tryParseField_str(v, "data", val_str, errs);
+
     if (encoding_map.find(enc_str) == encoding_map.end()) {
         s << "invalid encoding type " << enc_str << " ";
         s << "expected <binary|bcdp|ascii6bit|langcode>";
-        err += s.str();
+        errs.append(tag, ftag, s.str());
         return false;
     }
 
     val.enc = encoding_map.at(enc_str);
-    val.str = toml::find<std::string>(t, "data");
-
+    val.str = val_str;
     return true;
+}
+
+//@brief Try read value from JSON object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field
+//@param j nlohmann::json field encoded string object
+//@param ftag std::string field tag
+//@param val output encoded string value
+//@param errs output error
+bool
+Section::tryParseField_encStr(json j, std::string ftag, encodedStr &val, Errs &errs) {
+    FILED_MISSING_GUARD(j);
+
+    json jval = j[ftag];
+
+    return tryParseEncStrImpl(jval, ftag, val, errs);
+}
+
+//@brief Try read value from TOML object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field
+//@param t toml::value field encoded string object
+//@param ftag std::string field tag
+//@param val output encoded string value
+//@param errs output error
+bool
+Section::tryParseField_encStr(toml::value t, std::string ftag, encodedStr &val, Errs &errs) {
+    FILED_MISSING_GUARD(t);
+
+    toml::value tval = t[ftag];
+
+    return tryParseEncStrImpl(tval, ftag, val, errs);
+}
+
+//@brief Try read value from JSON object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field. Encoded strings will be appended into the
+// vector
+//@param j nlohmann::json array of encoded strings object
+//@param ftag std::string field tag
+//@param val output vector of encoded strings value
+//@param errs output error
+bool
+Section::tryParseField_encStrArr(json                     j,
+                                 std::string              ftag,
+                                 std::vector<encodedStr> &val,
+                                 Errs                    &errs) {
+    bool valid = true;
+
+    json array;
+    if (!tryParseField_arr(j, "custom", array, errs)) {
+        return false;
+    }
+
+    for (size_t i = 0; i < array.size(); i++) {
+        json       entry = array[i];
+        encodedStr estr;
+
+        std::stringstream s;
+        s << ftag << "[" << i << "]";
+        if (!tryParseEncStrImpl(entry, s.str(), estr, errs)) {
+            valid = false;
+            continue;
+        }
+
+        val.emplace_back(estr);
+    }
+
+    return valid;
+}
+
+//@brief Try read value from TOML object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field. Encoded strings will be appended into the
+// vector
+//@param t toml::value array of encoded strings object
+//@param ftag std::string field tag
+//@param val output vector of encoded strings value
+//@param errs output error
+bool
+Section::tryParseField_encStrArr(toml::value              t,
+                                 std::string              ftag,
+                                 std::vector<encodedStr> &val,
+                                 Errs                    &errs) {
+    bool valid = true;
+
+    toml::value array;
+    if (!tryParseField_arr(t, ftag, array, errs)) {
+        return false;
+    }
+
+    for (size_t i = 0; i < array.size(); i++) {
+        toml::value entry = array[i];
+        encodedStr  estr;
+
+        std::stringstream s;
+        s << ftag << "[" << i << "]";
+        if (!tryParseEncStrImpl(entry, s.str(), estr, errs)) {
+            valid = false;
+            continue;
+        }
+
+        val.emplace_back(estr);
+    }
+
+    return valid;
 }
 
 //    #### ##    ## #### ########

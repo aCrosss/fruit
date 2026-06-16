@@ -142,49 +142,39 @@ AreaBoard::tryParseImpl(T v, Errs &errs) {
     std::string err;
     bool        valid = true;
 
-    if (v.contains("language_code")) {
-        T lv = v["language_code"];
-        if (tryParseField_int(lv, language_code, err)) {
-            if (language_code > 136) {
-                errs.append(tag, "language_code", "lanugage codes capped at 136");
-                valid = false;
-            }
-        } else {
+    if (tryParseField_int(v, "language_code", language_code, errs)) {
+        if (language_code > 136) {
+            errs.append(tag, "language_code", "lanugage codes capped at 136");
             valid = false;
         }
     } else {
-        errs.append(tag, "language_code", "field is missing");
+        valid = false;
     }
 
-    if (v.contains("date_time")) {
-        std::string dtime_str;
-        if (tryParseField_str(v["date_time"], dtime_str, err)) {
-            date_time = parseDateTime(dtime_str, err);
-            if (date_time < 0) {
-                valid = false;
-                errs.append(tag, "date_time", err);
-            }
-        } else {
+    std::string dtime_str;
+    if (tryParseField_str(v, "date_time", dtime_str, errs)) {
+        date_time = parseDateTime(dtime_str, err);
+        if (date_time < 0) {
             valid = false;
             errs.append(tag, "date_time", err);
         }
     } else {
-        errs.append(tag, "date_time", "field is missing");
-    }
-
-    if (!tryDecodeStr(v, "manufacturer", manufacturer, errs)) {
         valid = false;
     }
 
-    if (!tryDecodeStr(v, "product_name", product_name, errs)) {
+    if (!tryParseField_encStr(v, "manufacturer", manufacturer, errs)) {
         valid = false;
     }
 
-    if (!tryDecodeStr(v, "serial_number", serial_number, errs)) {
+    if (!tryParseField_encStr(v, "product_name", product_name, errs)) {
         valid = false;
     }
 
-    if (!tryDecodeStr(v, "file_id", file_id, errs)) {
+    if (!tryParseField_encStr(v, "serial_number", serial_number, errs)) {
+        valid = false;
+    }
+
+    if (!tryParseField_encStr(v, "file_id", file_id, errs)) {
         valid = false;
     }
 
@@ -194,24 +184,8 @@ AreaBoard::tryParseImpl(T v, Errs &errs) {
         return valid;
     }
 
-    T array;
-    if (!tryParseField_arr(v["custom"], array, err)) {
-        errs.append(tag, "custom", err);
-        err.clear();
-    }
-
-    for (size_t i = 0; i < array.size(); i++) {
-        T          entry = array[i];
-        encodedStr estr;
-
-        std::stringstream s;
-        s << "custom[" << i << "]";
-        if (!tryDecodeStr(entry, s.str(), estr, errs)) {
-            valid = false;
-            continue;
-        }
-
-        custom.emplace_back(estr);
+    if (!tryParseField_encStrArr(v, "custom", custom, errs)) {
+        return false;
     }
 
     debug_printOutVals();

@@ -51,15 +51,15 @@ AreaChassis::tryParseImpl(T v, Errs &errs) {
     std::string err;
     bool        valid = true;
 
-    if (!tryDecodeStr(v, "type", type, errs)) {
+    if (!tryParseField_encStr(v, "type", type, errs)) {
         valid = false;
     }
 
-    if (!tryDecodeStr(v, "part_number", part_number, errs)) {
+    if (!tryParseField_encStr(v, "part_number", part_number, errs)) {
         valid = false;
     }
 
-    if (!tryDecodeStr(v, "serial_number", serial_number, errs)) {
+    if (!tryParseField_encStr(v, "serial_number", serial_number, errs)) {
         valid = false;
     }
 
@@ -69,24 +69,8 @@ AreaChassis::tryParseImpl(T v, Errs &errs) {
         return valid;
     }
 
-    T array;
-    if (!tryParseField_arr(v["custom"], array, err)) {
-        errs.append(tag, "custom", err);
-        err.clear();
-    }
-
-    for (size_t i = 0; i < array.size(); i++) {
-        T          entry = array[i];
-        encodedStr estr;
-
-        std::stringstream s;
-        s << "custom[" << i << "]";
-        if (!tryDecodeStr(entry, s.str(), estr, errs)) {
-            valid = false;
-            continue;
-        }
-
-        custom.emplace_back(estr);
+    if (!tryParseField_encStrArr(v, "custom", custom, errs)) {
+        return false;
     }
 
     debug_printOutVals();
