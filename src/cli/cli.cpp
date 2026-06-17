@@ -2,78 +2,151 @@
 #include <iostream>
 #include <string>
 
+#include "CLI11.hpp"
 #include "json.hpp"
 #include "manager.hpp"
 
-#define TEST_JSON_PATH  "test.json"
-#define TEST_TOML_PATH  "test.toml"
-#define TEST_OUT_BINARY "out.bin"
+enum FileType {
+    FTYPE_NONE,
+    FTYPE_JSON,
+    FTYPE_TOML,
+    FTYPE_BINARY,
+};
 
-int
-main() {
-    Manager        manager{};
+Manager manager{};
+
+FileType
+getFTypeFromPath(std::string path) {
+    if (path.find(".json", 0) != path.npos) {
+        return FTYPE_JSON;
+    }
+
+    if (path.find(".toml", 0) != path.npos) {
+        return FTYPE_TOML;
+    }
+
+    if (path.find(".bin", 0) != path.npos) {
+        return FTYPE_BINARY;
+    }
+
+    return FTYPE_NONE;
+}
+
+bool
+cliInputFile(std::string path, FileType type) {
+    Errs        errs;
+    std::string err;
+
     nlohmann::json j;
     toml::value    t;
-    Errs           errs;
+    bytes          bs;
 
-    std::string err;
-#if 1
-    if (!manager.loadJSON(TEST_JSON_PATH, j, err)) {
-        std::cout << "failed to load JSON: " << err << std::endl;
-        return -1;
+    switch (type) {
+    case FTYPE_JSON:
+        if (!manager.loadJSON(path, j, err)) {
+            std::cout << "failed to load JSON: " << err << std::endl;
+            return false;
+        }
+        if (!manager.parseJSON(j, errs)) {
+            std::cout << "failed to parse JSON: " << std::endl;
+            std::cout << errs.getPlainText() << std::endl;
+            return false;
+        }
+        break;
+
+    case FTYPE_TOML:
+        if (!manager.loadTOML(path, t, err)) {
+            std::cout << "failed to load TOML: " << err << std::endl;
+            return false;
+        }
+        if (!manager.parseTOML(t, errs)) {
+            std::cout << "failed to parse TOML: " << std::endl;
+            std::cout << errs.getPlainText() << std::endl;
+            return false;
+        }
+        break;
+
+    case FTYPE_BINARY:
+        if (!manager.loadBinary(path, bs, err)) {
+            std::cout << "failed to load binary: " << err << std::endl;
+            return false;
+        }
+        if (!manager.parseBinary(bs, errs)) {
+            std::cout << "failed to parse binary: " << std::endl;
+            std::cout << errs.getPlainText() << std::endl;
+            return false;
+        }
+        break;
+
+    default: std::cout << "unknown input file type" << std::endl; break;
     }
 
-    if (!manager.parseJSON(j, errs)) {
-        std::cout << "failed to parse JSON: " << std::endl;
-        std::cout << errs.getPlainText();
-        return -1;
-    }
-#endif
+    return false;
+}
 
-#if 0
-    json juc = json::parse(R"({"text": "Hello, 世界! Café"})");
+bool
+cliOutputFile(std::string path, FileType type) {
+    Errs errs;
 
-    // Get string value
-    std::string text = juc["text"].get<std::string>();
+    switch (type) {
+    case FTYPE_JSON:
+        if (!manager.saveJSON(path, errs)) {
+            std::cout << "failed to save json: " << std::endl;
+            std::cout << errs.getPlainText() << std::endl;
+            return false;
+        }
+        break;
 
-    // Encode as UTF-8 raw bytes (std::string already contains UTF-8 bytes)
-    std::vector<uint8_t> raw_bytes(text.begin(), text.end());
+    case FTYPE_TOML: /* TODO: forgot to implement toml */ break;
 
-    // Print raw bytes
-    std::cout << "Raw bytes (hex): ";
-    for (uint8_t byte : raw_bytes) {
-        printf("%02X ", byte);
-    }
-    std::cout << std::endl;
+    case FTYPE_BINARY:
+        if (!manager.saveBinary(path, errs)) {
+            std::cout << "failed to save binary: " << std::endl;
+            std::cout << errs.getPlainText() << std::endl;
+            return false;
+        }
+        break;
+        break;
 
-    std::vector<uint8_t> back = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0xE4, 0xB8, 0x96,
-                                 0xE7, 0x95, 0x8C, 0x20, 0xF0, 0x9F, 0x8C, 0x8D, 0x21,
-                                 0x20, 0x65, 0x6D, 0x6F, 0x6A, 0x69, 0x3A, 0x20, 0xF0,
-                                 0x9F, 0x98, 0x80, 0xF0, 0x9F, 0x8E, 0x89};
-
-    std::string bstr(back.begin(), back.end());
-    std::cout << bstr << std::endl;
-
-    return 0;
-#endif
-
-#if 0
-    if (!manager.loadTOML(TEST_TOML_PATH, t, err)) {
-        std::cout << "failed to load TOML: " << err << std::endl;
-        return -1;
+    default: std::cout << "unknown output file type" << std::endl; break;
     }
 
-    if (!manager.parseTOML(t, errs)) {
-        std::cout << "failed to parse TOML: " << std::endl;
-        std::cout << errs.getPlainText();
-        return -1;
-    }
-#endif
+    return false;
+}
 
-    if (!manager.saveBinary(TEST_OUT_BINARY, errs)) {
-        std::cout << "failed to build FRU binary image: " << std::endl;
-        std::cout << errs.getPlainText();
-        return -1;
+int
+main(int argc, char **argv) {
+
+    toml::value t;
+    Errs        errs;
+
+    std::string in_path;
+    std::string out_path = "out.bin";
+
+    CLI::App fruitCLI{"CLI interface for FRU Image generaTor"};
+    fruitCLI.add_option("-i,--input", in_path, "Input JSON/TOML/binary file")->required();
+    fruitCLI.add_option("-o,--output", out_path, "Output JSON/TOML/binary file");
+
+    CLI11_PARSE(fruitCLI, argc, argv);
+
+    FileType in_type = getFTypeFromPath(in_path);
+    if (in_type == FTYPE_NONE) {
+        std::cout << "Error: invalid typef of input file: " << in_path << std::endl;
+        return 1;
+    }
+
+    FileType out_type = getFTypeFromPath(out_path);
+    if (out_type == FTYPE_NONE) {
+        std::cout << "Error: invalid typef of output file: " << out_path << std::endl;
+        return 1;
+    }
+
+    if (!cliInputFile(in_path, in_type)) {
+        return 1;
+    }
+
+    if (!cliOutputFile(out_path, out_type)) {
+        return 1;
     }
 
     return 0;
