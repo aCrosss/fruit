@@ -4,14 +4,20 @@
 #include "manager.hpp"
 
 // clang-format off
+#include "areas/areaCommonHeader.hpp"
+#include "areas/areaInternalUse.hpp"
 #include "areas/areaChassis.hpp"
 #include "areas/areaBoard.hpp"
+#include "areas/areaProductInfo.hpp"
 // clang-format on
 
 void
 Manager::initSections() {
+    sections.push_back(std::make_unique<AreaCommonHeader>());
+    sections.push_back(std::make_unique<AreaInternalUse>());
     sections.push_back(std::make_unique<AreaChassis>());
     sections.push_back(std::make_unique<AreaBoard>());
+    sections.push_back(std::make_unique<AreaProductInfo>());
 }
 
 bool
@@ -107,8 +113,37 @@ Manager::parseTOML(toml::value &t, Errs &errs) {
 
 bool
 Manager::parseBinary(bytes &bs, Errs &errs) {
-    // TODO: have to parse common header to get offsets for other areas
-    return false;
+    auto *header = dynamic_cast<AreaCommonHeader *>(sections[0].get());
+
+    size_t offset_to_end = bs.end() - bs.begin();
+
+    // TODO: explain this with comments, beging you
+    if (!header->tryParseBinary(bs.begin(), bs.begin() + 8, errs)) {
+        return false;
+    }
+
+    // skip common header and point to next area
+    for (size_t i = 1; i < sections.size(); i++) {
+        auto &&section = sections[i];
+
+        ssize_t offset = header->getOffset(Areas(i - 1)) * 8;
+        // area not present
+        if (offset == 0) {
+            continue;
+        }
+
+        ssize_t next = header->getNextOffset(Areas(i));
+        next         = next != 0 ? next * 8 : offset_to_end;
+
+        bytes::iterator begin = bs.begin() + offset;
+        bytes::iterator end   = bs.begin() + next;
+
+        if (!section->tryParseBinary(begin, end, errs)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool
@@ -120,6 +155,9 @@ bool
 Manager::saveBinary(std::string path, Errs &errs) {
     bytes bs;
     bool  valid = true;
+
+    auto *header = dynamic_cast<AreaCommonHeader *>(sections[0].get());
+    header->setOffsets(sections);
 
     for (auto &&area : sections) {
         bytes out_bin;
@@ -146,4 +184,5 @@ Manager::Manager(/* args */) {
 }
 
 Manager::~Manager() {
+    //
 }

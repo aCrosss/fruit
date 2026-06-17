@@ -1,10 +1,6 @@
-#include <ctime>
 #include <iostream>
 
-#include "areaBoard.hpp"
-
-// seconds at 0:00 hrs 1/1/96 since epoch
-#define SECONDS_AT_96 820454400
+#include "areaProductInfo.hpp"
 
 //    ##        #######   ######     ###    ##
 //    ##       ##     ## ##    ##   ## ##   ##
@@ -14,86 +10,48 @@
 //    ##       ##     ## ##    ## ##     ## ##
 //    ########  #######   ######  ##     ## ########
 
-//@brief Get minutes from 00:00 01-01-1996 from string
-//@param dtime std::string date/time in format of 'YYYY-mm-DD HH:MM'
-//@param &err output error
-//@return minutes from 00:00 01-01-1996 or -1 on error
-int
-parseDateTime(std::string dtime, std::string &err) {
-    struct tm tm;
-
-    if (dtime.size() == 0) {
-        err = "string is empty";
-        return -1;
+uchar
+AreaProductInfo::getLength() {
+    ssize_t length  = const_len;
+    length         += precalcLength(manufacturer.str, manufacturer.enc);
+    length         += precalcLength(product_name.str, product_name.enc);
+    length         += precalcLength(part.str, part.enc);
+    length         += precalcLength(version.str, version.enc);
+    length         += precalcLength(serial_number.str, serial_number.enc);
+    length         += precalcLength(asset_tag.str, asset_tag.enc);
+    length         += precalcLength(fru_file_id.str, fru_file_id.enc);
+    for (size_t i = 0; i < custom.size(); i++) {
+        length += precalcLength(custom[i].str, custom[i].enc);
     }
 
-    std::cout << "parsing '" << dtime << "' date/time string" << std::endl;
-
-    char *errchar = strptime(dtime.c_str(), "%Y-%m-%d %H:%M", &tm);
-    if (*errchar != '\0') {
-        std::stringstream s;
-        s << "failed at symbol '" << *errchar << "', expected 'YYYY-MM-DD HH:mm' string";
-        err = s.str();
-        return -1;
-    }
-
-    time_t seconds = timegm(&tm);
-    if (seconds - SECONDS_AT_96 < 0) {
-        err = "date/time can't be less than 00:00 01-01-1996";
-        return -1;
-    }
-
-    // return minutes
-    return (seconds - SECONDS_AT_96) / 60;
+    // total length
+    return ROUND_LEN_TO_8_BYTES_MULTPL(length);
 }
 
-//@brief Get minutes from 00:00 01-01-1996 byte vector
-//@param &bs area bytes
-//@param dtbegin bytes::iterator poining at first out of three date/time bytes
-//@param &err output error
-//@return minutes from 00:00 01-01-1996 or -1 on error
-int
-parseDateTime(biterator dtb, std::string &err) {
-    int dtime = 0;
+void
+AreaProductInfo::clear() {
+    manufacturer.str.clear();
+    manufacturer.enc = ENCODING_BINARY_UNSPEC;
 
-    for (size_t i = 0; i < 3; i++) {
-        dtime += static_cast<int>(*(dtb + i)) << (i * 8);
-    }
+    product_name.str.clear();
+    product_name.enc = ENCODING_BINARY_UNSPEC;
 
-    return dtime;
-}
+    part.str.clear();
+    part.enc = ENCODING_BINARY_UNSPEC;
 
-bool
-encodeDateTime(std::string &outs, int minutes, std::string &err) {
-    struct tm *tm;
+    version.str.clear();
+    version.enc = ENCODING_BINARY_UNSPEC;
 
-    time_t t = minutes * 60 + SECONDS_AT_96;
-    tm       = gmtime(&t);
+    serial_number.str.clear();
+    serial_number.enc = ENCODING_BINARY_UNSPEC;
 
-    if (!tm) {
-        err = "minutes to date/time parsing failed";
-        return false;
-    }
+    asset_tag.str.clear();
+    asset_tag.enc = ENCODING_BINARY_UNSPEC;
 
-    std::stringstream s;
-    s << tm->tm_year + 1900 << "-" << tm->tm_mon + 1 << "-" << tm->tm_mday << " ";
-    s << tm->tm_hour << ":" << tm->tm_min;
-    outs = s.str();
-    return true;
-}
+    fru_file_id.str.clear();
+    fru_file_id.enc = ENCODING_BINARY_UNSPEC;
 
-bool
-encodeDateTime(bytes &bs, int minutes, std::string &err) {
-    std::byte b1, b2, b3;
-
-    b1 = std::byte{static_cast<uchar>(minutes >> 0 & 0xFF)};
-    b2 = std::byte{static_cast<uchar>(minutes >> 8 & 0xFF)};
-    b3 = std::byte{static_cast<uchar>(minutes >> 16 & 0xFF)};
-
-    bs.emplace_back(b1);
-    bs.emplace_back(b2);
-    bs.emplace_back(b3);
-    return true;
+    custom.clear();
 }
 
 static void
@@ -103,18 +61,17 @@ debug_printEncStr(std::string tag, encodedStr str) {
 }
 
 void
-AreaBoard::debug_printOutVals() {
+AreaProductInfo::debug_printOutVals() {
     std::cout << "=== " << label << " ===" << std::endl;
 
     std::cout << "language_code: " << language_code << std::endl;
-    std::string dtime;
-    std::string err;
-    encodeDateTime(dtime, date_time, err);
-    std::cout << "date_time: " << dtime << std::endl;
     debug_printEncStr("manufacturer", manufacturer);
     debug_printEncStr("product_name", product_name);
+    debug_printEncStr("part", part);
+    debug_printEncStr("version", version);
     debug_printEncStr("serial_number", serial_number);
-    debug_printEncStr("file_id", file_id);
+    debug_printEncStr("asset_tag", asset_tag);
+    debug_printEncStr("fru_file_id", fru_file_id);
 
     std::cout << "custom:" << std::endl;
     for (size_t i = 0; i < custom.size(); i++) {
@@ -122,38 +79,6 @@ AreaBoard::debug_printOutVals() {
         s << "  [" << i << "]";
         debug_printEncStr(s.str(), custom[i]);
     }
-}
-
-void
-AreaBoard::clear() {
-    manufacturer.str.clear();
-    manufacturer.enc = ENCODING_BINARY_UNSPEC;
-
-    product_name.str.clear();
-    product_name.enc = ENCODING_BINARY_UNSPEC;
-
-    serial_number.str.clear();
-    serial_number.enc = ENCODING_BINARY_UNSPEC;
-
-    file_id.str.clear();
-    file_id.enc = ENCODING_BINARY_UNSPEC;
-
-    custom.clear();
-}
-
-uchar
-AreaBoard::getLength() {
-    ssize_t length  = const_len;
-    length         += precalcLength(manufacturer.str, manufacturer.enc);
-    length         += precalcLength(product_name.str, product_name.enc);
-    length         += precalcLength(serial_number.str, serial_number.enc);
-    length         += precalcLength(file_id.str, file_id.enc);
-    for (size_t i = 0; i < custom.size(); i++) {
-        length += precalcLength(custom[i].str, custom[i].enc);
-    }
-
-    // total length
-    return ROUND_LEN_TO_8_BYTES_MULTPL(length);
 }
 
 //    ########     ###    ########   ######  #### ##    ##  ######
@@ -166,7 +91,7 @@ AreaBoard::getLength() {
 
 template <typename T>
 inline bool
-AreaBoard::tryParseImpl(T v, Errs &errs) {
+AreaProductInfo::tryParseImpl(T v, Errs &errs) {
     std::string err;
     bool        valid = true;
 
@@ -174,17 +99,6 @@ AreaBoard::tryParseImpl(T v, Errs &errs) {
         if (language_code > 136) {
             errs.append(tag, "language_code", "lanugage codes capped at 136");
             valid = false;
-        }
-    } else {
-        valid = false;
-    }
-
-    std::string dtime_str;
-    if (tryParseField_str(v, "date_time", dtime_str, errs)) {
-        date_time = parseDateTime(dtime_str, err);
-        if (date_time < 0) {
-            valid = false;
-            errs.append(tag, "date_time", err);
         }
     } else {
         valid = false;
@@ -198,11 +112,23 @@ AreaBoard::tryParseImpl(T v, Errs &errs) {
         valid = false;
     }
 
+    if (!tryParseField_encStr(v, "part", part, errs)) {
+        valid = false;
+    }
+
+    if (!tryParseField_encStr(v, "version", version, errs)) {
+        valid = false;
+    }
+
     if (!tryParseField_encStr(v, "serial_number", serial_number, errs)) {
         valid = false;
     }
 
-    if (!tryParseField_encStr(v, "file_id", file_id, errs)) {
+    if (!tryParseField_encStr(v, "asset_tag", asset_tag, errs)) {
+        valid = false;
+    }
+
+    if (!tryParseField_encStr(v, "fru_file_id", fru_file_id, errs)) {
         valid = false;
     }
 
@@ -221,21 +147,21 @@ AreaBoard::tryParseImpl(T v, Errs &errs) {
 }
 
 bool
-AreaBoard::tryParseJSON(nlohmann::json j, Errs &errs) {
+AreaProductInfo::tryParseJSON(nlohmann::json j, Errs &errs) {
     clear();
 
     return tryParseImpl(j, errs);
 }
 
 bool
-AreaBoard::tryParseTOML(toml::value &t, Errs &errs) {
+AreaProductInfo::tryParseTOML(toml::value &t, Errs &errs) {
     clear();
 
     return tryParseImpl(t, errs);
 }
 
 bool
-AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+AreaProductInfo::tryParseBinary(biterator begin, biterator end, Errs &errs) {
     clear();
 
     biterator beg = begin;
@@ -253,19 +179,20 @@ AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
         return false;
     }
 
-    std::string err;
-    date_time = parseDateTime(begin + 2, err);
-    if (date_time < 0) {
-        errs.append(tag, "date_time", err);
-        return false;
-    }
-
-    begin += 5;
+    begin += 2;
     if (!tryDecodeStr(begin, "manufacturer", manufacturer, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(begin, "part_number", product_name, errs)) {
+    if (!tryDecodeStr(begin, "product_name", product_name, errs)) {
+        return false;
+    }
+
+    if (!tryDecodeStr(begin, "part", part, errs)) {
+        return false;
+    }
+
+    if (!tryDecodeStr(begin, "version", version, errs)) {
         return false;
     }
 
@@ -273,7 +200,11 @@ AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
         return false;
     }
 
-    if (!tryDecodeStr(begin, "file_id", file_id, errs)) {
+    if (!tryDecodeStr(begin, "asset_tag", asset_tag, errs)) {
+        return false;
+    }
+
+    if (!tryDecodeStr(begin, "fru_file_id", fru_file_id, errs)) {
         return false;
     }
 
@@ -303,31 +234,28 @@ AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
 //    ######## ##     ## ####    ##    #### ##    ##  ######
 
 void
-AreaBoard::emitJSON(nlohmann::json &j) {
+AreaProductInfo::emitJSON(nlohmann::json &j) {
 }
 
 void
-AreaBoard::emitTOML() {
+AreaProductInfo::emitTOML() {
 }
 
 bool
-AreaBoard::emitBinary(bytes &out_bin, Errs &errs) {
+AreaProductInfo::emitBinary(bytes &out_bin, Errs &errs) {
     bytes bs;
 
     std::string err;
     bool        valid = true;
 
-    bytes date_time_bs;
     bytes manufacturer_bs;
     bytes product_name_bs;
+    bytes part_bs;
+    bytes version_bs;
     bytes serial_number_bs;
-    bytes file_id_bs;
+    bytes asset_tag_bs;
+    bytes fru_file_id_bs;
     bytes custom_bs;
-
-    if (!encodeDateTime(date_time_bs, date_time, err)) {
-        errs.append(tag, "date_time", err);
-        valid = false;
-    }
 
     if (!tryEncodeStr("manufacturer", manufacturer, manufacturer_bs, errs)) {
         valid = false;
@@ -337,11 +265,23 @@ AreaBoard::emitBinary(bytes &out_bin, Errs &errs) {
         valid = false;
     }
 
+    if (!tryEncodeStr("part", part, part_bs, errs)) {
+        valid = false;
+    }
+
+    if (!tryEncodeStr("version", version, version_bs, errs)) {
+        valid = false;
+    }
+
     if (!tryEncodeStr("serial_number", serial_number, serial_number_bs, errs)) {
         valid = false;
     }
 
-    if (!tryEncodeStr("file_id", file_id, file_id_bs, errs)) {
+    if (!tryEncodeStr("asset_tag", asset_tag, asset_tag_bs, errs)) {
+        valid = false;
+    }
+
+    if (!tryEncodeStr("fru_file_id", fru_file_id, fru_file_id_bs, errs)) {
         valid = false;
     }
 
@@ -364,7 +304,8 @@ AreaBoard::emitBinary(bytes &out_bin, Errs &errs) {
     }
 
     uchar length = const_len + manufacturer_bs.size() + product_name_bs.size() +
-                   serial_number_bs.size() + file_id_bs.size() + custom_bs.size();
+                   part_bs.size() + version_bs.size() + serial_number_bs.size() +
+                   asset_tag_bs.size() + fru_file_id_bs.size() + custom_bs.size();
     // total length
     uchar total  = getLength();
     // byte count of zero filled unused space
@@ -377,11 +318,13 @@ AreaBoard::emitBinary(bytes &out_bin, Errs &errs) {
     // language code
     bs.emplace_back(std::byte{static_cast<uchar>(language_code)});
 
-    bs.insert(bs.end(), date_time_bs.begin(), date_time_bs.end());
     bs.insert(bs.end(), manufacturer_bs.begin(), manufacturer_bs.end());
     bs.insert(bs.end(), product_name_bs.begin(), product_name_bs.end());
+    bs.insert(bs.end(), part_bs.begin(), part_bs.end());
+    bs.insert(bs.end(), version_bs.begin(), version_bs.end());
     bs.insert(bs.end(), serial_number_bs.begin(), serial_number_bs.end());
-    bs.insert(bs.end(), file_id_bs.begin(), file_id_bs.end());
+    bs.insert(bs.end(), asset_tag_bs.begin(), asset_tag_bs.end());
+    bs.insert(bs.end(), fru_file_id_bs.begin(), fru_file_id_bs.end());
     bs.insert(bs.end(), custom_bs.begin(), custom_bs.end());
 
     // end of fields
@@ -404,10 +347,10 @@ AreaBoard::emitBinary(bytes &out_bin, Errs &errs) {
 //     ##  ##   ###  ##     ##
 //    #### ##    ## ####    ##
 
-AreaBoard::AreaBoard() : Section("board", "Board Info Area") {
+AreaProductInfo::AreaProductInfo(/* args */) : Section("product_info", "Product Info Area") {
     //
 }
 
-AreaBoard::~AreaBoard() {
+AreaProductInfo::~AreaProductInfo() {
     //
 }

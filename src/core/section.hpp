@@ -20,6 +20,9 @@ using namespace nlohmann;
         return false;                               \
     }
 
+#define ROUND_LEN_TO_8_BYTES_MULTPL(len) ((len + 7) / 8)
+#define IPMI_TO_REAL_LEN(len)            (len * 8)
+
 typedef std::vector<json>              jarray;
 typedef std::variant<int, std::string> fieldVal;
 
@@ -81,14 +84,16 @@ class Section {
   public:
     std::string getTag();
 
-    virtual bool tryParseJSON(nlohmann::json j, Errs &errs)   = 0;
-    virtual bool tryParseTOML(toml::value &t, Errs &errs)     = 0;
-    virtual bool tryParseBinary(biterator in_bin, Errs &errs) = 0;
+    virtual uchar getLength() = 0;
+
+    virtual bool tryParseJSON(nlohmann::json j, Errs &errs)                 = 0;
+    virtual bool tryParseTOML(toml::value &t, Errs &errs)                   = 0;
+    virtual bool tryParseBinary(biterator begin, biterator end, Errs &errs) = 0;
 
     virtual void emitJSON(nlohmann::json &j)            = 0;
     virtual void emitTOML()                             = 0;
     virtual bool emitBinary(bytes &out_bin, Errs &errs) = 0;
 
     Section(std::string tag, std::string label);
-    ~Section();
+    virtual ~Section() = default;
 };

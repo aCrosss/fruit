@@ -17,15 +17,16 @@ class AreaBoard : public Section {
     std::vector<encodedStr> custom;
 
     void debug_printOutVals();
+    void clear() override;
 
   public:
-    void clear() override;
+    uchar getLength() override;
 
     template <typename T>
     bool tryParseImpl(T v, Errs &errs);
     bool tryParseJSON(nlohmann::json j, Errs &errs) override;
     bool tryParseTOML(toml::value &t, Errs &errs) override;
-    bool tryParseBinary(biterator in_bin, Errs &errs) override;
+    bool tryParseBinary(biterator begin, biterator end, Errs &errs) override;
 
     void emitJSON(nlohmann::json &j) override;
     void emitTOML() override;

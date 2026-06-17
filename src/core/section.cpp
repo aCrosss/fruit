@@ -89,8 +89,8 @@ Section::checkChecksums(biterator cs1p, biterator cs2beg, biterator cs2end, Errs
     uchar checksum     = static_cast<uchar>(*(cs1p));
     uchar checksum_rec = static_cast<uchar>(calcZeroChecksum(cs2beg, cs2end));
     if (checksum != checksum_rec) {
-        std::cout << std::hex << checksum << std::endl;
-        std::cout << std::hex << checksum_rec << std::endl;
+        std::cout << "expected " << std::hex << static_cast<int>(checksum) << ", but got ";
+        std::cout << std::hex << static_cast<int>(checksum_rec) << std::endl;
         errs.append(tag, "common", "checksum is invalid");
         return false;
     }
@@ -511,7 +511,4 @@ Section::Section(std::string tag, std::string label) {
     this->label = label;
 
     present = false;
-}
-
-Section::~Section() {
 }

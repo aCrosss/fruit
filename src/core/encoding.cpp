@@ -43,7 +43,7 @@ debug_PrintByte(std::byte byte) {
     char b  = static_cast<uchar>(byte);
     char hi = nibble_to_hex((b >> 4) & 0x0F);
     char lo = nibble_to_hex((b >> 0) & 0x0F);
-    std::cout << hi << lo << std::endl;
+    std::cout << hi << lo;
 }
 
 //    ######## ##    ##  ######   #######  ########  #### ##    ##  ######
@@ -180,11 +180,22 @@ encode_ascii6bit(std::string text, bytes &out, std::string &err) {
 }
 
 bool
+encode_unicode(std::string text, bytes &out, std::string &err) {
+    uchar *raw = reinterpret_cast<uchar *>(text.data());
+    for (size_t i = 0; i < text.size(); i++) {
+        out.emplace_back(std::byte{raw[i]});
+    }
+
+    return true;
+}
+
+bool
 encode(std::string text, Encoding enc, bytes &outb, std::string &err) {
     switch (enc) {
     case ENCODING_BINARY_UNSPEC: return encode_binary(text, outb, err);
     case ENCODING_BCDp         : return encode_bcdp(text, outb, err);
     case ENCODING_ASCII_6b     : return encode_ascii6bit(text, outb, err);
+    case ENCODING_UNOCODE      : return encode_unicode(text, outb, err);
 
     // TODO: ASCII+Latin, fn unicode
     default: std::cout << "encode: unknown encoding" << std::endl; return false;
@@ -288,6 +299,17 @@ decode_ascii6bit(std::string &text, biterator &inb, uchar byte_count, std::strin
 }
 
 bool
+decode_unicode(std::string &text, biterator &inb, uchar byte_count, std::string &err) {
+    bytes bs;
+
+    bs.insert(bs.begin(), inb, inb + byte_count);
+
+    text  = std::string(reinterpret_cast<char *>(bs.data()), bs.size());
+    inb  += byte_count;
+    return true;
+}
+
+bool
 decode(std::string &text, Encoding &enc, biterator &inb, std::string &err) {
     std::string str;
     uchar       byte_count = 0;
@@ -300,6 +322,7 @@ decode(std::string &text, Encoding &enc, biterator &inb, std::string &err) {
     case ENCODING_BINARY_UNSPEC: return decode_binary(text, inb, byte_count, err);
     case ENCODING_BCDp         : return decode_bcdp(text, inb, byte_count, err);
     case ENCODING_ASCII_6b     : return decode_ascii6bit(text, inb, byte_count, err);
+    case ENCODING_UNOCODE      : return decode_unicode(text, inb, byte_count, err);
 
     // TODO: ASCII+Latin, fn unicode
     default:
@@ -337,7 +360,7 @@ makeTypeLengthByte(Encoding enc, uchar byte_count, std::byte &outb, std::string 
     case ENCODING_BINARY_UNSPEC:
     case ENCODING_BCDp:
     case ENCODING_ASCII_6b:
-    case ENCODING_LANG_CODE    : type_code = static_cast<uchar>(enc); break;
+    case ENCODING_UNOCODE      : type_code = static_cast<uchar>(enc); break;
     default                    : err = "unknown type code"; return false;
     }
 
@@ -353,7 +376,7 @@ decodeTypeLengthByte(Encoding &enc, uchar &byte_count, std::byte inb, std::strin
     int type_code = (byte >> 6) & 0x03;
     int length    = byte & ENCODED_MAX_BYTE_LENGTH;
 
-    if (type_code < ENCODING_BINARY_UNSPEC || type_code > ENCODING_LANG_CODE) {
+    if (type_code < ENCODING_BINARY_UNSPEC || type_code > ENCODING_UNOCODE) {
         std::stringstream s;
         s << "invalid type code " << type_code;
         err += s.str();
@@ -370,4 +393,20 @@ decodeTypeLengthByte(Encoding &enc, uchar &byte_count, std::byte inb, std::strin
     enc        = Encoding(type_code);
     byte_count = static_cast<uchar>(length);
     return true;
+}
+
+//@brief Calculates actual string length in bytes in given encoding + 1 byte for type/length
+// byte
+//@param &text std::string which length will be calculated
+//@param &enc encoding of given text
+int
+precalcLength(std::string &text, Encoding &enc) {
+    switch (enc) {
+    // internal binary string SHOULDN'T be not in multiples of 2
+    case ENCODING_BINARY_UNSPEC: return text.length() / 2 + 1;
+    case ENCODING_BCDp         : return text.length() + 1;
+    case ENCODING_ASCII_6b     : return ((text.length() + 3) / 4) * 3 + 1;
+    case ENCODING_UNOCODE      : return text.size() + 1;
+    default                    : return -1;
+    }
 }

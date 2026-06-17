@@ -2,6 +2,14 @@
 
 #include "areaChassis.hpp"
 
+//    ##        #######   ######     ###    ##
+//    ##       ##     ## ##    ##   ## ##   ##
+//    ##       ##     ## ##        ##   ##  ##
+//    ##       ##     ## ##       ##     ## ##
+//    ##       ##     ## ##       ######### ##
+//    ##       ##     ## ##    ## ##     ## ##
+//    ########  #######   ######  ##     ## ########
+
 void
 debug_printEncStr(std::string tag, encodedStr str) {
     std::cout << tag << " {data=\'" << str.str << "'"
@@ -11,7 +19,7 @@ debug_printEncStr(std::string tag, encodedStr str) {
 void
 AreaChassis::debug_printOutVals() {
     std::cout << "=== " << label << " ===" << std::endl;
-    debug_printEncStr("type", type);
+    std::cout << "type=" << static_cast<int>(type) << std::endl;
     debug_printEncStr("part_number", part_number);
     debug_printEncStr("serial_number", serial_number);
 
@@ -25,8 +33,7 @@ AreaChassis::debug_printOutVals() {
 
 void
 AreaChassis::clear() {
-    type.str.clear();
-    type.enc = ENCODING_BINARY_UNSPEC;
+    type = 0;
 
     part_number.str.clear();
     part_number.enc = ENCODING_BINARY_UNSPEC;
@@ -35,6 +42,19 @@ AreaChassis::clear() {
     serial_number.enc = ENCODING_BINARY_UNSPEC;
 
     custom.clear();
+}
+
+uchar
+AreaChassis::getLength() {
+    ssize_t length  = const_len;
+    length         += precalcLength(part_number.str, part_number.enc);
+    length         += precalcLength(serial_number.str, serial_number.enc);
+    for (size_t i = 0; i < custom.size(); i++) {
+        length += precalcLength(custom[i].str, custom[i].enc);
+    }
+
+    // total length
+    return ROUND_LEN_TO_8_BYTES_MULTPL(length);
 }
 
 //    ########     ###    ########   ######  #### ##    ##  ######
@@ -51,9 +71,11 @@ AreaChassis::tryParseImpl(T v, Errs &errs) {
     std::string err;
     bool        valid = true;
 
-    if (!tryParseField_encStr(v, "type", type, errs)) {
+    int t = 0;
+    if (!tryParseField_int(v, "type", t, errs)) {
         valid = false;
     }
+    type = static_cast<uchar>(t);
 
     if (!tryParseField_encStr(v, "part_number", part_number, errs)) {
         valid = false;
@@ -92,44 +114,43 @@ AreaChassis::tryParseTOML(toml::value &t, Errs &errs) {
 }
 
 bool
-AreaChassis::tryParseBinary(biterator in_bin, Errs &errs) {
+AreaChassis::tryParseBinary(biterator begin, biterator end, Errs &errs) {
     clear();
 
-    biterator begin = in_bin;
+    biterator beg = begin;
 
     // get area length byte at index 1
-    uchar length = static_cast<uchar>(*(++in_bin));
+    uchar length = IPMI_TO_REAL_LEN(static_cast<uchar>(*(++begin)));
 
-    if (!checkChecksums(begin + length - 1, begin, begin + length - 1, errs)) {
+    if (!checkChecksums(beg + length - 1, beg, beg + length - 1, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(++in_bin, "type", type, errs)) {
+    // type kinda can be all way up to 0xFF
+    type = static_cast<uchar>(*(++begin));
+
+    begin += 1;
+    if (!tryDecodeStr(begin, "part_number", part_number, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(in_bin, "part_number", part_number, errs)) {
-        return false;
-    }
-
-    if (!tryDecodeStr(in_bin, "serial_number", serial_number, errs)) {
+    if (!tryDecodeStr(begin, "serial_number", serial_number, errs)) {
         return false;
     }
 
     size_t i = 0;
-    while (*(in_bin) != END_OF_FIELDS_BYTE) {
+    while (*((begin)) != END_OF_FIELDS_BYTE) {
         encodedStr        es;
         std::stringstream s;
         s << "custom[" << i++ << "]";
 
-        if (!tryDecodeStr(in_bin, s.str(), es, errs)) {
+        if (!tryDecodeStr(begin, s.str(), es, errs)) {
             return false;
         }
 
         custom.emplace_back(es);
     }
 
-    std::cout << "Parsed binary:" << std::endl;
     debug_printOutVals();
     return true;
 }
@@ -157,14 +178,9 @@ AreaChassis::emitBinary(bytes &out_bin, Errs &errs) {
     std::string err;
     bool        valid = true;
 
-    bytes type_bs;
     bytes part_number_bs;
     bytes serial_number_bs;
     bytes custom_bs;
-
-    if (!tryEncodeStr("type", type, type_bs, errs)) {
-        valid = false;
-    }
 
     if (!tryEncodeStr("part_number", part_number, part_number_bs, errs)) {
         valid = false;
@@ -192,19 +208,20 @@ AreaChassis::emitBinary(bytes &out_bin, Errs &errs) {
         return false;
     }
 
-    uchar length = const_len + type_bs.size() + part_number_bs.size() +
-                   serial_number_bs.size() + custom_bs.size();
+    uchar length =
+        const_len + part_number_bs.size() + serial_number_bs.size() + custom_bs.size();
     // total length
-    uchar total  = length / 8 + 1;
+    uchar total  = getLength();
     // byte count of zero filled unused space
-    uchar unused = total * 8 - length;
+    uchar unused = IPMI_TO_REAL_LEN(total) - length;
 
     // header
     bs.emplace_back(DEFAULT_SECTION_HEADER_BYTE);
     // total length (in multiples of 8 bytes)
     bs.emplace_back(std::byte{total});
+    // type enum
+    bs.emplace_back(std::byte{type});
     // encoded fields
-    bs.insert(bs.end(), type_bs.begin(), type_bs.end());
     bs.insert(bs.end(), part_number_bs.begin(), part_number_bs.end());
     bs.insert(bs.end(), serial_number_bs.begin(), serial_number_bs.end());
     bs.insert(bs.end(), custom_bs.begin(), custom_bs.end());

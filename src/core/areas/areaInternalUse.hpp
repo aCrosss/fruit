@@ -1,23 +1,17 @@
-#pragma once
-
 #include "section.hpp"
 
-class AreaChassis : public Section {
+class AreaInternalUse : public Section {
   private:
-    // 1 header byte + 1 length byte + 1 type byte + 1 end of fields byte + 1 checkusm byte
-    uchar const_len = 5;
+    // 1 header header byte
+    const uchar const_len = 1;
 
-    uchar                   type;
-    encodedStr              part_number;
-    encodedStr              serial_number;
-    std::vector<encodedStr> custom;
+    bytes internal_data;
 
-    // void initFields();
     void debug_printOutVals();
-    void clear() override;
 
   public:
     uchar getLength() override;
+    void  clear() override;
 
     template <typename T>
     bool tryParseImpl(T v, Errs &errs);
@@ -29,6 +23,6 @@ class AreaChassis : public Section {
     void emitTOML() override;
     bool emitBinary(bytes &out_bin, Errs &errs) override;
 
-    AreaChassis(/* args */);
-    ~AreaChassis();
+    AreaInternalUse();
+    ~AreaInternalUse();
 };

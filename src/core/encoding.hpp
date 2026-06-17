@@ -58,6 +58,8 @@ bool
 makeTypeLengthByte(Encoding enc, uchar byte_count, std::byte &outb, std::string &err);
 bool
 decodeTypeLengthByte(Encoding &enc, uchar &byte_count, std::byte inb, std::string &err);
+int
+precalcLength(std::string &text, Encoding &enc);
 
 void
 debug_PrintByte(std::byte b);

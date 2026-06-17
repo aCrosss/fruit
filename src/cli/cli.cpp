@@ -52,7 +52,7 @@ cliInputFile(std::string path, FileType type) {
             std::cout << errs.getPlainText() << std::endl;
             return false;
         }
-        break;
+        return true;
 
     case FTYPE_TOML:
         if (!manager.loadTOML(path, t, err)) {
@@ -64,7 +64,7 @@ cliInputFile(std::string path, FileType type) {
             std::cout << errs.getPlainText() << std::endl;
             return false;
         }
-        break;
+        return true;
 
     case FTYPE_BINARY:
         if (!manager.loadBinary(path, bs, err)) {
@@ -76,7 +76,7 @@ cliInputFile(std::string path, FileType type) {
             std::cout << errs.getPlainText() << std::endl;
             return false;
         }
-        break;
+        return true;
 
     default: std::cout << "unknown input file type" << std::endl; break;
     }
@@ -95,7 +95,7 @@ cliOutputFile(std::string path, FileType type) {
             std::cout << errs.getPlainText() << std::endl;
             return false;
         }
-        break;
+        return true;
 
     case FTYPE_TOML: /* TODO: forgot to implement toml */ break;
 
@@ -105,8 +105,7 @@ cliOutputFile(std::string path, FileType type) {
             std::cout << errs.getPlainText() << std::endl;
             return false;
         }
-        break;
-        break;
+        return true;
 
     default: std::cout << "unknown output file type" << std::endl; break;
     }
