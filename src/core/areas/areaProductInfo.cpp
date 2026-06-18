@@ -163,6 +163,7 @@ AreaProductInfo::tryParseTOML(toml::value &t, Errs &errs) {
 
 bool
 AreaProductInfo::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+    UNUSED(end);
     clear();
 
     biterator beg = begin;

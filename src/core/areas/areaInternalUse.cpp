@@ -46,11 +46,10 @@ template <typename T>
 bool
 AreaInternalUse::tryParseImpl(T v, Errs &errs) {
     std::string err;
-    bool        valid = true;
-
     std::string hex;
+
     if (!tryParseField_str(v, "data", hex, errs)) {
-        valid = false;
+        return false;
     }
 
     if (!hexStrToBytes(hex, internal_data, err)) {
@@ -136,6 +135,8 @@ AreaInternalUse::emitTOML(toml::table &t) {
 
 bool
 AreaInternalUse::emitBinary(bytes &out_bin, Errs &errs) {
+    UNUSED(errs);
+
     if (!present) {
         return true;
     }

@@ -164,6 +164,7 @@ Manager::saveJSON(std::string path, Errs &errs) {
 
     std::ofstream fout(path);
     if (!fout.is_open()) {
+        errs.append("manager", "saveJSON", "failed to create file");
         return false;
     }
 
@@ -174,6 +175,8 @@ Manager::saveJSON(std::string path, Errs &errs) {
 
 bool
 Manager::saveTOML(std::string path, Errs &errs) {
+    UNUSED(errs);
+
     toml::value  root   = toml::table{};
     toml::table &rtable = root.as_table();
 
@@ -192,6 +195,7 @@ Manager::saveTOML(std::string path, Errs &errs) {
 
     std::ofstream fout(path);
     if (!fout.is_open()) {
+        errs.append("manager", "saveTOML", "failed to create file");
         return false;
     }
 
@@ -220,6 +224,10 @@ Manager::saveBinary(std::string path, Errs &errs) {
 
     if (valid) {
         std::ofstream foutb(path, std::ios::binary);
+        if (!foutb.is_open()) {
+            errs.append("manager", "saveBinary", "failed to create file");
+            return false;
+        }
         foutb.write(reinterpret_cast<const char *>(bs.data()), bs.size());
         foutb.close();
         return true;

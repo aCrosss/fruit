@@ -89,7 +89,6 @@ encode_binary(std::string text, bytes &out, std::string &err) {
         out.emplace_back(b);
     }
 
-    debug_PrintBytes(out);
     return true;
 }
 
@@ -134,7 +133,6 @@ encode_bcdp(std::string text, bytes &out, std::string &err) {
         str++;
     }
 
-    debug_PrintBytes(out);
     return true;
 }
 
@@ -175,12 +173,13 @@ encode_ascii6bit(std::string text, bytes &out, std::string &err) {
         out.insert(out.end(), std::begin(bytes), std::end(bytes));
     }
 
-    debug_PrintBytes(out);
     return true;
 }
 
 bool
 encode_unicode(std::string text, bytes &out, std::string &err) {
+    UNUSED(err);
+
     uchar *raw = reinterpret_cast<uchar *>(text.data());
     for (size_t i = 0; i < text.size(); i++) {
         out.emplace_back(std::byte{raw[i]});
@@ -212,6 +211,8 @@ encode(std::string text, Encoding enc, bytes &outb, std::string &err) {
 
 bool
 decode_binary(std::string &text, biterator &inb, uchar byte_count, std::string &err) {
+    UNUSED(err);
+
     for (size_t i = 0; i < byte_count; i++, inb++) {
         uchar hi = (static_cast<uchar>(*inb) >> 4) & 0x0F;
         uchar lo = (static_cast<uchar>(*inb) >> 0) & 0x0F;
@@ -300,6 +301,8 @@ decode_ascii6bit(std::string &text, biterator &inb, uchar byte_count, std::strin
 
 bool
 decode_unicode(std::string &text, biterator &inb, uchar byte_count, std::string &err) {
+    UNUSED(err);
+
     bytes bs;
 
     bs.insert(bs.begin(), inb, inb + byte_count);

@@ -54,6 +54,8 @@ parseDateTime(std::string dtime, std::string &err) {
 //@return minutes from 00:00 01-01-1996 or -1 on error
 int
 parseDateTime(biterator dtb, std::string &err) {
+    UNUSED(err);
+
     int dtime = 0;
 
     for (size_t i = 0; i < 3; i++) {
@@ -84,6 +86,8 @@ encodeDateTime(std::string &outs, int minutes, std::string &err) {
 
 bool
 encodeDateTime(bytes &bs, int minutes, std::string &err) {
+    UNUSED(err);
+
     std::byte b1, b2, b3;
 
     b1 = std::byte{static_cast<uchar>(minutes >> 0 & 0xFF)};
@@ -237,6 +241,7 @@ AreaBoard::tryParseTOML(toml::value &t, Errs &errs) {
 
 bool
 AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+    UNUSED(end);
     clear();
 
     biterator beg = begin;

@@ -42,12 +42,12 @@ AreaCommonHeader::getOffset(Areas offset_ind) {
 
 uchar
 AreaCommonHeader::getNextOffset(Areas offset_ind) {
-    ssize_t ind = static_cast<ssize_t>(offset_ind) - 1;
+    uchar ind = static_cast<uchar>(offset_ind) - 1;
     if (ind >= offsets.size()) {
         return 0;
     }
 
-    for (size_t i = ind + 1; i < offsets.size(); i++) {
+    for (uchar i = ind + 1; i < offsets.size(); i++) {
         if (offsets[i] > 0) {
             return offsets[i];
         }
@@ -108,6 +108,8 @@ AreaCommonHeader::tryParseTOML(toml::value &t, Errs &errs) {
 
 bool
 AreaCommonHeader::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+    UNUSED(end);
+
     clear();
 
     if (!checkChecksums(begin + const_len - 1, begin, begin + const_len - 1, errs)) {
@@ -150,6 +152,8 @@ AreaCommonHeader::emitTOML(toml::table &t) {
 
 bool
 AreaCommonHeader::emitBinary(bytes &out_bin, Errs &errs) {
+    UNUSED(errs);
+
     bytes bs;
 
     // header

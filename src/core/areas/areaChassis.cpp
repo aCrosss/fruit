@@ -116,6 +116,7 @@ AreaChassis::tryParseTOML(toml::value &t, Errs &errs) {
 
 bool
 AreaChassis::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+    UNUSED(end);
     clear();
 
     biterator beg = begin;
