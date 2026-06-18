@@ -217,6 +217,7 @@ AreaBoard::tryParseImpl(T v, Errs &errs) {
     }
 
     debug_printOutVals();
+    present = true;
     return valid;
 }
 
@@ -291,6 +292,7 @@ AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
     }
 
     debug_printOutVals();
+    present = true;
     return true;
 }
 
@@ -304,6 +306,10 @@ AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
 
 void
 AreaBoard::emitJSON(nlohmann::json &j) {
+    if (!present) {
+        return;
+    }
+
     j["language_code"] = language_code;
 
     std::string ts;
@@ -320,6 +326,10 @@ AreaBoard::emitJSON(nlohmann::json &j) {
 
 void
 AreaBoard::emitTOML(toml::table &t) {
+    if (!present) {
+        return;
+    }
+
     t["language_code"] = toml::value(language_code);
 
     std::string ts;
@@ -336,6 +346,10 @@ AreaBoard::emitTOML(toml::table &t) {
 
 bool
 AreaBoard::emitBinary(bytes &out_bin, Errs &errs) {
+    if (!present) {
+        return true;
+    }
+
     bytes bs;
 
     std::string err;

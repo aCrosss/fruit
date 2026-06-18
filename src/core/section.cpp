@@ -16,6 +16,11 @@ Section::getTag() {
 }
 
 bool
+Section::isPresent() {
+    return present;
+}
+
+bool
 Section::tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs) {
     std::string err;
     bytes       bs;

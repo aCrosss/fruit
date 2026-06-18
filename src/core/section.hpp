@@ -88,6 +88,7 @@ class Section {
 
   public:
     std::string getTag();
+    bool        isPresent();
 
     virtual uchar getLength() = 0;
 

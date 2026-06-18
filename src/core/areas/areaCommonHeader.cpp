@@ -58,14 +58,19 @@ AreaCommonHeader::getNextOffset(Areas offset_ind) {
 
 bool
 AreaCommonHeader::setOffsets(std::vector<std::unique_ptr<Section>> &sections) {
-    offsets.resize(4);
+    offsets.resize(sections.size());
 
-    uchar base = 0;
+    uchar base = 1;
     // skip itself
-    for (size_t i = 1; i < 4; i++) {
-        uchar len       = sections[i - 1]->getLength();
-        offsets[i - 1]  = len + base;
-        base           += len;
+    for (size_t i = 1; i < sections.size(); i++) {
+        auto &&section = sections[i];
+
+        if (section->isPresent()) {
+            offsets[i - 1]  = base;
+            base           += section->getLength();
+        } else {
+            offsets[i - 1] = 0;
+        }
     }
 
     return true;

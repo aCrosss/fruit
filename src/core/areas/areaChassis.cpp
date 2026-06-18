@@ -96,6 +96,7 @@ AreaChassis::tryParseImpl(T v, Errs &errs) {
     }
 
     debug_printOutVals();
+    present = true;
     return valid;
 }
 
@@ -152,6 +153,7 @@ AreaChassis::tryParseBinary(biterator begin, biterator end, Errs &errs) {
     }
 
     debug_printOutVals();
+    present = true;
     return true;
 }
 
@@ -165,6 +167,10 @@ AreaChassis::tryParseBinary(biterator begin, biterator end, Errs &errs) {
 
 void
 AreaChassis::emitJSON(nlohmann::json &j) {
+    if (!present) {
+        return;
+    }
+
     j["type"] = type;
 
     emitEncStr(j, "part_number", part_number);
@@ -174,6 +180,10 @@ AreaChassis::emitJSON(nlohmann::json &j) {
 
 void
 AreaChassis::emitTOML(toml::table &t) {
+    if (!present) {
+        return;
+    }
+
     t["type"] = toml::value(type);
 
     emitEncStr(t, "part_number", part_number);
@@ -183,6 +193,10 @@ AreaChassis::emitTOML(toml::table &t) {
 
 bool
 AreaChassis::emitBinary(bytes &out_bin, Errs &errs) {
+    if (!present) {
+        return true;
+    }
+
     bytes bs;
 
     std::string err;

@@ -58,6 +58,7 @@ AreaInternalUse::tryParseImpl(T v, Errs &errs) {
         return false;
     }
 
+    present = true;
     return true;
 }
 
@@ -87,6 +88,7 @@ AreaInternalUse::tryParseBinary(biterator begin, biterator end, Errs &errs) {
     internal_data.insert(internal_data.begin(), begin + 1, end);
 
     debug_printOutVals();
+    present = true;
     return true;
 }
 
@@ -102,6 +104,10 @@ void
 AreaInternalUse::emitJSON(nlohmann::json &j) {
     std::string hex;
 
+    if (!present) {
+        return;
+    }
+
     if (internal_data.size() == 0) {
         // nothing to do
         return;
@@ -115,6 +121,10 @@ void
 AreaInternalUse::emitTOML(toml::table &t) {
     std::string hex;
 
+    if (!present) {
+        return;
+    }
+
     if (internal_data.size() == 0) {
         // nothing to do
         return;
@@ -126,6 +136,10 @@ AreaInternalUse::emitTOML(toml::table &t) {
 
 bool
 AreaInternalUse::emitBinary(bytes &out_bin, Errs &errs) {
+    if (!present) {
+        return true;
+    }
+
     out_bin.emplace_back(DEFAULT_SECTION_HEADER_BYTE);
 
     out_bin.insert(out_bin.end(), internal_data.begin(), internal_data.end());
