@@ -142,8 +142,7 @@ AreaInternalUse::emitBinary(bytes &out_bin, Errs &errs) {
     }
 
     out_bin.emplace_back(DEFAULT_SECTION_HEADER_BYTE);
-
-    out_bin.insert(out_bin.end(), internal_data.begin(), internal_data.end());
+    APPEND_BYTES(out_bin, internal_data);
 
     uchar total  = getLength();
     // byte count of zero filled unused space

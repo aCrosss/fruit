@@ -35,12 +35,8 @@ void
 AreaChassis::clear() {
     type = 0;
 
-    part_number.str.clear();
-    part_number.enc = ENCODING_BINARY_UNSPEC;
-
-    serial_number.str.clear();
-    serial_number.enc = ENCODING_BINARY_UNSPEC;
-
+    CLEAR_ENC_STR(part_number);
+    CLEAR_ENC_STR(serial_number);
     custom.clear();
 }
 
@@ -247,9 +243,9 @@ AreaChassis::emitBinary(bytes &out_bin, Errs &errs) {
     // type enum
     bs.emplace_back(std::byte{type});
     // encoded fields
-    bs.insert(bs.end(), part_number_bs.begin(), part_number_bs.end());
-    bs.insert(bs.end(), serial_number_bs.begin(), serial_number_bs.end());
-    bs.insert(bs.end(), custom_bs.begin(), custom_bs.end());
+    APPEND_BYTES(bs, part_number_bs);
+    APPEND_BYTES(bs, serial_number_bs);
+    APPEND_BYTES(bs, custom_bs);
     // end of fields
     bs.emplace_back(END_OF_FIELDS_BYTE);
     // fill unused space with zeroes

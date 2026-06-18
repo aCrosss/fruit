@@ -30,27 +30,13 @@ AreaProductInfo::getLength() {
 
 void
 AreaProductInfo::clear() {
-    manufacturer.str.clear();
-    manufacturer.enc = ENCODING_BINARY_UNSPEC;
-
-    product_name.str.clear();
-    product_name.enc = ENCODING_BINARY_UNSPEC;
-
-    part.str.clear();
-    part.enc = ENCODING_BINARY_UNSPEC;
-
-    version.str.clear();
-    version.enc = ENCODING_BINARY_UNSPEC;
-
-    serial_number.str.clear();
-    serial_number.enc = ENCODING_BINARY_UNSPEC;
-
-    asset_tag.str.clear();
-    asset_tag.enc = ENCODING_BINARY_UNSPEC;
-
-    fru_file_id.str.clear();
-    fru_file_id.enc = ENCODING_BINARY_UNSPEC;
-
+    CLEAR_ENC_STR(manufacturer);
+    CLEAR_ENC_STR(product_name);
+    CLEAR_ENC_STR(part);
+    CLEAR_ENC_STR(version);
+    CLEAR_ENC_STR(serial_number);
+    CLEAR_ENC_STR(asset_tag);
+    CLEAR_ENC_STR(fru_file_id);
     custom.clear();
 }
 
@@ -353,14 +339,15 @@ AreaProductInfo::emitBinary(bytes &out_bin, Errs &errs) {
     // language code
     bs.emplace_back(std::byte{static_cast<uchar>(language_code)});
 
-    bs.insert(bs.end(), manufacturer_bs.begin(), manufacturer_bs.end());
-    bs.insert(bs.end(), product_name_bs.begin(), product_name_bs.end());
-    bs.insert(bs.end(), part_bs.begin(), part_bs.end());
-    bs.insert(bs.end(), version_bs.begin(), version_bs.end());
-    bs.insert(bs.end(), serial_number_bs.begin(), serial_number_bs.end());
-    bs.insert(bs.end(), asset_tag_bs.begin(), asset_tag_bs.end());
-    bs.insert(bs.end(), fru_file_id_bs.begin(), fru_file_id_bs.end());
-    bs.insert(bs.end(), custom_bs.begin(), custom_bs.end());
+    // encoded strings
+    APPEND_BYTES(bs, manufacturer_bs);
+    APPEND_BYTES(bs, product_name_bs);
+    APPEND_BYTES(bs, part_bs);
+    APPEND_BYTES(bs, version_bs);
+    APPEND_BYTES(bs, serial_number_bs);
+    APPEND_BYTES(bs, asset_tag_bs);
+    APPEND_BYTES(bs, fru_file_id_bs);
+    APPEND_BYTES(bs, custom_bs);
 
     // end of fields
     bs.emplace_back(END_OF_FIELDS_BYTE);

@@ -23,6 +23,12 @@ using namespace nlohmann;
 #define ROUND_LEN_TO_8_BYTES_MULTPL(len) ((len + 7) / 8)
 #define IPMI_TO_REAL_LEN(len)            (len * 8)
 
+#define CLEAR_ENC_STR(s) \
+    s.str.clear();       \
+    s.enc = ENCODING_BINARY_UNSPEC;
+
+#define APPEND_BYTES(to, from) to.insert(to.end(), from.begin(), from.end());
+
 typedef std::vector<json>              jarray;
 typedef std::variant<int, std::string> fieldVal;
 

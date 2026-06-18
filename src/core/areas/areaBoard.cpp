@@ -130,18 +130,10 @@ AreaBoard::debug_printOutVals() {
 
 void
 AreaBoard::clear() {
-    manufacturer.str.clear();
-    manufacturer.enc = ENCODING_BINARY_UNSPEC;
-
-    product_name.str.clear();
-    product_name.enc = ENCODING_BINARY_UNSPEC;
-
-    serial_number.str.clear();
-    serial_number.enc = ENCODING_BINARY_UNSPEC;
-
-    file_id.str.clear();
-    file_id.enc = ENCODING_BINARY_UNSPEC;
-
+    CLEAR_ENC_STR(manufacturer);
+    CLEAR_ENC_STR(product_name);
+    CLEAR_ENC_STR(serial_number);
+    CLEAR_ENC_STR(file_id);
     custom.clear();
 }
 
@@ -420,12 +412,13 @@ AreaBoard::emitBinary(bytes &out_bin, Errs &errs) {
     // language code
     bs.emplace_back(std::byte{static_cast<uchar>(language_code)});
 
-    bs.insert(bs.end(), date_time_bs.begin(), date_time_bs.end());
-    bs.insert(bs.end(), manufacturer_bs.begin(), manufacturer_bs.end());
-    bs.insert(bs.end(), product_name_bs.begin(), product_name_bs.end());
-    bs.insert(bs.end(), serial_number_bs.begin(), serial_number_bs.end());
-    bs.insert(bs.end(), file_id_bs.begin(), file_id_bs.end());
-    bs.insert(bs.end(), custom_bs.begin(), custom_bs.end());
+    // encoded strings
+    APPEND_BYTES(bs, date_time_bs);
+    APPEND_BYTES(bs, manufacturer_bs);
+    APPEND_BYTES(bs, product_name_bs);
+    APPEND_BYTES(bs, serial_number_bs);
+    APPEND_BYTES(bs, file_id_bs);
+    APPEND_BYTES(bs, custom_bs);
 
     // end of fields
     bs.emplace_back(END_OF_FIELDS_BYTE);
