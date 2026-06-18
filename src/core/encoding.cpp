@@ -198,7 +198,7 @@ encode(std::string text, Encoding enc, bytes &outb, std::string &err) {
     case ENCODING_UNOCODE      : return encode_unicode(text, outb, err);
 
     // TODO: ASCII+Latin, fn unicode
-    default: std::cout << "encode: unknown encoding" << std::endl; return false;
+    default: err = "encode: unknown encoding"; return false;
     }
 }
 
@@ -409,4 +409,20 @@ precalcLength(std::string &text, Encoding &enc) {
     case ENCODING_UNOCODE      : return text.size() + 1;
     default                    : return -1;
     }
+}
+
+void
+bytesToHexStr(bytes &bs, std::string &outs) {
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0');
+    for (const auto &byte : bs) {
+        oss << std::setw(2) << static_cast<int>(byte);
+    }
+
+    outs = oss.str();
+}
+
+bool
+hexStrToBytes(std::string &ins, bytes &bs, std::string &err) {
+    return encode_binary(ins, bs, err);
 }

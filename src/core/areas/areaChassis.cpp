@@ -165,10 +165,20 @@ AreaChassis::tryParseBinary(biterator begin, biterator end, Errs &errs) {
 
 void
 AreaChassis::emitJSON(nlohmann::json &j) {
+    j["type"] = type;
+
+    emitEncStr(j, "part_number", part_number);
+    emitEncStr(j, "serial_number", serial_number);
+    emitEncStrArr(j, "custom", custom);
 }
 
 void
-AreaChassis::emitTOML() {
+AreaChassis::emitTOML(toml::table &t) {
+    t["type"] = toml::value(type);
+
+    emitEncStr(t, "part_number", part_number);
+    emitEncStr(t, "serial_number", serial_number);
+    emitEncStrArr(t, "custom", custom);
 }
 
 bool

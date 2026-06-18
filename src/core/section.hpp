@@ -81,6 +81,11 @@ class Section {
                                  std::vector<encodedStr> &val,
                                  Errs                    &errs);
 
+    void emitEncStr(json &j, std::string ftag, encodedStr s);
+    void emitEncStr(toml::table &t, std::string ftag, encodedStr s);
+    void emitEncStrArr(json &j, std::string ftag, std::vector<encodedStr> arr);
+    void emitEncStrArr(toml::table &t, std::string ftag, std::vector<encodedStr> arr);
+
   public:
     std::string getTag();
 
@@ -91,7 +96,7 @@ class Section {
     virtual bool tryParseBinary(biterator begin, biterator end, Errs &errs) = 0;
 
     virtual void emitJSON(nlohmann::json &j)            = 0;
-    virtual void emitTOML()                             = 0;
+    virtual void emitTOML(toml::table &t)               = 0;
     virtual bool emitBinary(bytes &out_bin, Errs &errs) = 0;
 
     Section(std::string tag, std::string label);

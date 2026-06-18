@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iomanip>
+#include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
@@ -60,6 +62,10 @@ bool
 decodeTypeLengthByte(Encoding &enc, uchar &byte_count, std::byte inb, std::string &err);
 int
 precalcLength(std::string &text, Encoding &enc);
+void
+bytesToHexStr(bytes &bs, std::string &outs);
+bool
+hexStrToBytes(std::string &ins, bytes &bs, std::string &err);
 
 void
 debug_PrintByte(std::byte b);

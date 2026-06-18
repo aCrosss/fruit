@@ -3,7 +3,6 @@
 #include <string>
 
 #include "CLI11.hpp"
-#include "json.hpp"
 #include "manager.hpp"
 
 enum FileType {
@@ -97,7 +96,13 @@ cliOutputFile(std::string path, FileType type) {
         }
         return true;
 
-    case FTYPE_TOML: /* TODO: forgot to implement toml */ break;
+    case FTYPE_TOML:
+        if (!manager.saveTOML(path, errs)) {
+            std::cout << "failed to save TOML: " << std::endl;
+            std::cout << errs.getPlainText() << std::endl;
+            return false;
+        }
+        return true;
 
     case FTYPE_BINARY:
         if (!manager.saveBinary(path, errs)) {

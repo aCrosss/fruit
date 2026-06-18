@@ -498,6 +498,78 @@ Section::tryParseField_encStrArr(toml::value              t,
     return valid;
 }
 
+//    ######## ##    ##  ######   #######  ########  #### ##    ##  ######
+//    ##       ###   ## ##    ## ##     ## ##     ##  ##  ###   ## ##    ##
+//    ##       ####  ## ##       ##     ## ##     ##  ##  ####  ## ##
+//    ######   ## ## ## ##       ##     ## ##     ##  ##  ## ## ## ##   ####
+//    ##       ##  #### ##       ##     ## ##     ##  ##  ##  #### ##    ##
+//    ##       ##   ### ##    ## ##     ## ##     ##  ##  ##   ### ##    ##
+//    ######## ##    ##  ######   #######  ########  #### ##    ##  ######
+
+void
+Section::emitEncStr(json &j, std::string ftag, encodedStr s) {
+    json jes;
+
+    jes["type"] = encodingToString(s.enc);
+    jes["data"] = s.str;
+
+    j[ftag] = jes;
+}
+
+void
+Section::emitEncStr(toml::table &t, std::string ftag, encodedStr s) {
+    toml::table est;
+
+    est["type"] = encodingToString(s.enc);
+    est["data"] = s.str;
+
+    t[ftag] = toml::value(std::move(est));
+}
+
+void
+Section::emitEncStrArr(json &j, std::string ftag, std::vector<encodedStr> arr) {
+    json jarr;
+
+    if (arr.size() == 0) {
+        // nothing to do
+        return;
+    }
+
+    for (size_t i = 0; i < arr.size(); i++) {
+        json        jentry;
+        encodedStr &s = arr[i];
+
+        jentry["type"] = encodingToString(s.enc);
+        jentry["data"] = s.str;
+
+        jarr[i] = jentry;
+    }
+
+    j[ftag] = jarr;
+}
+
+void
+Section::emitEncStrArr(toml::table &t, std::string ftag, std::vector<encodedStr> arr) {
+    toml::array tarr;
+
+    if (arr.size() == 0) {
+        // nothing to do
+        return;
+    }
+
+    for (size_t i = 0; i < arr.size(); i++) {
+        toml::table tentry;
+        encodedStr &s = arr[i];
+
+        tentry["type"] = encodingToString(s.enc);
+        tentry["data"] = s.str;
+
+        tarr.push_back(toml::value(std::move(tentry)));
+    }
+
+    t[ftag] = toml::value(std::move(tarr));
+}
+
 //    #### ##    ## #### ########
 //     ##  ###   ##  ##     ##
 //     ##  ####  ##  ##     ##

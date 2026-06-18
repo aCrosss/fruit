@@ -5,7 +5,7 @@ class AreaInternalUse : public Section {
     // 1 header header byte
     const uchar const_len = 1;
 
-    bytes internal_data;
+    bytes internal_data; // "data" taqg used
 
     void debug_printOutVals();
 
@@ -20,7 +20,7 @@ class AreaInternalUse : public Section {
     bool tryParseBinary(biterator begin, biterator end, Errs &errs) override;
 
     void emitJSON(nlohmann::json &j) override;
-    void emitTOML() override;
+    void emitTOML(toml::table &t) override;
     bool emitBinary(bytes &out_bin, Errs &errs) override;
 
     AreaInternalUse();

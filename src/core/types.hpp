@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <vector>
 
+#define UNUSED(x) (void)(x)
+
 // 7:4 - reserved, written as 0000b
 // 0:3 - format version number = 1h
 #define DEFAULT_SECTION_HEADER_BYTE std::byte{0x01}

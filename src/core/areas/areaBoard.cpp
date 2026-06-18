@@ -304,10 +304,34 @@ AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
 
 void
 AreaBoard::emitJSON(nlohmann::json &j) {
+    j["language_code"] = language_code;
+
+    std::string ts;
+    std::string err;
+    encodeDateTime(ts, date_time, err);
+    j["date_time"] = ts;
+
+    emitEncStr(j, "manufacturer", manufacturer);
+    emitEncStr(j, "product_name", product_name);
+    emitEncStr(j, "serial_number", serial_number);
+    emitEncStr(j, "file_id", file_id);
+    emitEncStrArr(j, "custom", custom);
 }
 
 void
-AreaBoard::emitTOML() {
+AreaBoard::emitTOML(toml::table &t) {
+    t["language_code"] = toml::value(language_code);
+
+    std::string ts;
+    std::string err;
+    encodeDateTime(ts, date_time, err);
+    t["date_time"] = toml::value(ts);
+
+    emitEncStr(t, "manufacturer", manufacturer);
+    emitEncStr(t, "product_name", product_name);
+    emitEncStr(t, "serial_number", serial_number);
+    emitEncStr(t, "file_id", file_id);
+    emitEncStrArr(t, "custom", custom);
 }
 
 bool

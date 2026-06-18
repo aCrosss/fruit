@@ -22,7 +22,7 @@ class Manager {
     bool parseBinary(bytes &bs, Errs &errs);
 
     bool saveJSON(std::string patch, Errs &errs);
-    // bool saveTOML(std::string patch, Errs &errs);
+    bool saveTOML(std::string patch, Errs &errs);
     bool saveBinary(std::string patch, Errs &errs);
 
     Manager(/* args */);

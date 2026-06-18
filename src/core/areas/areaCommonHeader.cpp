@@ -88,12 +88,16 @@ AreaCommonHeader::setOffsets(std::vector<std::unique_ptr<Section>> &sections) {
 bool
 AreaCommonHeader::tryParseJSON(nlohmann::json j, Errs &errs) {
     // common header generating automaticaly
+    UNUSED(j);
+    UNUSED(errs);
     return true;
 }
 
 bool
 AreaCommonHeader::tryParseTOML(toml::value &t, Errs &errs) {
     // common header generating automaticaly
+    UNUSED(t);
+    UNUSED(errs);
     return true;
 }
 
@@ -127,10 +131,16 @@ AreaCommonHeader::tryParseBinary(biterator begin, biterator end, Errs &errs) {
 
 void
 AreaCommonHeader::emitJSON(nlohmann::json &j) {
+    // common header doesn't emit json
+    UNUSED(j);
+    return;
 }
 
 void
-AreaCommonHeader::emitTOML() {
+AreaCommonHeader::emitTOML(toml::table &t) {
+    // common header doesn't emit toml
+    UNUSED(t);
+    return;
 }
 
 bool

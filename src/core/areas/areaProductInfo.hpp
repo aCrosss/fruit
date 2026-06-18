@@ -29,7 +29,7 @@ class AreaProductInfo : public Section {
     bool tryParseBinary(biterator begin, biterator end, Errs &errs) override;
 
     void emitJSON(nlohmann::json &j) override;
-    void emitTOML() override;
+    void emitTOML(toml::table &t) override;
     bool emitBinary(bytes &out_bin, Errs &errs) override;
 
     AreaProductInfo(/* args */);

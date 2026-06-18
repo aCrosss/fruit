@@ -85,7 +85,7 @@ Manager::parseJSON(nlohmann::json &j, Errs &errs) {
 
     for (auto &&area : sections) {
         if (!j.contains(area->getTag())) {
-            std::cout << "> area " << area->getTag() << " not present";
+            std::cout << "> area " << area->getTag() << " not present" << std::endl;
             continue;
         }
 
@@ -104,6 +104,7 @@ Manager::parseTOML(toml::value &t, Errs &errs) {
     toml::value tarea;
 
     if (!t.contains(area->getTag())) {
+        std::cout << "> area " << area->getTag() << " not present" << std::endl;
         return false;
     }
 
@@ -148,7 +149,55 @@ Manager::parseBinary(bytes &bs, Errs &errs) {
 
 bool
 Manager::saveJSON(std::string path, Errs &errs) {
-    return false;
+    nlohmann::json j;
+
+    for (auto &&area : sections) {
+        nlohmann::json jarea;
+        area->emitJSON(jarea);
+
+        if (jarea.empty()) {
+            continue;
+        }
+
+        j[area->getTag()] = jarea;
+    }
+
+    std::ofstream fout(path);
+    if (!fout.is_open()) {
+        return false;
+    }
+
+    fout << j.dump();
+    fout.close();
+    return true;
+}
+
+bool
+Manager::saveTOML(std::string path, Errs &errs) {
+    toml::value  root   = toml::table{};
+    toml::table &rtable = root.as_table();
+
+    for (auto &&area : sections) {
+        toml::table table;
+        area->emitTOML(table);
+
+        if (table.empty()) {
+            continue;
+        }
+
+        rtable[area->getTag()] = toml::value(std::move(table));
+    }
+
+    std::string out_toml = toml::format(root);
+
+    std::ofstream fout(path);
+    if (!fout.is_open()) {
+        return false;
+    }
+
+    fout << out_toml;
+    fout.close();
+    return true;
 }
 
 bool

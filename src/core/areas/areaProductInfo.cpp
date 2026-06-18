@@ -235,10 +235,30 @@ AreaProductInfo::tryParseBinary(biterator begin, biterator end, Errs &errs) {
 
 void
 AreaProductInfo::emitJSON(nlohmann::json &j) {
+    j["language_code"] = language_code;
+
+    emitEncStr(j, "manufacturer", manufacturer);
+    emitEncStr(j, "product_name", product_name);
+    emitEncStr(j, "part", part);
+    emitEncStr(j, "version", version);
+    emitEncStr(j, "serial_number", serial_number);
+    emitEncStr(j, "asset_tag", asset_tag);
+    emitEncStr(j, "fru_file_id", fru_file_id);
+    emitEncStrArr(j, "custom", custom);
 }
 
 void
-AreaProductInfo::emitTOML() {
+AreaProductInfo::emitTOML(toml::table &t) {
+    t["language_code"] = toml::value(language_code);
+
+    emitEncStr(t, "manufacturer", manufacturer);
+    emitEncStr(t, "product_name", product_name);
+    emitEncStr(t, "part", part);
+    emitEncStr(t, "version", version);
+    emitEncStr(t, "serial_number", serial_number);
+    emitEncStr(t, "asset_tag", asset_tag);
+    emitEncStr(t, "fru_file_id", fru_file_id);
+    emitEncStrArr(t, "custom", custom);
 }
 
 bool

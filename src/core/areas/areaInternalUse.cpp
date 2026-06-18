@@ -45,17 +45,34 @@ AreaInternalUse::clear() {
 template <typename T>
 bool
 AreaInternalUse::tryParseImpl(T v, Errs &errs) {
-    return false;
+    std::string err;
+    bool        valid = true;
+
+    std::string hex;
+    if (!tryParseField_str(v, "data", hex, errs)) {
+        valid = false;
+    }
+
+    if (!hexStrToBytes(hex, internal_data, err)) {
+        errs.append(tag, "data", err);
+        return false;
+    }
+
+    return true;
 }
 
 bool
 AreaInternalUse::tryParseJSON(nlohmann::json j, Errs &errs) {
-    return false;
+    clear();
+
+    return tryParseImpl(j, errs);
 }
 
 bool
 AreaInternalUse::tryParseTOML(toml::value &t, Errs &errs) {
-    return false;
+    clear();
+
+    return tryParseImpl(t, errs);
 }
 
 bool
@@ -83,12 +100,28 @@ AreaInternalUse::tryParseBinary(biterator begin, biterator end, Errs &errs) {
 
 void
 AreaInternalUse::emitJSON(nlohmann::json &j) {
-    return;
+    std::string hex;
+
+    if (internal_data.size() == 0) {
+        // nothing to do
+        return;
+    }
+
+    bytesToHexStr(internal_data, hex);
+    j["data"] = hex;
 }
 
 void
-AreaInternalUse::emitTOML() {
-    return;
+AreaInternalUse::emitTOML(toml::table &t) {
+    std::string hex;
+
+    if (internal_data.size() == 0) {
+        // nothing to do
+        return;
+    }
+
+    bytesToHexStr(internal_data, hex);
+    t["data"] = toml::value(hex);
 }
 
 bool
