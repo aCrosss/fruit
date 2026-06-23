@@ -91,7 +91,7 @@ AreaCommonHeader::setOffsets(std::vector<std::unique_ptr<Section>> &sections) {
 // }
 
 bool
-AreaCommonHeader::tryParseJSON(nlohmann::json j, Errs &errs) {
+AreaCommonHeader::tryParse(nlohmann::json j, Errs &errs) {
     // common header generating automaticaly
     UNUSED(j);
     UNUSED(errs);
@@ -99,7 +99,7 @@ AreaCommonHeader::tryParseJSON(nlohmann::json j, Errs &errs) {
 }
 
 bool
-AreaCommonHeader::tryParseTOML(toml::value &t, Errs &errs) {
+AreaCommonHeader::tryParse(toml::value &t, Errs &errs) {
     // common header generating automaticaly
     UNUSED(t);
     UNUSED(errs);

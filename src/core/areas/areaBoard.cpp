@@ -218,14 +218,14 @@ AreaBoard::tryParseImpl(T v, Errs &errs) {
 }
 
 bool
-AreaBoard::tryParseJSON(nlohmann::json j, Errs &errs) {
+AreaBoard::tryParse(nlohmann::json j, Errs &errs) {
     clear();
 
     return tryParseImpl(j, errs);
 }
 
 bool
-AreaBoard::tryParseTOML(toml::value &t, Errs &errs) {
+AreaBoard::tryParse(toml::value &t, Errs &errs) {
     clear();
 
     return tryParseImpl(t, errs);

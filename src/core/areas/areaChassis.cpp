@@ -97,14 +97,14 @@ AreaChassis::tryParseImpl(T v, Errs &errs) {
 }
 
 bool
-AreaChassis::tryParseJSON(nlohmann::json j, Errs &errs) {
+AreaChassis::tryParse(nlohmann::json j, Errs &errs) {
     clear();
 
     return tryParseImpl(j, errs);
 }
 
 bool
-AreaChassis::tryParseTOML(toml::value &t, Errs &errs) {
+AreaChassis::tryParse(toml::value &t, Errs &errs) {
     clear();
 
     return tryParseImpl(t, errs);

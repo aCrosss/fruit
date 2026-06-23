@@ -24,8 +24,8 @@ class AreaProductInfo : public Section {
 
     template <typename T>
     bool tryParseImpl(T v, Errs &errs);
-    bool tryParseJSON(nlohmann::json j, Errs &errs) override;
-    bool tryParseTOML(toml::value &t, Errs &errs) override;
+    bool tryParse(nlohmann::json j, Errs &errs) override;
+    bool tryParse(toml::value &t, Errs &errs) override;
     bool tryParseBinary(biterator begin, biterator end, Errs &errs) override;
 
     void emitJSON(nlohmann::json &j) override;

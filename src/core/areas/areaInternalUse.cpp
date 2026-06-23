@@ -62,14 +62,14 @@ AreaInternalUse::tryParseImpl(T v, Errs &errs) {
 }
 
 bool
-AreaInternalUse::tryParseJSON(nlohmann::json j, Errs &errs) {
+AreaInternalUse::tryParse(nlohmann::json j, Errs &errs) {
     clear();
 
     return tryParseImpl(j, errs);
 }
 
 bool
-AreaInternalUse::tryParseTOML(toml::value &t, Errs &errs) {
+AreaInternalUse::tryParse(toml::value &t, Errs &errs) {
     clear();
 
     return tryParseImpl(t, errs);

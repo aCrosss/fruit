@@ -98,8 +98,8 @@ class Section {
 
     virtual uchar getLength() = 0;
 
-    virtual bool tryParseJSON(nlohmann::json j, Errs &errs)                 = 0;
-    virtual bool tryParseTOML(toml::value &t, Errs &errs)                   = 0;
+    virtual bool tryParse(nlohmann::json j, Errs &errs)                     = 0;
+    virtual bool tryParse(toml::value &t, Errs &errs)                       = 0;
     virtual bool tryParseBinary(biterator begin, biterator end, Errs &errs) = 0;
 
     virtual void emitJSON(nlohmann::json &j)            = 0;

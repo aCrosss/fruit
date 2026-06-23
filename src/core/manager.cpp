@@ -90,7 +90,7 @@ Manager::parseJSON(nlohmann::json &j, Errs &errs) {
         }
 
         nlohmann::json jarea = j[area->getTag()];
-        if (!area->tryParseJSON(jarea, errs)) {
+        if (!area->tryParse(jarea, errs)) {
             valid = false;
         }
     }
@@ -109,7 +109,7 @@ Manager::parseTOML(toml::value &t, Errs &errs) {
     }
 
     tarea = t.at(area->getTag());
-    return area->tryParseTOML(tarea, errs);
+    return area->tryParse(tarea, errs);
 }
 
 bool

@@ -134,14 +134,14 @@ AreaProductInfo::tryParseImpl(T v, Errs &errs) {
 }
 
 bool
-AreaProductInfo::tryParseJSON(nlohmann::json j, Errs &errs) {
+AreaProductInfo::tryParse(nlohmann::json j, Errs &errs) {
     clear();
 
     return tryParseImpl(j, errs);
 }
 
 bool
-AreaProductInfo::tryParseTOML(toml::value &t, Errs &errs) {
+AreaProductInfo::tryParse(toml::value &t, Errs &errs) {
     clear();
 
     return tryParseImpl(t, errs);
