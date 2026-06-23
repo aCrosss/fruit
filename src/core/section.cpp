@@ -78,7 +78,7 @@ std::byte
 Section::calcZeroChecksum(biterator begin, biterator end) {
     uchar sum = 0;
 
-    for (biterator it = begin; it < end; it++) {
+    for (biterator it = begin; it <= end; it++) {
         sum += static_cast<uchar>(*it);
     }
 

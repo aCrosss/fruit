@@ -9,6 +9,7 @@
 #include "areas/areaChassis.hpp"
 #include "areas/areaBoard.hpp"
 #include "areas/areaProductInfo.hpp"
+#include "areas/areaMRecords.hpp"
 // clang-format on
 
 void
@@ -18,6 +19,7 @@ Manager::initSections() {
     sections.push_back(std::make_unique<AreaChassis>());
     sections.push_back(std::make_unique<AreaBoard>());
     sections.push_back(std::make_unique<AreaProductInfo>());
+    sections.push_back(std::make_unique<AreaMRecords>());
 }
 
 bool
@@ -180,8 +182,11 @@ Manager::saveTOML(std::string path, Errs &errs) {
     toml::value  root   = toml::table{};
     toml::table &rtable = root.as_table();
 
-    for (auto &&area : sections) {
+    // order of areas shouldn't be changed
+    for (size_t i = 0; i < sections.size() - 1; i++) {
+        auto      &&area = sections[i];
         toml::table table;
+
         area->emitTOML(table);
 
         if (table.empty()) {
@@ -191,8 +196,17 @@ Manager::saveTOML(std::string path, Errs &errs) {
         rtable[area->getTag()] = toml::value(std::move(table));
     }
 
-    std::string out_toml = toml::format(root);
+    // special case in TOML: can't pass toml::array between methods in current implementation
+    auto &&area_mrecord = sections[5];
 
+    toml::table tmrecord;
+    area_mrecord->emitTOML(tmrecord);
+    if (!tmrecord.empty()) {
+        rtable[area_mrecord->getTag()] =
+            toml::value(std::move(tmrecord[area_mrecord->getTag()]));
+    }
+
+    std::string   out_toml = toml::format(root);
     std::ofstream fout(path);
     if (!fout.is_open()) {
         errs.append("manager", "saveTOML", "failed to create file");

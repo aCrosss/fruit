@@ -6,6 +6,7 @@ CXXFLAGS := -std=c++17 -Wall -Wextra -O2 -fsanitize=address
 SRC_DIR := src
 CORE_DIR := $(SRC_DIR)/core
 AREAS_DIR := $(CORE_DIR)/areas
+MRECORDS_DIR := $(AREAS_DIR)/mrecords
 GUI_DIR := $(SRC_DIR)/gui
 CLI_DIR := $(SRC_DIR)/cli
 BUILD_DIR := build
@@ -26,6 +27,7 @@ GPGME_FLAGS := $(shell pkg-config --cflags --libs gpgme)
 # Sources
 CORE_SRCS := $(wildcard $(CORE_DIR)/*.cpp)
 AREAS_SRCS := $(wildcard $(AREAS_DIR)/*.cpp)
+MRECORDS_SRCS := $(wildcard $(MRECORDS_DIR)/*.cpp)
 CLI_SRCS := $(wildcard $(CLI_DIR)/*.cpp)
 GUI_SRCS := $(wildcard $(GUI_DIR)/*.cpp)
 
@@ -35,6 +37,7 @@ GUI_SRCS := $(filter-out $(GUI_DIR)/gres.c, $(GUI_SRCS))
 # .o files
 CORE_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(CORE_SRCS))
 AREAS_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(AREAS_SRCS))
+MRECORDS_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(MRECORDS_SRCS))
 CLI_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(CLI_SRCS))
 GUI_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(GUI_SRCS))
 
@@ -49,14 +52,14 @@ all: cli gui
 # Build CLI
 cli: $(CLI_BIN)
 
-$(CLI_BIN): $(CORE_OBJS) $(AREAS_OBJS) $(CLI_OBJS)
+$(CLI_BIN): $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(CLI_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GPGME_FLAGS)
 
 # Build GUI
 gui: $(GUI_BIN)
 
-$(GUI_BIN): $(GRES_SRC) $(CORE_OBJS) $(AREAS_OBJS) $(GUI_OBJS) $(GRES_OBJ)
+$(GUI_BIN): $(GRES_SRC) $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GRES_OBJ)
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS) $(GPGME_FLAGS)
 
@@ -64,7 +67,7 @@ $(GUI_BIN): $(GRES_SRC) $(CORE_OBJS) $(AREAS_OBJS) $(GUI_OBJS) $(GRES_OBJ)
 gui_external: $(GUI_EXT_BIN)
 
 $(GUI_EXT_BIN): CXXFLAGS += -DGUI_EXTERNAL
-$(GUI_EXT_BIN): $(GRES_SRC) $(CORE_OBJS) $(AREAS_OBJS) $(GUI_OBJS) $(GRES_OBJ)
+$(GUI_EXT_BIN): $(GRES_SRC) $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GRES_OBJ)
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS) $(GPGME_FLAGS)
 	@cp $(GUI_DIR)/gres.xml $(BIN_DIR)/gres.xml
@@ -93,7 +96,8 @@ clean:
 
 # Dependencies
 -include $(CORE_OBJS:.o=.d)
--include $(CORE_OBJS:.o=.d)
+-include $(AREAS_OBJS:.o=.d)
+-include $(MRECORDS_OBJS:.o=.d)
 -include $(CLI_OBJS:.o=.d)
 -include $(GUI_OBJS:.o=.d)
 -include $(GRES_OBJ:.o=.d)

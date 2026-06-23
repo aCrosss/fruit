@@ -10,6 +10,16 @@
 //    ##       ##     ## ##    ## ##     ## ##
 //    ########  #######   ######  ##     ## ########
 
+// Common Header, Internal Use, Chassis Info, Board, Product Info, MultiRecord
+#define AREAS_COUNT   6
+// made for offsets calculations, doesn't include common header itself
+// i.e. goes from index 1 to total areas count
+#define LOOP_AREAS    for (size_t i = 1; i < AREAS_COUNT; i++)
+// because we skipped common header area offset to area index is i - 1
+#define OFFSET_IND(i) (i - 1)
+//
+#define LOOP_OFFSETS  for (size_t i = 0; i < AREAS_COUNT - 1; i++)
+
 void
 AreaCommonHeader::debug_printOutVals() {
     std::cout << "=== " << label << " ===" << std::endl;
@@ -17,6 +27,7 @@ AreaCommonHeader::debug_printOutVals() {
     std::cout << "chassis:      " << static_cast<int>(offsets[1]) << std::endl;
     std::cout << "board:        " << static_cast<int>(offsets[2]) << std::endl;
     std::cout << "product_info: " << static_cast<int>(offsets[3]) << std::endl;
+    std::cout << "multi_record: " << static_cast<int>(offsets[4]) << std::endl;
 }
 
 uchar
@@ -27,8 +38,9 @@ AreaCommonHeader::getLength() {
 
 void
 AreaCommonHeader::clear() {
-    offsets.clear();
-    offsets.insert(offsets.begin(), 2, 0);
+    for (size_t i = 0; i < offsets.size(); i++) {
+        offsets[i] = 0;
+    }
 }
 
 uchar
@@ -62,14 +74,14 @@ AreaCommonHeader::setOffsets(std::vector<std::unique_ptr<Section>> &sections) {
 
     uchar base = 1;
     // skip itself
-    for (size_t i = 1; i < sections.size(); i++) {
+    LOOP_AREAS {
         auto &&section = sections[i];
 
         if (section->isPresent()) {
-            offsets[i - 1]  = base;
-            base           += section->getLength();
+            offsets[OFFSET_IND(i)]  = base;
+            base                   += section->getLength();
         } else {
-            offsets[i - 1] = 0;
+            offsets[OFFSET_IND(i)] = 0;
         }
     }
 
@@ -112,17 +124,16 @@ AreaCommonHeader::tryParseBinary(biterator begin, biterator end, Errs &errs) {
 
     clear();
 
-    if (!checkChecksums(begin + const_len - 1, begin, begin + const_len - 1, errs)) {
+    if (!checkChecksums(begin + const_len - 1, begin, begin + const_len - 2, errs)) {
         return false;
     }
 
-    // TODO: rework/remove this line
-    offsets.resize(4);
+    offsets.resize(AREAS_COUNT);
 
-    offsets[0] = static_cast<uchar>(*(begin + 1)); // internal use area
-    offsets[1] = static_cast<uchar>(*(begin + 2)); // chassis info area
-    offsets[2] = static_cast<uchar>(*(begin + 3)); // board area
-    offsets[3] = static_cast<uchar>(*(begin + 4)); // product info area
+    begin++;
+    LOOP_OFFSETS {
+        offsets[i] = static_cast<uchar>(*(begin + i));
+    }
 
     debug_printOutVals();
     return true;
@@ -160,12 +171,9 @@ AreaCommonHeader::emitBinary(bytes &out_bin, Errs &errs) {
     bs.emplace_back(DEFAULT_SECTION_HEADER_BYTE);
 
     // TODO: rework this when all areas will be implemented
-    bs.emplace_back(std::byte{offsets[0]});
-    bs.emplace_back(std::byte{offsets[1]});
-    bs.emplace_back(std::byte{offsets[2]});
-    bs.emplace_back(std::byte{offsets[3]});
-    // multirecords areas NIY
-    bs.emplace_back(std::byte{0});
+    LOOP_OFFSETS {
+        bs.emplace_back(std::byte{offsets[i]});
+    }
     // PAD, 0x00
     bs.emplace_back(std::byte{0});
     bs.emplace_back(calcZeroChecksum(bs));

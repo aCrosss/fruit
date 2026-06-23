@@ -241,7 +241,7 @@ AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
     // get area length byte at index 1
     uchar length = IPMI_TO_REAL_LEN(static_cast<uchar>(*(++begin)));
 
-    if (!checkChecksums(beg + length - 1, beg, beg + length - 1, errs)) {
+    if (!checkChecksums(beg + length - 1, beg, beg + length - 2, errs)) {
         return false;
     }
 
