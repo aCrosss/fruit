@@ -209,6 +209,49 @@ Section::tryParseField_int(toml::value t, std::string ftag, int &val, Errs &errs
     return true;
 }
 
+//     ###### #       ####    ##   #####
+//     #      #      #    #  #  #    #
+//     #####  #      #    # #    #   #
+//     #      #      #    # ######   #
+//     #      #      #    # #    #   #
+//     #      ######  ####  #    #   #
+
+bool
+Section::tryParseField_float(json j, std::string ftag, float &val, Errs &errs) {
+    FILED_MISSING_GUARD(j);
+
+    json jval = j[ftag];
+
+    if (!jval.is_number_float()) {
+        errs.append(tag, ftag, "have invalid type: expected float");
+        return false;
+    }
+
+    val = jval.get<float>();
+    return true;
+}
+
+//@brief Try read value from TOML object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field. Will handle missing field
+//@param t toml::value field object
+//@param ftag std::string field tag
+//@param val output int value
+//@param errs output error
+bool
+Section::tryParseField_float(toml::value t, std::string ftag, float &val, Errs &errs) {
+    FILED_MISSING_GUARD(t);
+
+    toml::value tval = t[ftag];
+
+    if (!tval.is_floating()) {
+        errs.append(tag, ftag, "have invalid type: expected float");
+        return false;
+    }
+
+    val = tval.as_floating();
+    return true;
+}
+
 //      ####  #####       #
 //     #    # #    #      #
 //     #    # #####       #
