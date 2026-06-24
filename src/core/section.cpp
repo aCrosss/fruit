@@ -391,7 +391,7 @@ Section::tryParseEncStrImpl(T v, std::string ftag, encodedStr &val, Errs &errs) 
 
     if (encoding_map.find(enc_str) == encoding_map.end()) {
         s << "invalid encoding type " << enc_str << " ";
-        s << "expected <binary|bcdp|ascii6bit|langcode>";
+        s << "expected <binary|bcdp|ascii6bit|unicode>";
         errs.append(tag, ftag, s.str());
         return false;
     }

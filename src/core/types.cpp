@@ -4,7 +4,7 @@ std::unordered_map<std::string, Encoding> encoding_map{
     {"binary", ENCODING_BINARY_UNSPEC},
     {"bcdp", ENCODING_BCDp},
     {"ascii6bit", ENCODING_ASCII_6b},
-    {"langcode", ENCODING_UNOCODE},
+    {"unicode", ENCODING_UNOCODE},
 };
 
 std::string
