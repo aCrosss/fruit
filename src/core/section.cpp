@@ -209,6 +209,71 @@ Section::tryParseField_int(toml::value t, std::string ftag, int &val, Errs &errs
     return true;
 }
 
+//     #    #  ####  #    #   ##   #####
+//     #    # #    # #    #  #  #  #    #
+//     #    # #      ###### #    # #    #
+//     #    # #      #    # ###### #####
+//     #    # #    # #    # #    # #   #
+//      ####   ####  #    # #    # #    #
+
+//@brief Try read value from JSON object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field. Will handle missing field
+//@param j nlohmann::json field object
+//@param ftag std::string field tag
+//@param val output uchar value
+//@param errs output error
+bool
+Section::tryParseField_uchar(json j, std::string ftag, uchar &val, Errs &errs) {
+    FILED_MISSING_GUARD(j);
+
+    json jval = j[ftag];
+
+    if (!jval.is_number_unsigned()) {
+        errs.append(tag, ftag, "have invalid type: expected unsigned integer");
+        return false;
+    }
+
+    int temp = jval.get<int>();
+
+    // actually value shouldn't be negative due to unsigned check above, but just for good
+    // measure
+    if (temp < 0 || temp > 255) {
+        errs.append(tag, ftag, "expected [0-255] byte value");
+        return false;
+    }
+
+    val = static_cast<uchar>(temp);
+    return true;
+}
+
+//@brief Try read value from TOML object into val. Return true on success and false and
+// error in errs otherwise. Will handle missing field. Will handle missing field
+//@param t toml::value field object
+//@param ftag std::string field tag
+//@param val output uchar value
+//@param errs output error
+bool
+Section::tryParseField_uchar(toml::value t, std::string ftag, uchar &val, Errs &errs) {
+    FILED_MISSING_GUARD(t);
+
+    toml::value tval = t[ftag];
+
+    if (!tval.is_integer()) {
+        errs.append(tag, ftag, "have invalid type: expected unsigned integer");
+        return false;
+    }
+
+    int temp = tval.as_integer();
+
+    if (temp < 0 || temp > 255) {
+        errs.append(tag, ftag, "expected [0-255] byte value");
+        return false;
+    }
+
+    val = static_cast<uchar>(temp);
+    return true;
+}
+
 //     ###### #       ####    ##   #####
 //     #      #      #    #  #  #    #
 //     #####  #      #    # #    #   #

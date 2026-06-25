@@ -104,7 +104,7 @@ MRecordPowerDistribuiton::tryParsePowerFeedsImpl(T v, Map &m, Errs &errs) {
             valid = false;
         }
 
-        if (!IS_FLOAT_MULT_OF(static_cast<float>(min_expected_voltage), 0.5f)) {
+        if (!IS_FLOAT_MULT_OF(min_expected_voltage, 0.5f)) {
             errs.append(tag, "min_expected_voltage", "value is in 1/2 V increment");
             valid = false;
         }
@@ -122,27 +122,23 @@ MRecordPowerDistribuiton::tryParsePowerFeedsImpl(T v, Map &m, Errs &errs) {
         std::stringstream s;
         s << "channels[" << i << "]";
 
-        int hardware_address;
-        int fru_device_id;
+        uchar hardware_address;
+        uchar fru_device_id;
 
-        if (!tryParseField_int(entry, "hardware_address", hardware_address, errs)) {
+        if (!tryParseField_uchar(entry, "hardware_address", hardware_address, errs)) {
             valid = false;
-        } else {
-            CHECK_BOUNDS(hardware_address, 0, 255, errs);
         }
 
-        if (!tryParseField_int(entry, "fru_device_id", fru_device_id, errs)) {
+        if (!tryParseField_uchar(entry, "fru_device_id", fru_device_id, errs)) {
             valid = false;
-        } else {
-            CHECK_BOUNDS(fru_device_id, 0, 255, errs);
         }
 
         if (!valid) {
             continue;
         }
 
-        e.hardware_address = static_cast<uchar>(hardware_address);
-        e.fru_device_id    = static_cast<uchar>(fru_device_id);
+        e.hardware_address = hardware_address;
+        e.fru_device_id    = fru_device_id;
 
         m.entries.push_back(e);
     }

@@ -58,35 +58,29 @@ bool
 MRecordAddressTable::tryParseTableEntryImpl(T v, TableEntry &te, Errs &errs) {
     bool valid = true;
 
-    int hardware_address;
-    int site_number;
-    int site_type;
+    uchar hardware_address;
+    uchar site_number;
+    uchar site_type;
 
-    if (!tryParseField_int(v, "hardware_address", hardware_address, errs)) {
+    if (!tryParseField_uchar(v, "hardware_address", hardware_address, errs)) {
         valid = false;
-    } else {
-        CHECK_BOUNDS(hardware_address, 0, 255, errs);
     }
 
-    if (!tryParseField_int(v, "site_number", site_number, errs)) {
+    if (!tryParseField_uchar(v, "site_number", site_number, errs)) {
         valid = false;
-    } else {
-        CHECK_BOUNDS(site_number, 0, 255, errs);
     }
 
-    if (!tryParseField_int(v, "site_type", site_type, errs)) {
+    if (!tryParseField_uchar(v, "site_type", site_type, errs)) {
         valid = false;
-    } else {
-        CHECK_BOUNDS(site_type, 0, 255, errs);
     }
 
     if (!valid) {
         return false;
     }
 
-    te.hardware_address = static_cast<uchar>(hardware_address);
-    te.site_number      = static_cast<uchar>(site_number);
-    te.site_type        = static_cast<uchar>(site_type);
+    te.hardware_address = hardware_address;
+    te.site_number      = site_number;
+    te.site_type        = site_type;
 
     return true;
 }

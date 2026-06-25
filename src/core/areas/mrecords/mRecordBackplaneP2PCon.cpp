@@ -71,26 +71,20 @@ bool
 MRecordBackplaneP2PCon::tryParseChannelDescrImpl(T v, ChannelDescr &cd, Errs &errs) {
     bool valid = true;
 
-    int local_channel;
-    int remote_channel;
-    int remote_slot;
+    uchar local_channel;
+    uchar remote_channel;
+    uchar remote_slot;
 
-    if (!tryParseField_int(v, "local_channel", local_channel, errs)) {
+    if (!tryParseField_uchar(v, "local_channel", local_channel, errs)) {
         valid = false;
-    } else {
-        CHECK_BOUNDS(local_channel, 0, 255, errs);
     }
 
-    if (!tryParseField_int(v, "remote_channel", remote_channel, errs)) {
+    if (!tryParseField_uchar(v, "remote_channel", remote_channel, errs)) {
         valid = false;
-    } else {
-        CHECK_BOUNDS(local_channel, 0, 255, errs);
     }
 
-    if (!tryParseField_int(v, "remote_slot", remote_slot, errs)) {
+    if (!tryParseField_uchar(v, "remote_slot", remote_slot, errs)) {
         valid = false;
-    } else {
-        CHECK_BOUNDS(local_channel, 0, 255, errs);
     }
 
     if (!valid) {
@@ -165,23 +159,19 @@ bool
 MRecordBackplaneP2PCon::tryParseSlotDescrImpl(T v, SlotDescriptor &sd, Errs &errs) {
     bool valid = true;
 
-    int type;
-    int address;
+    uchar type;
+    uchar address;
 
-    if (!tryParseField_int(v, "type", type, errs)) {
+    if (!tryParseField_uchar(v, "type", type, errs)) {
         valid = false;
-    } else {
-        CHECK_BOUNDS(type, 0, 255, errs);
     }
 
-    if (!tryParseField_int(v, "address", address, errs)) {
+    if (!tryParseField_uchar(v, "address", address, errs)) {
         valid = false;
-    } else {
-        CHECK_BOUNDS(address, 0, 255, errs);
     }
 
-    sd.type    = static_cast<uchar>(type);
-    sd.address = static_cast<uchar>(address);
+    sd.type    = type;
+    sd.address = address;
 
     T array;
     if (!tryParseField_arr(v, "channels", array, errs)) {

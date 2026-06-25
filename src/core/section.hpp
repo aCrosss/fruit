@@ -67,6 +67,9 @@ class Section {
     bool tryParseField_int(json j, std::string ftag, int &val, Errs &errs);
     bool tryParseField_int(toml::value t, std::string ftag, int &val, Errs &errs);
 
+    bool tryParseField_uchar(json j, std::string ftag, uchar &val, Errs &errs);
+    bool tryParseField_uchar(toml::value t, std::string ftag, uchar &val, Errs &errs);
+
     bool tryParseField_float(json j, std::string ftag, float &val, Errs &errs);
     bool tryParseField_float(toml::value t, std::string ftag, float &val, Errs &errs);
 
