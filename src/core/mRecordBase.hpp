@@ -42,6 +42,7 @@ class MRecordBase : public Section {
   protected:
     MRecID       record_id;
     PICMGMRecdID picmg_record_id;
+    uchar        record_ver = 0;
 
     void clear() override = 0;
 

@@ -56,7 +56,7 @@ MRecordBase::prependPICMGHeader(bytes &out) {
 
     out.emplace_back(std::byte{static_cast<uchar>(picmg_record_id)});
     // record format version, 0x00 taken from PICMG specification
-    out.emplace_back(std::byte{0x00});
+    out.emplace_back(std::byte{record_ver});
 }
 
 MRecordBase::MRecordBase(std::string tag, std::string label) : Section(tag, label) {
