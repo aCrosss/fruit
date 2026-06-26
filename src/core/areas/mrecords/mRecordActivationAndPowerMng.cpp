@@ -1,8 +1,5 @@
 #include "mRecordActivationAndPowerMng.hpp"
 
-#define DR_BYTE(v) (static_cast<uchar>(*(v)))
-#define SC_I(v)    static_cast<int>(v)
-
 //    ##        #######   ######     ###    ##
 //    ##       ##     ## ##    ##   ## ##   ##
 //    ##       ##     ## ##        ##   ##  ##

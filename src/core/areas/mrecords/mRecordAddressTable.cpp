@@ -8,17 +8,6 @@
 //    ##       ##     ## ##    ## ##     ## ##
 //    ########  #######   ######  ##     ## ########
 
-#define CHECK_BOUNDS(v, min, max, errs)                                                    \
-    if (v < min || v > max) {                                                              \
-        std::stringstream s;                                                               \
-        s << "must be in range [" << static_cast<int>(min) << ":" << static_cast<int>(max) \
-          << "]";                                                                          \
-        errs.append(tag, #v, s.str());                                                     \
-        valid = false;                                                                     \
-    }
-
-#define SC_I(v) static_cast<int>(v)
-
 void
 MRecordAddressTable::debug_printOutVals() {
     std::cout << "=== " << label << " ===" << std::endl;
@@ -89,9 +78,9 @@ bool
 MRecordAddressTable::tryParseTableEntry(biterator &begin, TableEntry &te, Errs &errs) {
     UNUSED(errs);
 
-    te.hardware_address = static_cast<uchar>(*(begin + 0));
-    te.site_number      = static_cast<uchar>(*(begin + 1));
-    te.site_type        = static_cast<uchar>(*(begin + 2));
+    te.hardware_address = DR_BYTE(begin + 0);
+    te.site_number      = DR_BYTE(begin + 1);
+    te.site_type        = DR_BYTE(begin + 2);
 
     begin += 3;
     return true;
@@ -162,7 +151,7 @@ MRecordAddressTable::tryParseBinary(biterator begin, biterator end, Errs &errs) 
     }
 
     begin               += PICMG_HEADER_LEN;
-    uchar entries_count  = static_cast<uchar>(*(begin + 31));
+    uchar entries_count  = DR_BYTE(begin + 31);
 
     begin += 32;
     for (uchar i = 0; i < entries_count; i++) {

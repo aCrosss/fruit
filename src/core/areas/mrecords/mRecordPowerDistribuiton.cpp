@@ -1,15 +1,5 @@
 #include "mRecordPowerDistribuiton.hpp"
 
-#define CHECK_BOUNDS(v, min, max, errs)                                                    \
-    if (v < min || v > max) {                                                              \
-        std::stringstream s;                                                               \
-        s << "must be in range [" << static_cast<int>(min) << ":" << static_cast<int>(max) \
-          << "]";                                                                          \
-        errs.append(tag, #v, s.str());                                                     \
-        valid = false;                                                                     \
-    }
-#define SC_I(v) static_cast<int>(v)
-
 #define IS_FLOAT_MULT_OF(v, divider) (std::fabs(std::fmod(v, divider)) < 1e-6f)
 
 //    ##        #######   ######     ###    ##
@@ -162,7 +152,7 @@ MRecordPowerDistribuiton::tryParsePowerFeeds(biterator &begin, Map &m, Errs &err
     bytesToFloat(begin + 0, m.max_external_current);
     bytesToFloat(begin + 2, m.max_internal_current);
 
-    int min_ev = static_cast<int>(*(begin + 4));
+    int min_ev = DR_INT(begin + 4);
     if (min_ev < MIN_VOLTAGE_HEX || min_ev > MAX_VOLTAGE_HEX) {
         std::stringstream s;
         s << "must be in range [" << static_cast<int>(MIN_VOLTAGE_HEX) << ":"
@@ -172,13 +162,13 @@ MRecordPowerDistribuiton::tryParsePowerFeeds(biterator &begin, Map &m, Errs &err
     }
     m.min_expected_voltage = 0.5f * min_ev;
 
-    uchar entries_count = static_cast<uchar>(*(begin + 5));
+    uchar entries_count = DR_BYTE(begin + 5);
 
     begin += 6;
     for (uchar i = 0; i < entries_count; i++) {
         MapEntry e;
-        e.hardware_address = static_cast<uchar>(*(begin++));
-        e.fru_device_id    = static_cast<uchar>(*(begin++));
+        e.hardware_address = DR_BYTE(begin++);
+        e.fru_device_id    = DR_BYTE(begin++);
         m.entries.push_back(e);
     }
 
@@ -240,7 +230,7 @@ MRecordPowerDistribuiton::tryParseBinary(biterator begin, biterator end, Errs &e
     UNUSED(end);
 
     begin             += PICMG_HEADER_LEN;
-    uchar feeds_count  = static_cast<uchar>(*(begin++));
+    uchar feeds_count  = DR_BYTE(begin++);
 
     for (uchar i = 0; i < feeds_count; i++) {
         Map m;

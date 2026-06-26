@@ -5,6 +5,18 @@
 #define IPMI_HEADER_LEN  5
 #define PICMG_HEADER_LEN IPMI_HEADER_LEN + 5
 
+#define DR_BYTE(v) static_cast<uchar>(*(v))
+#define DR_INT(v)  static_cast<int>(*(v))
+#define SC_I(v)    static_cast<int>(v)
+#define CHECK_BOUNDS(v, min, max, errs)                                                    \
+    if (v < min || v > max) {                                                              \
+        std::stringstream s;                                                               \
+        s << "must be in range [" << static_cast<int>(min) << ":" << static_cast<int>(max) \
+          << "]";                                                                          \
+        errs.append(tag, #v, s.str());                                                     \
+        valid = false;                                                                     \
+    }
+
 enum MRType {
     MR_IMPI,
     MR_PICMG,

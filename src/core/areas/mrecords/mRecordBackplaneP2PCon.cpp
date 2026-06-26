@@ -8,10 +8,6 @@
 //    ##       ##     ## ##    ## ##     ## ##
 //    ########  #######   ######  ##     ## ########
 
-#define SC_I(v)   static_cast<int>(v)
-#define PRINT(v)  std::cout << v
-#define PRINTL(v) std::cout << v << std::endl
-
 void
 MRecordBackplaneP2PCon::debug_printOutVals() {
     std::cout << "=== " << label << " ===" << std::endl;
@@ -47,15 +43,6 @@ MRecordBackplaneP2PCon::getLength() {
 
     return len;
 }
-
-#define CHECK_BOUNDS(v, min, max, errs)                                                    \
-    if (v < min || v > max) {                                                              \
-        std::stringstream s;                                                               \
-        s << "must be in range [" << static_cast<int>(min) << ":" << static_cast<int>(max) \
-          << "]";                                                                          \
-        errs.append(tag, #v, s.str());                                                     \
-        valid = false;                                                                     \
-    }
 
 //
 //   ####  #    #   ##   #    # #    # ###### #         #####  ######  ####   ####  #####
@@ -100,9 +87,9 @@ MRecordBackplaneP2PCon::tryParseChannelDescrImpl(T v, ChannelDescr &cd, Errs &er
 
 bool
 MRecordBackplaneP2PCon::tryParseChannelDescr(biterator &begin, ChannelDescr &cd) {
-    uchar b1 = static_cast<uchar>(*(begin + 0));
-    uchar b2 = static_cast<uchar>(*(begin + 1));
-    uchar b3 = static_cast<uchar>(*(begin + 2));
+    uchar b1 = DR_BYTE(begin + 0);
+    uchar b2 = DR_BYTE(begin + 1);
+    uchar b3 = DR_BYTE(begin + 2);
 
     // 17:13
     cd.local_channel  = ((b2 >> 5) & MASK_3b) | ((b3 & MASK_2b) << 3);
@@ -199,10 +186,10 @@ bool
 MRecordBackplaneP2PCon::tryParseSlotDescr(biterator &begin, biterator end, SlotDescriptor &sd) {
     UNUSED(end);
 
-    sd.type    = static_cast<uchar>(*(begin + 0));
-    sd.address = static_cast<uchar>(*(begin + 1));
+    sd.type    = DR_BYTE(begin + 0);
+    sd.address = DR_BYTE(begin + 1);
 
-    uchar channel_count  = static_cast<uchar>(*(begin + 2));
+    uchar channel_count  = DR_BYTE(begin + 2);
     begin               += 3;
     for (uchar i = 0; i < channel_count; i++) {
         ChannelDescr cd;
