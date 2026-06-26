@@ -4,6 +4,7 @@
 #include "mrecords/mRecordBackplaneP2PCon.hpp"
 #include "mrecords/mRecordAddressTable.hpp"
 #include "mrecords/mRecordPowerDistribuiton.hpp"
+#include "mrecords/mRecordActivationAndPowerMng.hpp"
 // clang-format on
 
 #define HDR_OFFSET_TYPE   0 // offset to record type byte
@@ -113,7 +114,7 @@ AreaMRecords::tryAppendMRecord(std::byte type, std::byte byte9, MRecord &mrecord
         case PICMGREC_BACKPLANE_P2PCON        : APPEND_MRECORD(MRecordBackplaneP2PCon)
         case PICMGREC_ADDRESS_TABLE           : APPEND_MRECORD(MRecordAddressTable)
         case PICMGREC_POWER_DISTRIBUTION      : APPEND_MRECORD(MRecordPowerDistribuiton)
-        case PICMGREC_ACTIVATION_AND_POWER_MNG: break;
+        case PICMGREC_ACTIVATION_AND_POWER_MNG: APPEND_MRECORD(MRecordActivationAndPowerMng)
         case PICMGREC_IP_CONNECTION           : break;
         case PICMGREC_BOARD_P2PCON            : break;
         case PICMGREC_RADIAL_IPMB0_LINK_MAP   : break;
