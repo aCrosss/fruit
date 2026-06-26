@@ -187,6 +187,9 @@ MRecordAddressTable::tryParseBinary(biterator begin, biterator end, Errs &errs) 
 
 void
 MRecordAddressTable::emitJSON(nlohmann::json &j) {
+    j["record_id"]       = record_id;
+    j["picmg_record_id"] = picmg_record_id;
+
     emitEncStr(j, "shelf_address", shelf_address);
 
     json jentries;
@@ -204,6 +207,9 @@ MRecordAddressTable::emitJSON(nlohmann::json &j) {
 
 void
 MRecordAddressTable::emitTOML(toml::table &t) {
+    t["record_id"]       = toml::value(SC_I(record_id));
+    t["picmg_record_id"] = toml::value(SC_I(picmg_record_id));
+
     emitEncStr(t, "shelf_address", shelf_address);
 
     toml::array tentries;

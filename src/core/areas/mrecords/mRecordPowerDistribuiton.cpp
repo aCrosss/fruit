@@ -8,6 +8,7 @@
         errs.append(tag, #v, s.str());                                                     \
         valid = false;                                                                     \
     }
+#define SC_I(v) static_cast<int>(v)
 
 #define IS_FLOAT_MULT_OF(v, divider) (std::fabs(std::fmod(v, divider)) < 1e-6f)
 
@@ -264,6 +265,9 @@ MRecordPowerDistribuiton::tryParseBinary(biterator begin, biterator end, Errs &e
 
 void
 MRecordPowerDistribuiton::emitJSON(nlohmann::json &j) {
+    j["record_id"]       = record_id;
+    j["picmg_record_id"] = picmg_record_id;
+
     json jpower_feeds;
     for (auto &&m : power_feeds) {
         json jmap;
@@ -279,6 +283,7 @@ MRecordPowerDistribuiton::emitJSON(nlohmann::json &j) {
             jentries.push_back(jentry);
         }
 
+        jmap["entries"] = jentries;
         jpower_feeds.push_back(jmap);
     }
 
@@ -287,6 +292,9 @@ MRecordPowerDistribuiton::emitJSON(nlohmann::json &j) {
 
 void
 MRecordPowerDistribuiton::emitTOML(toml::table &t) {
+    t["record_id"]       = toml::value(SC_I(record_id));
+    t["picmg_record_id"] = toml::value(SC_I(picmg_record_id));
+
     toml::array tpower_feeds;
     for (auto &&m : power_feeds) {
         toml::table tmap;
@@ -302,7 +310,8 @@ MRecordPowerDistribuiton::emitTOML(toml::table &t) {
             tentries.push_back(toml::value(std::move(tentry)));
         }
 
-        tpower_feeds.push_back(toml::value(std::move(tentries)));
+        tmap["entries"] = toml::value(std::move(tentries));
+        tpower_feeds.push_back(toml::value(std::move(tmap)));
     }
 
     t["power_feeds"] = toml::value(std::move(tpower_feeds));

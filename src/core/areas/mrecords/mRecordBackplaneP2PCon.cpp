@@ -350,8 +350,8 @@ MRecordBackplaneP2PCon::tryParseBinary(biterator begin, biterator end, Errs &err
 
 void
 MRecordBackplaneP2PCon::emitJSON(nlohmann::json &j) {
-    j["record_id"]           = record_id;
-    j["picmpicmg_record_id"] = picmg_record_id;
+    j["record_id"]       = record_id;
+    j["picmg_record_id"] = picmg_record_id;
 
     json jslots;
     for (size_t i = 0; i < slots.size(); i++) {
@@ -381,8 +381,8 @@ MRecordBackplaneP2PCon::emitJSON(nlohmann::json &j) {
 
 void
 MRecordBackplaneP2PCon::emitTOML(toml::table &t) {
-    t["record_id"]           = toml::value(SC_I(record_id));
-    t["picmpicmg_record_id"] = toml::value(SC_I(picmg_record_id));
+    t["record_id"]       = toml::value(SC_I(record_id));
+    t["picmg_record_id"] = toml::value(SC_I(picmg_record_id));
 
     toml::array tslots;
     for (size_t i = 0; i < slots.size(); i++) {
