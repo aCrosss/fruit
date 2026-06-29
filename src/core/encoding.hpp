@@ -19,6 +19,8 @@
 #define MASK_4b 0x0F
 #define MASK_5b 0x1F
 #define MASK_6b 0x3F
+#define MASK_7b 0x7F
+#define MASK_8b 0xFF
 
 // pack charachters c1-c4 into bytes b1-b3
 // it supposed to work with charachers from ascii_6b_table!

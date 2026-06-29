@@ -61,7 +61,7 @@ encode_binary(std::string text, bytes &out, std::string &err) {
     // remove spaces and validate
     std::string buff;
     for (size_t i = 0; i < text.size(); i++, str++) {
-        if (*str == ' ') {
+        if (*str == ' ' || *str == '-') {
             continue;
         }
 
