@@ -196,6 +196,11 @@ MRecordActivationAndPowerMng::tryParseBinary(biterator begin, biterator end, Err
 
     uchar count = DR_BYTE(begin++);
     for (uchar i = 0; i < count; i++) {
+        if (begin >= end) {
+            errs.append(tag, "common", " binary parsing out of bounds");
+            return false;
+        }
+
         ActivationAndPwrDescr d;
         if (!tryParseDescr(begin, d, errs)) {
             return false;
