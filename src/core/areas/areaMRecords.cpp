@@ -8,6 +8,7 @@
 #include "mrecords/mRecordIPConnection.hpp"
 #include "mrecords/mRecordBoardP2PCon.hpp"
 #include "mrecords/mRecordFanMapping.hpp"
+#include "mrecords/mRecordFormFactor.hpp"
 // clang-format on
 
 #define HDR_OFFSET_TYPE   0 // offset to record type byte
@@ -122,7 +123,7 @@ AreaMRecords::tryAppendMRecord(std::byte type, std::byte byte9, MRecord &mrecord
         case PICMGREC_BOARD_P2PCON            : APPEND_MRECORD(MRecordBoardP2PCon)
         case PICMGREC_RADIAL_IPMB0_LINK_MAP   : break;
         case PICMGREC_FAN_GEOGRAPHY           : APPEND_MRECORD(MRecordFanMapping)
-        case PICMGREC_FORM_FACTOR             : break;
+        case PICMGREC_FORM_FACTOR             : APPEND_MRECORD(MRecordFormFactor)
         case PICMGREC_LED_DESCRIPTOR          : break;
 
         default: {
