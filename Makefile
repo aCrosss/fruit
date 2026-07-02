@@ -45,7 +45,7 @@ GUI_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(GUI_SRCS))
 GRES_SRC := $(GUI_DIR)/gres.c
 GRES_OBJ := $(BUILD_DIR)/gui/gres.o
 
-.PHONY: all cli gui gui_external clean
+.PHONY: all cli gui gui_external clean remove_res
 
 all: cli gui
 
@@ -59,7 +59,7 @@ $(CLI_BIN): $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(CLI_OBJS)
 # Build GUI
 gui: $(GUI_BIN)
 
-$(GUI_BIN): $(GRES_SRC) $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GRES_OBJ)
+$(GUI_BIN):  $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GRES_OBJ)
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS) $(GPGME_FLAGS)
 
@@ -67,14 +67,14 @@ $(GUI_BIN): $(GRES_SRC) $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) 
 gui_external: $(GUI_EXT_BIN)
 
 $(GUI_EXT_BIN): CXXFLAGS += -DGUI_EXTERNAL
-$(GUI_EXT_BIN): $(GRES_SRC) $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GRES_OBJ)
+$(GUI_EXT_BIN): $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GRES_OBJ)
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS) $(GPGME_FLAGS)
-	@cp $(GUI_DIR)/gres.xml $(BIN_DIR)/gres.xml
+	@cp $(GUI_DIR)/iface.ui $(BIN_DIR)/iface.ui
 
 # Compile resource file
 $(GRES_SRC): $(GUI_DIR)/gres.xml
-	glib-compile-resources --target=$@ --generate-source $<
+	glib-compile-resources --sourcedir=src/gui --target=$@ --generate-source $<
 
 # Build compiled resource file gres.c
 $(GRES_OBJ): $(GRES_SRC)
@@ -93,6 +93,9 @@ $(BUILD_DIR)/gui/%.o: $(GUI_DIR)/%.cpp
 
 clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR) $(GRES_SRC)
+
+remove_res:
+	rm $(GRES_SRC)
 
 # Dependencies
 -include $(CORE_OBJS:.o=.d)
