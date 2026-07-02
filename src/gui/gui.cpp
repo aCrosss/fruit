@@ -15,6 +15,8 @@ Gtk::TreeView                  *nav_tree;
 RefPtr<Gtk::ListStore>          areas_list;
 RefPtr<Gtk::CellRendererToggle> area_toggle;
 
+Gtk::Viewport *area_viewport;
+
 void
 on_tree_selection_changed() {
     Glib::RefPtr<Gtk::TreeSelection> selection = nav_tree->get_selection();
@@ -69,6 +71,9 @@ on_app_activate() {
 
     // connect CellRendererToggle's signal
     area_toggle->signal_toggled().connect(sigc::ptr_fun(&on_area_toggle_toggled));
+
+    // area_viewport
+    refBuilder->get_widget<Gtk::Viewport>("area_viewport", area_viewport);
 }
 
 int
