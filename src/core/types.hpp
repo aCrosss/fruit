@@ -14,11 +14,12 @@
 
 #define LANG_CODE_CAP 136 // Zulu!
 
-typedef unsigned char          uchar;
-typedef std::vector<std::byte> bytes;
-typedef bytes::iterator        biterator;
+typedef unsigned char            uchar;
+typedef std::vector<std::byte>   bytes;
+typedef bytes::iterator          biterator;
+typedef std::vector<std::string> svector;
 
-enum valType {
+enum ValType {
     VAL_TYPE_NONE,
     VAL_TYPE_INT,
     VAL_TYPE_TEXT,
