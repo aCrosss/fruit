@@ -8,6 +8,7 @@ CORE_DIR := $(SRC_DIR)/core
 AREAS_DIR := $(CORE_DIR)/areas
 MRECORDS_DIR := $(AREAS_DIR)/mrecords
 GUI_DIR := $(SRC_DIR)/gui
+GUI_AREAS_DIR := $(GUI_DIR)/gui_areas
 CLI_DIR := $(SRC_DIR)/cli
 BUILD_DIR := build
 BIN_DIR := bin
@@ -28,6 +29,7 @@ GPGME_FLAGS := $(shell pkg-config --cflags --libs gpgme)
 CORE_SRCS := $(wildcard $(CORE_DIR)/*.cpp)
 AREAS_SRCS := $(wildcard $(AREAS_DIR)/*.cpp)
 MRECORDS_SRCS := $(wildcard $(MRECORDS_DIR)/*.cpp)
+GUI_AREAS_SRCS := $(wildcard $(GUI_AREAS_DIR)/*.cpp)
 CLI_SRCS := $(wildcard $(CLI_DIR)/*.cpp)
 GUI_SRCS := $(wildcard $(GUI_DIR)/*.cpp)
 
@@ -38,6 +40,7 @@ GUI_SRCS := $(filter-out $(GUI_DIR)/gres.c, $(GUI_SRCS))
 CORE_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(CORE_SRCS))
 AREAS_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(AREAS_SRCS))
 MRECORDS_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(MRECORDS_SRCS))
+GUI_AREAS_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(GUI_AREAS_SRCS))
 CLI_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(CLI_SRCS))
 GUI_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(GUI_SRCS))
 
@@ -59,7 +62,7 @@ $(CLI_BIN): $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(CLI_OBJS)
 # Build GUI
 gui: $(GUI_BIN)
 
-$(GUI_BIN):  $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GRES_OBJ)
+$(GUI_BIN):  $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GUI_AREAS_OBJS) $(GRES_OBJ)
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS) $(GPGME_FLAGS)
 
@@ -67,7 +70,7 @@ $(GUI_BIN):  $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GRES_OBJ)
 gui_external: $(GUI_EXT_BIN)
 
 $(GUI_EXT_BIN): CXXFLAGS += -DGUI_EXTERNAL
-$(GUI_EXT_BIN): $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GRES_OBJ)
+$(GUI_EXT_BIN): $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GUI_AREAS_OBJS) $(GRES_OBJ)
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS) $(GPGME_FLAGS)
 	@cp $(GUI_DIR)/iface.ui $(BIN_DIR)/iface.ui
@@ -101,6 +104,7 @@ remove_res:
 -include $(CORE_OBJS:.o=.d)
 -include $(AREAS_OBJS:.o=.d)
 -include $(MRECORDS_OBJS:.o=.d)
+-include $(GUI_AREAS_OBJS:.o=.d)
 -include $(CLI_OBJS:.o=.d)
 -include $(GUI_OBJS:.o=.d)
 -include $(GRES_OBJ:.o=.d)
