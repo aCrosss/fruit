@@ -6,3 +6,4 @@ build/*
 *.toml
 src/gui/gres.c
 src/gui/*~
+src/gui/*#
