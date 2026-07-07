@@ -9,7 +9,7 @@
 
 #include "types.hpp"
 
-#define ENCODED_MAX_BYTE_LENGTH 31
+#define ENCODED_MAX_BYTE_LENGTH 64
 
 #define ASCII_6BIT_MAX_IND 0x3F // '_' aka 111111b
 
