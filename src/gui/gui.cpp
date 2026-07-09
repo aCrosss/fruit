@@ -1,7 +1,10 @@
 #include <gtkmm.h>
 #include <iostream>
 
+// clang-format off
 #include "gui_areas/guiAreaChassis.hpp"
+#include "gui_areas/guiAreaBoard.hpp"
+// clang-format on
 #include "manager.hpp"
 
 #ifdef DGUI_EXTERNAL
@@ -26,11 +29,14 @@ RefPtr<Gtk::CellRendererToggle> area_toggle;
 Gtk::Viewport                  *area_viewport;
 Gtk::Box                       *main_container;
 
-std::unique_ptr<GUIAreaChassis> area;
+std::vector<std::unique_ptr<GUIAreaBase>> gui_areas;
+size_t                                    curent_area;
 
 void
 cleanup() {
-    area.reset();
+    for (auto &&i : gui_areas) {
+        i.reset();
+    }
 
     areas_list.reset();
     area_toggle.reset();
@@ -98,7 +104,22 @@ on_load_json() {
         return;
     }
 
-    area->set(j);
+    for (auto &&i : gui_areas) {
+        i->clear();
+        i->set(j);
+    }
+    main_container->show_all();
+}
+
+void
+on_save_json() {
+    nlohmann::json j;
+
+    for (auto &&i : gui_areas) {
+        i->get(j);
+    }
+
+    std::cout << j.dump() << std::endl;
 }
 
 void
@@ -106,9 +127,19 @@ on_tree_selection_changed() {
     Glib::RefPtr<Gtk::TreeSelection> selection = nav_tree->get_selection();
     Gtk::TreeModel::iterator         iter      = selection->get_selected();
     Gtk::TreeModel::Path             path(iter);
-    int                              row_number = path[0];
+    size_t                           row_number = static_cast<size_t>(path[0]);
 
-    // std::cout << "selection changed to " << row_number << std::endl;
+    if (row_number == curent_area) {
+        return;
+    }
+
+    if (curent_area < gui_areas.size()) {
+        gui_areas[curent_area]->hide(main_container);
+    }
+    gui_areas[row_number]->show(main_container);
+
+    curent_area = row_number;
+    main_container->show_all();
 }
 
 void
@@ -144,6 +175,10 @@ on_app_activate() {
     refBuilder->get_widget<Gtk::MenuItem>("menu_import_json", menu_import_json);
     menu_import_json->signal_activate().connect(sigc::ptr_fun(&on_load_json));
 
+    Gtk::MenuItem *menu_export_json;
+    refBuilder->get_widget<Gtk::MenuItem>("menu_export_json", menu_export_json);
+    menu_export_json->signal_activate().connect(sigc::ptr_fun(&on_save_json));
+
     // load left side 'navigation menu' TreeView widget
     refBuilder->get_widget<Gtk::TreeView>("nav_menu", nav_tree);
     auto select = nav_tree->get_selection();
@@ -167,22 +202,19 @@ on_app_activate() {
     // main_container
     refBuilder->get_widget<Gtk::Box>("main_container", main_container);
 
-    area = std::make_unique<GUIAreaChassis>();
-    area->draw(main_container);
-
-    std::string    err;
-    nlohmann::json j;
-    manager.loadJSON("test.json", j, err);
-
-    area->set(j);
+    // initiate gui areas
+    gui_areas.emplace_back(std::make_unique<GUIAreaChassis>());
+    gui_areas.emplace_back(std::make_unique<GUIAreaBoard>());
+    // initiate gui areas
 
     main_container->show_all();
-
     win->show_all();
 }
 
 int
 main(int argc, char **argv) {
+    curent_area = 999999;
+
     app = Gtk::Application::create(argc, argv);
 
     app->signal_shutdown().connect(sigc::ptr_fun(&on_app_shutdown));

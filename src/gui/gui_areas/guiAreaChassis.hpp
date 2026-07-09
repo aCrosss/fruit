@@ -41,11 +41,11 @@ class GUIAreaChassis : public GUIAreaBase {
     Gtk::Button    btn_hide;
 
   public:
-    void draw(Gtk::Box *parent);
-    void clear(Gtk::Box *parent);
+    void show(Gtk::Box *parent) override;
+    void hide(Gtk::Box *parent) override;
 
-    void get(nlohmann::json &j);
-    void set(nlohmann::json &j);
+    void get(nlohmann::json &j) override;
+    void set(nlohmann::json &j) override;
 
     GUIAreaChassis(/* args */);
     ~GUIAreaChassis();

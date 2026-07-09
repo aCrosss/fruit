@@ -1,11 +1,8 @@
-#include "guiAreaChassis.hpp"
+#include "guiAreaBoard.hpp"
 
 void
-GUIAreaChassis::show(Gtk::Box *parent) {
-    // btn_hide.set_label("v");
-
-    header.set_title("Chassis Info Area");
-    // header.pack_end(btn_hide);
+GUIAreaBoard::show(Gtk::Box *parent) {
+    header.set_title("Board Info Area");
 
     container.set_orientation(Gtk::ORIENTATION_VERTICAL);
     container.set_spacing(6);
@@ -19,7 +16,7 @@ GUIAreaChassis::show(Gtk::Box *parent) {
 }
 
 void
-GUIAreaChassis::hide(Gtk::Box *parent) {
+GUIAreaBoard::hide(Gtk::Box *parent) {
     for (auto &&i : fields) {
         i->hide(&container);
     }
@@ -28,7 +25,7 @@ GUIAreaChassis::hide(Gtk::Box *parent) {
 }
 
 void
-GUIAreaChassis::get(nlohmann::json &j) {
+GUIAreaBoard::get(nlohmann::json &j) {
     nlohmann::json jarea;
 
     for (auto &&i : fields) {
@@ -39,7 +36,7 @@ GUIAreaChassis::get(nlohmann::json &j) {
 }
 
 void
-GUIAreaChassis::set(nlohmann::json &j) {
+GUIAreaBoard::set(nlohmann::json &j) {
     nlohmann::json area;
     if (!j.contains(tag)) {
         return;
@@ -51,13 +48,14 @@ GUIAreaChassis::set(nlohmann::json &j) {
     }
 }
 
-GUIAreaChassis::GUIAreaChassis(/* args */) : GUIAreaBase("chassis") {
-    fields.emplace_back(std::make_shared<FieldEnum>("type", chassis_types_enum, VAL_TYPE_INT));
-    fields.emplace_back(std::make_shared<FieldEncStr>("part_number"));
+GUIAreaBoard::GUIAreaBoard(/* args */) : GUIAreaBase("board") {
+    fields.emplace_back(std::make_shared<FieldEncStr>("manufacturer"));
+    fields.emplace_back(std::make_shared<FieldEncStr>("product_name"));
     fields.emplace_back(std::make_shared<FieldEncStr>("serial_number"));
+    fields.emplace_back(std::make_shared<FieldEncStr>("file_id"));
     fields.emplace_back(std::make_shared<FieldEncStrArr>("custom"));
 }
 
-GUIAreaChassis::~GUIAreaChassis() {
+GUIAreaBoard::~GUIAreaBoard() {
     //
 }

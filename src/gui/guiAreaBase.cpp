@@ -1,5 +1,12 @@
 #include "guiAreaBase.hpp"
 
+void
+GUIAreaBase::clear() {
+    for (auto &&i : fields) {
+        i->clear();
+    }
+}
+
 bool
 GUIAreaBase::validate() {
     bool valid = true;
@@ -15,7 +22,4 @@ GUIAreaBase::validate() {
 
 GUIAreaBase::GUIAreaBase(std::string tag) {
     this->tag = tag;
-}
-
-GUIAreaBase::~GUIAreaBase() {
 }
