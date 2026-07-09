@@ -1,28 +1,19 @@
 #include "fieldEncStr.hpp"
 
 void
-FieldEncStr::draw(Gtk::Box *parent) {
-    drawDefaultLayout(parent);
-
-    subbox.set_orientation(Gtk::ORIENTATION_VERTICAL);
-
-    entry.set_has_frame(false);
-    entry.set_width_chars(64);
-    entry.signal_changed().connect([this]() { this->validate(); });
-    subbox.add(entry);
-
-    encoding.append("binary");
-    encoding.append("bcdp");
-    encoding.append("ascii6bit");
-    encoding.append("unicode");
-    subbox.add(encoding);
-
-    container.add(subbox);
-    container.reorder_child(subbox, 1);
+FieldEncStr::clear() {
+    return;
 }
 
 void
-FieldEncStr::clear(Gtk::Box *parent) {
+FieldEncStr::show(Gtk::Box *parent) {
+    // drawDefaultLayout(parent);
+    parent->add(top_container);
+}
+
+void
+FieldEncStr::hide(Gtk::Box *parent) {
+    parent->remove(top_container);
 }
 
 void
@@ -30,19 +21,20 @@ FieldEncStr::get(nlohmann::json &j) {
     nlohmann::json jes;
     jes["type"] = encoding.get_active_text();
     jes["data"] = entry.get_text();
+
+    j[tag] = jes;
 }
 
 void
 FieldEncStr::set(nlohmann::json &j) {
-    std::cout << "tag=" << tag << std::endl;
     if (!j.contains(tag)) {
         return;
     }
 
     nlohmann::json enc_str = j[tag];
 
-    entry.set_text(enc_str["data"].get<std::string>());
     encoding.set_active_text(enc_str["type"].get<std::string>());
+    entry.set_text(enc_str["data"].get<std::string>());
 }
 
 bool
@@ -68,7 +60,20 @@ FieldEncStr::validate() {
 }
 
 FieldEncStr::FieldEncStr(std::string tag) : FieldBase(tag) {
-    //
+    subbox.set_orientation(Gtk::ORIENTATION_VERTICAL);
+
+    entry.set_has_frame(false);
+    entry.set_width_chars(64);
+    entry.signal_changed().connect([this]() { this->validate(); });
+    subbox.add(entry);
+
+    encoding.append("binary");
+    encoding.append("bcdp");
+    encoding.append("ascii6bit");
+    encoding.append("unicode");
+    subbox.add(encoding);
+
+    container.pack_end(subbox);
 }
 
 FieldEncStr::~FieldEncStr() {

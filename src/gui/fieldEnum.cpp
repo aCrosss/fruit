@@ -1,15 +1,19 @@
 #include "fieldEnum.hpp"
 
 void
-FieldEnum::draw(Gtk::Box *parent) {
-    drawDefaultLayout(parent);
-    container.add(combo_box);
-    container.reorder_child(combo_box, 1);
+FieldEnum::clear() {
+    return;
 }
 
 void
-FieldEnum::clear(Gtk::Box *parent) {
-    //
+FieldEnum::show(Gtk::Box *parent) {
+    // drawDefaultLayout(parent);
+    parent->add(top_container);
+}
+
+void
+FieldEnum::hide(Gtk::Box *parent) {
+    parent->remove(top_container);
 }
 
 void
@@ -60,6 +64,9 @@ FieldEnum::FieldEnum(std::string tag, enumVals vars, ValType type) : FieldBase(t
         combo_box.append(std::get<0>(i));
         out_vals.push_back(std::get<1>(i));
     }
+
+    container.add(combo_box);
+    container.reorder_child(combo_box, 1);
 }
 
 FieldEnum::~FieldEnum() {
