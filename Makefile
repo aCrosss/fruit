@@ -23,7 +23,6 @@ GUI_EXT_BIN := $(BIN_DIR)/fruit-gui-external
 
 # Libs flags
 GTKMM_FLAGS := $(shell pkg-config --cflags --libs gtkmm-3.0)
-GPGME_FLAGS := $(shell pkg-config --cflags --libs gpgme)
 
 # Sources
 CORE_SRCS := $(wildcard $(CORE_DIR)/*.cpp)
@@ -57,14 +56,14 @@ cli: $(CLI_BIN)
 
 $(CLI_BIN): $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(CLI_OBJS)
 	@mkdir -p $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GPGME_FLAGS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
 
 # Build GUI
 gui: $(GUI_BIN)
 
 $(GUI_BIN):  $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GUI_AREAS_OBJS) $(GRES_OBJ)
 	@mkdir -p $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS) $(GPGME_FLAGS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS)
 
 # Build GUI external
 gui_external: $(GUI_EXT_BIN)
@@ -72,7 +71,7 @@ gui_external: $(GUI_EXT_BIN)
 $(GUI_EXT_BIN): CXXFLAGS += -DGUI_EXTERNAL
 $(GUI_EXT_BIN): $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GUI_AREAS_OBJS) $(GRES_OBJ)
 	@mkdir -p $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS) $(GPGME_FLAGS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS)
 	@cp $(GUI_DIR)/iface.ui $(BIN_DIR)/iface.ui
 
 # Compile resource file
@@ -87,12 +86,12 @@ $(GRES_OBJ): $(GRES_SRC)
 # Compile .cpp
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@ $(GPGME_FLAGS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 # Add gtkmm flags for GUI build
 $(BUILD_DIR)/gui/%.o: $(GUI_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@ $(GTKMM_FLAGS) $(GPGME_FLAGS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@ $(GTKMM_FLAGS)
 
 clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR) $(GRES_SRC)
