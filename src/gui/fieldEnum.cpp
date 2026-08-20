@@ -60,7 +60,8 @@ FieldEnum::validate() {
     return true;
 }
 
-FieldEnum::FieldEnum(std::string tag, enumVals vars, ValType type) : FieldBase(tag) {
+FieldEnum::FieldEnum(std::string tag, std::string label, enumVals vars, ValType type)
+    : FieldBase(tag, label) {
     this->type = type;
 
     for (auto &&i : vars) {

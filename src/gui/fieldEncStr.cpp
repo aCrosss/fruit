@@ -59,7 +59,7 @@ FieldEncStr::validate() {
     return true;
 }
 
-FieldEncStr::FieldEncStr(std::string tag) : FieldBase(tag) {
+FieldEncStr::FieldEncStr(std::string tag, std::string label) : FieldBase(tag, label) {
     subbox.set_orientation(Gtk::ORIENTATION_VERTICAL);
 
     entry.set_has_frame(false);

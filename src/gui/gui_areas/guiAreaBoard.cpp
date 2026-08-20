@@ -49,11 +49,11 @@ GUIAreaBoard::set(nlohmann::json &j) {
 }
 
 GUIAreaBoard::GUIAreaBoard(/* args */) : GUIAreaBase("board") {
-    fields.emplace_back(std::make_shared<FieldEncStr>("manufacturer"));
-    fields.emplace_back(std::make_shared<FieldEncStr>("product_name"));
-    fields.emplace_back(std::make_shared<FieldEncStr>("serial_number"));
-    fields.emplace_back(std::make_shared<FieldEncStr>("file_id"));
-    fields.emplace_back(std::make_shared<FieldEncStrArr>("custom"));
+    fields.emplace_back(std::make_shared<FieldEncStr>("manufacturer", "Manufacturer"));
+    fields.emplace_back(std::make_shared<FieldEncStr>("product_name", "Product Name"));
+    fields.emplace_back(std::make_shared<FieldEncStr>("serial_number", "Serial Number"));
+    fields.emplace_back(std::make_shared<FieldEncStr>("file_id", "FRU File ID"));
+    fields.emplace_back(std::make_shared<FieldEncStrArr>("custom", "Custom"));
 }
 
 GUIAreaBoard::~GUIAreaBoard() {

@@ -9,6 +9,7 @@
 class FieldBase {
   protected:
     std::string tag;
+    std::string label;
 
     Gtk::Box   container;
     Gtk::Box   top_container;
@@ -28,6 +29,6 @@ class FieldBase {
 
     virtual bool validate() = 0;
 
-    FieldBase(std::string tag);
+    FieldBase(std::string tag, std::string label);
     virtual ~FieldBase() = default;
 };

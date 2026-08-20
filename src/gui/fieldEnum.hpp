@@ -25,6 +25,6 @@ class FieldEnum : public FieldBase {
 
     bool validate() override;
 
-    FieldEnum(std::string tag, enumVals vars, ValType type);
+    FieldEnum(std::string tag, std::string label, enumVals vars, ValType type);
     ~FieldEnum();
 };

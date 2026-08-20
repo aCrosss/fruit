@@ -11,13 +11,14 @@ FieldBase::drawDefaultLayout(Gtk::Box *parent) {
     // parent->add(top_container);
 }
 
-FieldBase::FieldBase(std::string tag) {
-    this->tag = tag;
+FieldBase::FieldBase(std::string tag, std::string label) {
+    this->tag   = tag;
+    this->label = label;
 
     top_container.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
     container.set_orientation(Gtk::ORIENTATION_VERTICAL);
 
-    label_tag.set_text(tag);
+    label_tag.set_text(label);
     label_tag.set_width_chars(16);
     label_tag.set_padding(4, 0);
     label_tag.set_xalign(0.0f);

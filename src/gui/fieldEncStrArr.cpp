@@ -174,7 +174,7 @@ FieldEncStrArr::validate() {
     return true;
 }
 
-FieldEncStrArr::FieldEncStrArr(std::string tag) : FieldBase(tag) {
+FieldEncStrArr::FieldEncStrArr(std::string tag, std::string label) : FieldBase(tag, label) {
     label_error.set_text("");
     label_error.set_width_chars(0);
 

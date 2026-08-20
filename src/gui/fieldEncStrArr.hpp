@@ -38,6 +38,6 @@ class FieldEncStrArr : public FieldBase {
 
     bool validate() override;
 
-    FieldEncStrArr(std::string tag);
+    FieldEncStrArr(std::string tag, std::string label);
     ~FieldEncStrArr();
 };
