@@ -1,5 +1,6 @@
 #include <gtkmm.h>
 #include <iostream>
+#include <sstream>
 
 // clang-format off
 #include "gui_areas/guiAreaChassis.hpp"
@@ -112,14 +113,215 @@ on_load_json() {
 }
 
 void
-on_save_json() {
-    nlohmann::json j;
+on_load_toml() {
+    ustring title = "Выбрать TOML файл для импорта";
 
-    for (auto &&i : gui_areas) {
-        i->get(j);
+    auto filter_text = Gtk::FileFilter::create();
+    filter_text->set_name("TOML");
+    filter_text->add_pattern("*.toml");
+
+    std::string path;
+    if (!show_open_file_dialog(title, filter_text, path)) {
+        return;
     }
 
-    std::cout << j.dump() << std::endl;
+    std::string err;
+    toml::value t;
+    if (!manager.loadTOML(path, t, err)) {
+        std::cout << "failed to load TOML: " << err << std::endl;
+        return;
+    }
+
+    Errs errs;
+    if (!manager.parseTOML(t, errs)) {
+        std::cout << "failed to parse TOML: " << std::endl;
+        std::cout << errs.getPlainText() << std::endl;
+        return;
+    }
+
+    nlohmann::json j;
+    manager.emitJSON(j);
+
+    for (auto &&i : gui_areas) {
+        i->clear();
+        i->set(j);
+    }
+    main_container->show_all();
+}
+
+void
+on_load_bin() {
+    ustring title = "Выбрать FRU Image файл для импорта";
+
+    auto filter_text = Gtk::FileFilter::create();
+    filter_text->set_name("FRU Image");
+    filter_text->add_pattern("*.bin");
+
+    std::string path;
+    if (!show_open_file_dialog(title, filter_text, path)) {
+        return;
+    }
+
+    std::string err;
+    bytes       bs;
+    if (!manager.loadBinary(path, bs, err)) {
+        std::cout << "failed to load FRU Image: " << err << std::endl;
+        return;
+    }
+
+    Errs errs;
+    if (!manager.parseBinary(bs, errs)) {
+        std::cout << "failed to parse FRU Image: " << std::endl;
+        std::cout << errs.getPlainText() << std::endl;
+        return;
+    }
+
+    nlohmann::json j;
+    manager.emitJSON(j);
+
+    for (auto &&i : gui_areas) {
+        i->clear();
+        i->set(j);
+    }
+    main_container->show_all();
+}
+
+bool
+show_save_file_dialog(ustring title, ustring file, FileFilter filter, std::string &path) {
+    ustring ok   = "Выбрать";
+    ustring cncl = "Отмена";
+
+    auto dialog =
+        Gtk::FileChooserNative::create(title, Gtk::FILE_CHOOSER_ACTION_SAVE, ok, cncl);
+
+    dialog->add_filter(filter);
+    dialog->set_current_name(file);
+    dialog->set_do_overwrite_confirmation(true);
+
+    const int result = dialog->run();
+
+    switch (result) {
+    case Gtk::RESPONSE_ACCEPT: {
+        path = dialog->get_filename();
+        return true;
+    }
+    case Gtk::RESPONSE_CANCEL:
+    case Gtk::RESPONSE_DELETE_EVENT: {
+        return false;
+    }
+    default: return false;
+    }
+
+    return false;
+}
+
+bool
+manager_parse_ui() {
+    nlohmann::json j;
+
+    for (size_t i = 0; i < gui_areas.size(); i++) {
+        bool area_enabled;
+
+        std::stringstream path;
+        path << i;
+        auto iter = areas_list->get_iter(Gtk::TreeModel::Path(path.str()));
+        if (iter) {
+            iter->get_value(1, area_enabled);
+        } else {
+            return false;
+        }
+
+        if (area_enabled) {
+            gui_areas[i]->get(j);
+        }
+    }
+
+    Errs errs;
+    if (!manager.parseJSON(j, errs)) {
+        std::cout << "failed to parse JSON: " << std::endl;
+        std::cout << errs.getPlainText() << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+void
+on_save_json() {
+    if (!manager_parse_ui()) {
+        return;
+    }
+
+    ustring title = "Выбрать JSON файл для экспорта";
+    ustring file  = "out.json";
+
+    auto filter_text = Gtk::FileFilter::create();
+    filter_text->set_name("JSON");
+    filter_text->add_pattern("*.json");
+
+    std::string path;
+    if (!show_save_file_dialog(title, file, filter_text, path)) {
+        return;
+    }
+
+    Errs errs;
+    if (!manager.saveJSON(path, errs)) {
+        std::cout << "failed to save JSON: " << std::endl;
+        std::cout << errs.getPlainText() << std::endl;
+        return;
+    }
+}
+
+void
+on_save_toml() {
+    if (!manager_parse_ui()) {
+        return;
+    }
+
+    ustring title = "Выбрать TOML файл для экспорта";
+    ustring file  = "out.toml";
+
+    auto filter_text = Gtk::FileFilter::create();
+    filter_text->set_name("TOML");
+    filter_text->add_pattern("*.toml");
+
+    std::string path;
+    if (!show_save_file_dialog(title, file, filter_text, path)) {
+        return;
+    }
+
+    Errs errs;
+    if (!manager.saveTOML(path, errs)) {
+        std::cout << "failed to save TOML: " << std::endl;
+        std::cout << errs.getPlainText() << std::endl;
+        return;
+    }
+}
+
+void
+on_save_bin() {
+    if (!manager_parse_ui()) {
+        return;
+    }
+
+    ustring title = "Выбрать FRU Image файл для экспорта";
+    ustring file  = "out.bin";
+
+    auto filter_text = Gtk::FileFilter::create();
+    filter_text->set_name("FRU Image");
+    filter_text->add_pattern("*.bin");
+
+    std::string path;
+    if (!show_save_file_dialog(title, file, filter_text, path)) {
+        return;
+    }
+
+    Errs errs;
+    if (!manager.saveBinary(path, errs)) {
+        std::cout << "failed to save FRU Image: " << std::endl;
+        std::cout << errs.getPlainText() << std::endl;
+        return;
+    }
 }
 
 void
@@ -153,6 +355,39 @@ on_area_toggle_toggled(const ustring &path) {
     }
 }
 
+inline void
+connect_menu_bar(Glib::RefPtr<Gtk::Builder> refBuilder) {
+    // menu_import_json
+    Gtk::MenuItem *menu_import_json;
+    refBuilder->get_widget<Gtk::MenuItem>("menu_import_json", menu_import_json);
+    menu_import_json->signal_activate().connect(sigc::ptr_fun(&on_load_json));
+
+    // menu_import_toml
+    Gtk::MenuItem *menu_import_toml;
+    refBuilder->get_widget<Gtk::MenuItem>("menu_import_toml", menu_import_toml);
+    menu_import_toml->signal_activate().connect(sigc::ptr_fun(&on_load_toml));
+
+    // menu_import_bin
+    Gtk::MenuItem *menu_import_bin;
+    refBuilder->get_widget<Gtk::MenuItem>("menu_import_bin", menu_import_bin);
+    menu_import_bin->signal_activate().connect(sigc::ptr_fun(&on_load_bin));
+
+    // menu_export_json
+    Gtk::MenuItem *menu_export_json;
+    refBuilder->get_widget<Gtk::MenuItem>("menu_export_json", menu_export_json);
+    menu_export_json->signal_activate().connect(sigc::ptr_fun(&on_save_json));
+
+    // menu_export_toml
+    Gtk::MenuItem *menu_export_toml;
+    refBuilder->get_widget<Gtk::MenuItem>("menu_export_toml", menu_export_toml);
+    menu_export_toml->signal_activate().connect(sigc::ptr_fun(&on_save_toml));
+
+    // menu_export_bin
+    Gtk::MenuItem *menu_export_bin;
+    refBuilder->get_widget<Gtk::MenuItem>("menu_export_bin", menu_export_bin);
+    menu_export_bin->signal_activate().connect(sigc::ptr_fun(&on_save_bin));
+}
+
 void
 on_app_activate() {
     auto refBuilder = Gtk::Builder::create();
@@ -170,14 +405,7 @@ on_app_activate() {
     app->add_window(*win);
     win->set_visible(true);
 
-    // menu_import_json
-    Gtk::MenuItem *menu_import_json;
-    refBuilder->get_widget<Gtk::MenuItem>("menu_import_json", menu_import_json);
-    menu_import_json->signal_activate().connect(sigc::ptr_fun(&on_load_json));
-
-    Gtk::MenuItem *menu_export_json;
-    refBuilder->get_widget<Gtk::MenuItem>("menu_export_json", menu_export_json);
-    menu_export_json->signal_activate().connect(sigc::ptr_fun(&on_save_json));
+    connect_menu_bar(refBuilder);
 
     // load left side 'navigation menu' TreeView widget
     refBuilder->get_widget<Gtk::TreeView>("nav_menu", nav_tree);

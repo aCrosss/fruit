@@ -19,6 +19,9 @@ FieldEnum::hide(Gtk::Box *parent) {
 void
 FieldEnum::get(nlohmann::json &j) {
     int ind = combo_box.get_active_row_number();
+    if (ind == -1) {
+        ind = 0;
+    }
 
     switch (type) {
     case VAL_TYPE_INT : j[tag] = std::get<int>(out_vals[ind]); break;
