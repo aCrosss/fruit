@@ -269,11 +269,6 @@ AreaMRecords::tryParseBinary(biterator begin, biterator end, Errs &errs) {
 
 void
 AreaMRecords::emitJSON(nlohmann::json &j) {
-    if (!present) {
-        std::cout << "not present" << std::endl;
-        return;
-    }
-
     json jarray;
 
     for (size_t i = 0; i < mrecords.size(); i++) {
