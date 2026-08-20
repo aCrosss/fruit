@@ -21,6 +21,7 @@ class Manager {
     bool parseTOML(toml::value &t, Errs &errs);
     bool parseBinary(bytes &bs, Errs &errs);
 
+    void emitJSON(nlohmann::json &j);
     bool saveJSON(std::string patch, Errs &errs);
     bool saveTOML(std::string patch, Errs &errs);
     bool saveBinary(std::string patch, Errs &errs);

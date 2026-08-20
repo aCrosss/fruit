@@ -149,10 +149,8 @@ Manager::parseBinary(bytes &bs, Errs &errs) {
     return true;
 }
 
-bool
-Manager::saveJSON(std::string path, Errs &errs) {
-    nlohmann::json j;
-
+void
+Manager::emitJSON(nlohmann::json &j) {
     for (auto &&area : sections) {
         nlohmann::json jarea;
         area->emitJSON(jarea);
@@ -163,6 +161,12 @@ Manager::saveJSON(std::string path, Errs &errs) {
 
         j[area->getTag()] = jarea;
     }
+}
+
+bool
+Manager::saveJSON(std::string path, Errs &errs) {
+    nlohmann::json j;
+    emitJSON(j);
 
     std::ofstream fout(path);
     if (!fout.is_open()) {
