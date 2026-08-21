@@ -14,7 +14,7 @@ class GUIAreaBoard : public GUIAreaBase {
         {"Assamese", 6},
         {"Aymara", 7},
         {"Azerbaijani", 8},
-        {"Bashkir",9},
+        {"Bashkir", 9},
         {"Byelorussian", 10},
         {"Bulgarian", 11},
         {"Bihari", 12},
