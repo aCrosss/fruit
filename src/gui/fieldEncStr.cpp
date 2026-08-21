@@ -71,6 +71,7 @@ FieldEncStr::FieldEncStr(std::string tag, std::string label) : FieldBase(tag, la
     encoding.append("bcdp");
     encoding.append("ascii6bit");
     encoding.append("unicode");
+    encoding.set_active(3);
     subbox.add(encoding);
 
     container.pack_end(subbox);
