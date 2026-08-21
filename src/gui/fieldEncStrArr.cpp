@@ -1,6 +1,7 @@
 #include <sstream>
 
 #include "fieldEncStrArr.hpp"
+#include "json.hpp"
 
 void
 FieldEncStrArr::validateSingleEncStr(size_t ind) {
@@ -139,6 +140,12 @@ FieldEncStrArr::hide(Gtk::Box *parent) {
 void
 FieldEncStrArr::get(nlohmann::json &j) {
     nlohmann::json jarray;
+
+    // return empty json array if empty
+    if (array.size() == 0) {
+        j[tag] = nlohmann::json::array_t{};
+        return;
+    }
 
     for (auto &&i : array) {
         nlohmann::json jentry;
