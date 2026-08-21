@@ -3,8 +3,10 @@
 #include <sstream>
 
 // clang-format off
+#include "gui_areas/guiAreaInternalUse.hpp"
 #include "gui_areas/guiAreaChassis.hpp"
 #include "gui_areas/guiAreaBoard.hpp"
+#include "gui_areas/guiAreaProduct.hpp"
 // clang-format on
 #include "manager.hpp"
 
@@ -388,6 +390,14 @@ connect_menu_bar(Glib::RefPtr<Gtk::Builder> refBuilder) {
     menu_export_bin->signal_activate().connect(sigc::ptr_fun(&on_save_bin));
 }
 
+inline void
+init_gui_areas() {
+    gui_areas.emplace_back(std::make_unique<GUIAreaInternalUse>());
+    gui_areas.emplace_back(std::make_unique<GUIAreaChassis>());
+    gui_areas.emplace_back(std::make_unique<GUIAreaBoard>());
+    gui_areas.emplace_back(std::make_unique<GUIAreaProduct>());
+}
+
 void
 on_app_activate() {
     auto refBuilder = Gtk::Builder::create();
@@ -430,12 +440,12 @@ on_app_activate() {
     // main_container
     refBuilder->get_widget<Gtk::Box>("main_container", main_container);
 
-    // initiate gui areas
-    gui_areas.emplace_back(std::make_unique<GUIAreaChassis>());
-    gui_areas.emplace_back(std::make_unique<GUIAreaBoard>());
-    // initiate gui areas
+    init_gui_areas();
 
+    gui_areas[0]->show(main_container);
+    curent_area = 0;
     main_container->show_all();
+
     win->show_all();
 }
 
