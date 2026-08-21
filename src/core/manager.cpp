@@ -81,8 +81,6 @@ Manager::loadBinary(std::string path, bytes &bs, std::string &err) {
 
 bool
 Manager::parseJSON(nlohmann::json &j, Errs &errs) {
-    // TODO: add proper sections parsing loop
-    // auto          &area = sections[0];
     bool valid = true;
 
     for (auto &&area : sections) {
@@ -102,16 +100,21 @@ Manager::parseJSON(nlohmann::json &j, Errs &errs) {
 
 bool
 Manager::parseTOML(toml::value &t, Errs &errs) {
-    auto       &area = sections[0];
-    toml::value tarea;
+    bool valid = true;
 
-    if (!t.contains(area->getTag())) {
-        std::cout << "> area " << area->getTag() << " not present" << std::endl;
-        return false;
+    for (auto &&area : sections) {
+        if (!t.contains(area->getTag())) {
+            std::cout << "> area " << area->getTag() << " not present" << std::endl;
+            continue;
+        }
+
+        toml::value tarea = t.at(area->getTag());
+        if (!area->tryParse(tarea, errs)) {
+            valid = false;
+        }
     }
 
-    tarea = t.at(area->getTag());
-    return area->tryParse(tarea, errs);
+    return valid;
 }
 
 bool
