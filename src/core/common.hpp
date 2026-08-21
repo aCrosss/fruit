@@ -9,5 +9,5 @@
 //@param dtime std::string date/time in format of 'YYYY-mm-DD HH:MM'
 //@param &err output error
 //@return minutes from 00:00 01-01-1996 or -1 on error
-int
+long long
 parseDateTime(std::string dtime, std::string &err);

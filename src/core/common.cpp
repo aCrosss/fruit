@@ -3,9 +3,11 @@
 
 #include "common.hpp"
 
-int
+long long
 parseDateTime(std::string dtime, std::string &err) {
-    struct tm tm;
+    // clang-format off
+    struct tm tm = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    // clang-format on
 
     if (dtime.size() == 0) {
         err = "string is empty";

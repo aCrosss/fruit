@@ -33,7 +33,7 @@ bool
 encodeDateTime(std::string &outs, int minutes, std::string &err) {
     struct tm *tm;
 
-    time_t t = minutes * 60 + SECONDS_AT_96;
+    time_t t = (time_t)minutes * 60 + SECONDS_AT_96;
     tm       = gmtime(&t);
 
     if (!tm) {
@@ -42,8 +42,12 @@ encodeDateTime(std::string &outs, int minutes, std::string &err) {
     }
 
     std::stringstream s;
-    s << tm->tm_year + 1900 << "-" << tm->tm_mon + 1 << "-" << tm->tm_mday << " ";
-    s << tm->tm_hour << ":" << tm->tm_min;
+    s << std::setfill('0');
+    s << std::setw(4) << tm->tm_year + 1900 << "-";
+    s << std::setw(2) << tm->tm_mon + 1 << "-";
+    s << std::setw(2) << tm->tm_mday << " ";
+    s << std::setw(2) << tm->tm_hour << ":";
+    s << std::setw(2) << tm->tm_min;
     outs = s.str();
     return true;
 }

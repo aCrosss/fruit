@@ -9,7 +9,7 @@ class AreaBoard : public Section {
     const uchar const_len = 8;
 
     int                     language_code;
-    int                     date_time; // minutes from 00:00 01-01-1996
+    long long               date_time; // minutes from 00:00 01-01-1996
     encodedStr              manufacturer;
     encodedStr              product_name;
     encodedStr              serial_number;
