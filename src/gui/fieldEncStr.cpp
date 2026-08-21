@@ -75,7 +75,3 @@ FieldEncStr::FieldEncStr(std::string tag, std::string label) : FieldBase(tag, la
 
     container.pack_end(subbox);
 }
-
-FieldEncStr::~FieldEncStr() {
-    //
-}

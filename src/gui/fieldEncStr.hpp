@@ -22,5 +22,4 @@ class FieldEncStr : public FieldBase {
     bool validate() override;
 
     FieldEncStr(std::string tag, std::string label);
-    ~FieldEncStr();
 };
