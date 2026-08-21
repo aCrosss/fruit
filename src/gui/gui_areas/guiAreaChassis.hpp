@@ -36,17 +36,6 @@ class GUIAreaChassis : public GUIAreaBase {
         {"Blade Enclosure", 0x1D},
     };
 
-    Gtk::Box       container;
-    Gtk::HeaderBar header;
-    Gtk::Button    btn_hide;
-
   public:
-    void show(Gtk::Box *parent) override;
-    void hide(Gtk::Box *parent) override;
-
-    void get(nlohmann::json &j) override;
-    void set(nlohmann::json &j) override;
-
-    GUIAreaChassis(/* args */);
-    ~GUIAreaChassis();
+    GUIAreaChassis();
 };

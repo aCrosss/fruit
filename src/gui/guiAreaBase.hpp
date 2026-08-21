@@ -18,20 +18,24 @@ enum FieldType {
 class GUIAreaBase {
   protected:
     std::string tag;
+    std::string label;
+
+    Gtk::Box       container;
+    Gtk::HeaderBar header;
 
     std::vector<Field> fields;
 
   public:
     void clear();
 
-    virtual void show(Gtk::Box *parent) = 0;
-    virtual void hide(Gtk::Box *parent) = 0;
+    void show(Gtk::Box *parent);
+    void hide(Gtk::Box *parent);
 
-    virtual void get(nlohmann::json &j) = 0;
-    virtual void set(nlohmann::json &j) = 0;
+    void get(nlohmann::json &j);
+    void set(nlohmann::json &j);
 
     bool validate();
 
-    GUIAreaBase(std::string tag);
+    GUIAreaBase(std::string tag, std::string label);
     virtual ~GUIAreaBase() = default;
 };

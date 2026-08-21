@@ -143,16 +143,6 @@ class GUIAreaProduct : public GUIAreaBase {
         {"Zulu ", 136},
     };
 
-    Gtk::Box       container;
-    Gtk::HeaderBar header;
-    Gtk::Button    btn_hide;
-
   public:
-    void show(Gtk::Box *parent) override;
-    void hide(Gtk::Box *parent) override;
-
-    void get(nlohmann::json &j) override;
-    void set(nlohmann::json &j) override;
-
     GUIAreaProduct();
 };

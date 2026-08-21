@@ -144,15 +144,6 @@ class GUIAreaBoard : public GUIAreaBase {
         {"Zulu ", 136},
     };
 
-    Gtk::Box       container;
-    Gtk::HeaderBar header;
-
   public:
-    void show(Gtk::Box *parent);
-    void hide(Gtk::Box *parent);
-
-    void get(nlohmann::json &j);
-    void set(nlohmann::json &j);
-
-    GUIAreaBoard(/* args */);
+    GUIAreaBoard();
 };
