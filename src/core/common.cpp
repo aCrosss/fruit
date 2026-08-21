@@ -13,6 +13,11 @@ parseDateTime(std::string dtime, std::string &err) {
     }
 
     char *errchar = strptime(dtime.c_str(), "%Y-%m-%d %H:%M", &tm);
+    if (!errchar) {
+        err = "expected 'YYYY-MM-DD HH:mm' string";
+        return -1;
+    }
+
     if (*errchar != '\0') {
         std::stringstream s;
         s << "failed at symbol '" << *errchar << "', expected 'YYYY-MM-DD HH:mm' string";
