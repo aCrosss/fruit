@@ -3,27 +3,27 @@
 
 void
 FieldDateTime::clear() {
-	entry.set_text("");
+    entry.set_text("");
 }
 
 void
 FieldDateTime::show(Gtk::Box *parent) {
-	parent->add(top_container);
+    parent->add(top_container);
 }
 
 void
 FieldDateTime::hide(Gtk::Box *parent) {
-	parent->remove(top_container);
+    parent->remove(top_container);
 }
 
 void
 FieldDateTime::get(nlohmann::json &j) {
-	j[tag] = entry.get_text();
+    j[tag] = entry.get_text();
 }
 
 void
 FieldDateTime::set(nlohmann::json &j) {
-	if (!j.contains(tag)) {
+    if (!j.contains(tag)) {
         return;
     }
 
@@ -33,21 +33,20 @@ FieldDateTime::set(nlohmann::json &j) {
 
 bool
 FieldDateTime::validate() {
-	label_error.set_text("");
+    label_error.set_text("");
 
-	std::string dtime = entry.get_text();
+    std::string dtime = entry.get_text();
 
-	std::string err;
-	if (parseDateTime(dtime, err) < 0) {
-		label_error.set_text(err);
-		return false;
-	}
+    std::string err;
+    if (parseDateTime(dtime, err) < 0) {
+        label_error.set_text(err);
+        return false;
+    }
 
-	return false;
+    return false;
 }
 
-
-FieldDateTime::FieldDateTime(std::string tag, std::string label): FieldBase(tag, label) {
+FieldDateTime::FieldDateTime(std::string tag, std::string label) : FieldBase(tag, label) {
     entry.set_has_frame(false);
     entry.set_width_chars(64);
     entry.signal_changed().connect([this]() { this->validate(); });

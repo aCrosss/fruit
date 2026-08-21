@@ -4,7 +4,7 @@
 
 class FieldDateTime : public FieldBase {
   private:
-    Gtk::Entry        entry;
+    Gtk::Entry entry;
 
   public:
     void clear() override;
