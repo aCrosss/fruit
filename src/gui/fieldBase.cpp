@@ -1,14 +1,13 @@
 #include "fieldBase.hpp"
 
 void
-FieldBase::drawDefaultLayout(Gtk::Box *parent) {
-    if (parent == nullptr) {
-        std::cout << tag << " parent is null" << std::endl;
-        return;
-    }
+FieldBase::show(Gtk::Box *parent) {
+    parent->add(top_container);
+}
 
-    top_container.show_all();
-    // parent->add(top_container);
+void
+FieldBase::hide(Gtk::Box *parent) {
+    parent->remove(top_container);
 }
 
 FieldBase::FieldBase(std::string tag, std::string label) {

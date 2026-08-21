@@ -6,17 +6,6 @@ FieldEncStr::clear() {
 }
 
 void
-FieldEncStr::show(Gtk::Box *parent) {
-    // drawDefaultLayout(parent);
-    parent->add(top_container);
-}
-
-void
-FieldEncStr::hide(Gtk::Box *parent) {
-    parent->remove(top_container);
-}
-
-void
 FieldEncStr::get(nlohmann::json &j) {
     nlohmann::json jes;
     jes["type"] = encoding.get_active_text();

@@ -6,17 +6,6 @@ FieldEnum::clear() {
 }
 
 void
-FieldEnum::show(Gtk::Box *parent) {
-    // drawDefaultLayout(parent);
-    parent->add(top_container);
-}
-
-void
-FieldEnum::hide(Gtk::Box *parent) {
-    parent->remove(top_container);
-}
-
-void
 FieldEnum::get(nlohmann::json &j) {
     int ind = combo_box.get_active_row_number();
     if (ind == -1) {

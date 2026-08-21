@@ -122,22 +122,6 @@ FieldEncStrArr::clear() {
 }
 
 void
-FieldEncStrArr::show(Gtk::Box *parent) {
-    // drawDefaultLayout(parent);
-    // each encoded string line will have it's own error label
-
-    parent->add(top_container);
-}
-
-void
-FieldEncStrArr::hide(Gtk::Box *parent) {
-    // for (auto &&i : top_container.get_children()) {
-    //     top_container.remove(*i);
-    // }
-    parent->remove(top_container);
-}
-
-void
 FieldEncStrArr::get(nlohmann::json &j) {
     nlohmann::json jarray;
 

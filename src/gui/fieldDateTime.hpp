@@ -9,9 +9,6 @@ class FieldDateTime : public FieldBase {
   public:
     void clear() override;
 
-    void show(Gtk::Box *parent) override;
-    void hide(Gtk::Box *parent) override;
-
     void get(nlohmann::json &j) override;
     void set(nlohmann::json &j) override;
 

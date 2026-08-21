@@ -7,16 +7,6 @@ FieldDateTime::clear() {
 }
 
 void
-FieldDateTime::show(Gtk::Box *parent) {
-    parent->add(top_container);
-}
-
-void
-FieldDateTime::hide(Gtk::Box *parent) {
-    parent->remove(top_container);
-}
-
-void
 FieldDateTime::get(nlohmann::json &j) {
     j[tag] = entry.get_text();
 }

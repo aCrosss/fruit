@@ -21,8 +21,8 @@ class FieldBase {
   public:
     virtual void clear() = 0;
 
-    virtual void show(Gtk::Box *parent) = 0;
-    virtual void hide(Gtk::Box *parent) = 0;
+    void show(Gtk::Box *parent);
+    void hide(Gtk::Box *parent);
 
     virtual void get(nlohmann::json &j) = 0;
     virtual void set(nlohmann::json &j) = 0;

@@ -11,16 +11,6 @@ FieldBytes::clear() {
 }
 
 void
-FieldBytes::show(Gtk::Box *parent) {
-    parent->add(top_container);
-}
-
-void
-FieldBytes::hide(Gtk::Box *parent) {
-    parent->remove(top_container);
-}
-
-void
 FieldBytes::get(nlohmann::json &j) {
     j[tag] = text_buffer->get_text(false);
 }
