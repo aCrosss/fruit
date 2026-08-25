@@ -36,6 +36,11 @@ AreaMRecords::debug_printOutVals() {
 
 void
 AreaMRecords::clear() {
+    for (auto &&i : mrecords) {
+        i.reset();
+    }
+
+    mrecords.clear();
 }
 
 uchar
