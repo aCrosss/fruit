@@ -13,7 +13,7 @@ FieldEnum::get(nlohmann::json &j) {
     }
 
     switch (type) {
-    case VAL_TYPE_INT : j[tag] = std::get<int>(out_vals[ind]); break;
+    case VAL_TYPE_INT : j[tag] = static_cast<uint>(std::get<int>(out_vals[ind])); break;
     case VAL_TYPE_TEXT: j[tag] = std::get<std::string>(out_vals[ind]); break;
 
     default: break;

@@ -4,6 +4,8 @@
 #include "fieldEncStrArr.hpp"
 #include "fieldEnum.hpp"
 
+#define INIT_FIELD(type, ...) (fields.emplace_back(std::make_shared<type>(__VA_ARGS__)))
+
 typedef std::shared_ptr<FieldBase> Field;
 
 enum FieldType {

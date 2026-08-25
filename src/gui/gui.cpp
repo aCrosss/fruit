@@ -1,5 +1,6 @@
 #include <gtkmm.h>
 #include <iostream>
+#include <memory>
 #include <sstream>
 
 // clang-format off
@@ -7,8 +8,11 @@
 #include "gui_areas/guiAreaChassis.hpp"
 #include "gui_areas/guiAreaBoard.hpp"
 #include "gui_areas/guiAreaProduct.hpp"
+#include "gui_areas/guiAreaBackplaneP2PCon.hpp"
 // clang-format on
+
 #include "manager.hpp"
+#include "types.hpp"
 
 #ifdef DGUI_EXTERNAL
 #    define UI_FILE "iface.ui"
@@ -16,6 +20,8 @@
 
 #define RES_PATH "/org/akber-soft/fruit"
 #define UI_PATH  RES_PATH "/iface.ui"
+
+#define GUI_MRECORDS_START_INDEX 4
 
 typedef Glib::RefPtr<Gtk::FileFilter> FileFilter;
 
@@ -32,7 +38,7 @@ RefPtr<Gtk::CellRendererToggle> area_toggle;
 Gtk::Viewport                  *area_viewport;
 Gtk::Box                       *main_container;
 
-std::vector<std::unique_ptr<GUIAreaBase>> gui_areas;
+std::vector<std::shared_ptr<GUIAreaBase>> gui_areas;
 size_t                                    curent_area;
 
 void
@@ -87,6 +93,28 @@ show_open_file_dialog(ustring title, FileFilter filter, std::string &path) {
     return false;
 }
 
+static void
+load_json(nlohmann::json j) {
+    for (int i = 0; i < GUI_MRECORDS_START_INDEX; ++i) {
+        auto &&a = gui_areas[i];
+        a->clear();
+        a->set(j);
+    }
+
+    if (!j.contains(AREA_TAG_MRECORDS)) {
+        return;
+    }
+    nlohmann::json mrecs = j[AREA_TAG_MRECORDS];
+
+    for (size_t i = GUI_MRECORDS_START_INDEX; i < gui_areas.size(); ++i) {
+        auto a = std::dynamic_pointer_cast<GUIAreaMRecBase>(gui_areas[i]);
+        a->clear();
+        a->set(mrecs);
+    }
+
+    main_container->show_all();
+}
+
 void
 on_load_json() {
     ustring title = "Выбрать JSON файл для импорта";
@@ -107,11 +135,7 @@ on_load_json() {
         return;
     }
 
-    for (auto &&i : gui_areas) {
-        i->clear();
-        i->set(j);
-    }
-    main_container->show_all();
+    load_json(j);
 }
 
 void
@@ -144,11 +168,7 @@ on_load_toml() {
     nlohmann::json j;
     manager.emitJSON(j);
 
-    for (auto &&i : gui_areas) {
-        i->clear();
-        i->set(j);
-    }
-    main_container->show_all();
+    load_json(j);
 }
 
 void
@@ -181,11 +201,7 @@ on_load_bin() {
     nlohmann::json j;
     manager.emitJSON(j);
 
-    for (auto &&i : gui_areas) {
-        i->clear();
-        i->set(j);
-    }
-    main_container->show_all();
+    load_json(j);
 }
 
 bool
@@ -221,7 +237,7 @@ bool
 manager_parse_ui() {
     nlohmann::json j;
 
-    for (size_t i = 0; i < gui_areas.size(); i++) {
+    for (size_t i = 0; i < GUI_MRECORDS_START_INDEX; i++) {
         bool area_enabled;
 
         std::stringstream path;
@@ -236,6 +252,29 @@ manager_parse_ui() {
         if (area_enabled) {
             gui_areas[i]->get(j);
         }
+    }
+
+    nlohmann::json jarray;
+    for (size_t i = GUI_MRECORDS_START_INDEX; i < gui_areas.size(); ++i) {
+        bool area_enabled;
+
+        std::stringstream path;
+        path << i;
+        auto iter = areas_list->get_iter(Gtk::TreeModel::Path(path.str()));
+        if (iter) {
+            iter->get_value(1, area_enabled);
+        } else {
+            return false;
+        }
+
+        if (area_enabled) {
+            auto a = std::dynamic_pointer_cast<GUIAreaMRecBase>(gui_areas[i]);
+            a->get(jarray);
+        }
+    }
+
+    if (!jarray.empty()) {
+        j[AREA_TAG_MRECORDS] = jarray;
     }
 
     Errs errs;
@@ -392,10 +431,11 @@ connect_menu_bar(Glib::RefPtr<Gtk::Builder> refBuilder) {
 
 inline void
 init_gui_areas() {
-    gui_areas.emplace_back(std::make_unique<GUIAreaInternalUse>());
-    gui_areas.emplace_back(std::make_unique<GUIAreaChassis>());
-    gui_areas.emplace_back(std::make_unique<GUIAreaBoard>());
-    gui_areas.emplace_back(std::make_unique<GUIAreaProduct>());
+    gui_areas.emplace_back(std::make_shared<GUIAreaInternalUse>());
+    gui_areas.emplace_back(std::make_shared<GUIAreaChassis>());
+    gui_areas.emplace_back(std::make_shared<GUIAreaBoard>());
+    gui_areas.emplace_back(std::make_shared<GUIAreaProduct>());
+    gui_areas.emplace_back(std::make_shared<GUIAreaBackplaneP2PCon>());
 }
 
 void
