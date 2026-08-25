@@ -1,5 +1,10 @@
 #include "fieldBase.hpp"
 
+Gtk::Box *
+FieldBase::getTopContainer() {
+    return &top_container;
+}
+
 void
 FieldBase::show(Gtk::Box *parent) {
     parent->add(top_container);

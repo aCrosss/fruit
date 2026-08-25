@@ -21,6 +21,8 @@ class FieldBase {
   public:
     virtual void clear() = 0;
 
+    Gtk::Box *getTopContainer();
+
     void show(Gtk::Box *parent);
     void hide(Gtk::Box *parent);
 
