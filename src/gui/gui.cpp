@@ -10,6 +10,7 @@
 #include "gui_areas/guiAreaProduct.hpp"
 #include "gui_areas/guiAreaBackplaneP2PCon.hpp"
 #include "gui_areas/guiAreaAddressTable.hpp"
+#include "gui_areas/guiAreaPowerDistribution.hpp"
 // clang-format on
 
 #include "manager.hpp"
@@ -438,6 +439,7 @@ init_gui_areas() {
     gui_areas.emplace_back(std::make_shared<GUIAreaProduct>());
     gui_areas.emplace_back(std::make_shared<GUIAreaBackplaneP2PCon>());
     gui_areas.emplace_back(std::make_shared<GUIAreaAddressTable>());
+    gui_areas.emplace_back(std::make_shared<GUIAreaPowerDistribution>());
 }
 
 void
