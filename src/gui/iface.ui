@@ -30,6 +30,10 @@
         <col id="0">Backplane Point-to-Point Connectivity</col>
         <col id="1">False</col>
       </row>
+      <row>
+        <col id="0" translatable="yes">Address Table</col>
+        <col id="1">False</col>
+      </row>
     </data>
   </object>
   <object class="GtkApplicationWindow" id="main_window">
