@@ -56,7 +56,7 @@ GUIAreaMRecBase::set(nlohmann::json &j) {
 
     jarray  = j.get<nlohmann::json::array_t>();
     int ind = -1;
-    if ((ind = findMRecordEntry(jarray, record_id, picmg_record_id) < 0)) {
+    if ((ind = findMRecordEntry(jarray, record_id, picmg_record_id)) < 0) {
         return;
     }
 
