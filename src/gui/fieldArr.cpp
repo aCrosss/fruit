@@ -1,5 +1,6 @@
 #include "fieldArr.hpp"
 #include "fieldBase.hpp"
+#include "fieldCheckbox.hpp"
 #include "fieldEnum.hpp"
 #include "fieldNum.hpp"
 #include "guiAreaBase.hpp"
@@ -131,6 +132,8 @@ FieldArr::appendEntry() {
         case FARRAY_FIELD_TYPE_ARRAY:
             INIT_FIELD(FieldArr, d.tag, d.label, DR_AS(d.arg1, FArrayDescr));
             break;
+
+        case FARRAY_FIELD_TYPE_CHECKBOX: INIT_FIELD(FieldCheckbox, d.tag, d.label); break;
         }
     }
 
