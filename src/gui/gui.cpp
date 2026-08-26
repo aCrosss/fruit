@@ -12,6 +12,7 @@
 #include "gui_areas/guiAreaAddressTable.hpp"
 #include "gui_areas/guiAreaPowerDistribution.hpp"
 #include "gui_areas/guiAreaActivationAndPowerMng.hpp"
+#include "gui_areas/guiAreaIPConnection.hpp"
 // clang-format on
 
 #include "manager.hpp"
@@ -442,6 +443,7 @@ init_gui_areas() {
     gui_areas.emplace_back(std::make_shared<GUIAreaAddressTable>());
     gui_areas.emplace_back(std::make_shared<GUIAreaPowerDistribution>());
     gui_areas.emplace_back(std::make_shared<GUIAreaActivationAndPowerMng>());
+    gui_areas.emplace_back(std::make_shared<GUIAreaIPConnection>());
 }
 
 void
