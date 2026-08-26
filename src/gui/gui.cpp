@@ -13,6 +13,7 @@
 #include "gui_areas/guiAreaPowerDistribution.hpp"
 #include "gui_areas/guiAreaActivationAndPowerMng.hpp"
 #include "gui_areas/guiAreaIPConnection.hpp"
+#include "gui_areas/guiAreaBoardP2PCon.hpp"
 // clang-format on
 
 #include "manager.hpp"
@@ -277,6 +278,8 @@ manager_parse_ui() {
         }
     }
 
+    std::cout << jarray.dump() << std::endl;
+
     if (!jarray.empty()) {
         j[AREA_TAG_MRECORDS] = jarray;
     }
@@ -444,6 +447,7 @@ init_gui_areas() {
     gui_areas.emplace_back(std::make_shared<GUIAreaPowerDistribution>());
     gui_areas.emplace_back(std::make_shared<GUIAreaActivationAndPowerMng>());
     gui_areas.emplace_back(std::make_shared<GUIAreaIPConnection>());
+    gui_areas.emplace_back(std::make_shared<GUIAreaBoardP2PCon>());
 }
 
 void
