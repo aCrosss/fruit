@@ -3,7 +3,9 @@
 #include "fieldCheckbox.hpp"
 #include "fieldEnum.hpp"
 #include "fieldNum.hpp"
+#include "fieldStr.hpp"
 #include "guiAreaBase.hpp"
+#include <string>
 
 #define DR_AS(pointer, type) (*((type *)(pointer)))
 
@@ -29,6 +31,23 @@ FieldArr::get(nlohmann::json &j) {
         return;
     }
 
+    /* flat array path */
+    if (flat) {
+        for (auto &&i : entries) {
+            nlohmann::json jfield;
+            // only one field in plain array
+            if (i.fields.empty()) {
+                continue;
+            }
+            i.fields[0]->get(jfield);
+            jarray.push_back(jfield[BLANK_TAG]);
+        }
+
+        j[tag] = jarray;
+        return;
+    }
+
+    /* nested array path */
     for (auto &&i : entries) {
         nlohmann::json jentry;
         for (auto &&f : i.fields) {
@@ -119,21 +138,27 @@ FieldArr::appendEntry() {
     entry.subentry_container.set_homogeneous(false);
 
     for (auto &&d : array_description) {
+        std::string tag = flat ? BLANK_TAG : d.tag;
+
         switch (d.type) {
         case FARRAY_FIELD_TYPE_ENUM:
             INIT_FIELD(
-                FieldEnum, d.tag, d.label, DR_AS(d.arg1, enumVals), DR_AS(d.arg2, ValType));
+                FieldEnum, tag, d.label, DR_AS(d.arg1, enumVals), DR_AS(d.arg2, ValType));
             break;
 
         case FARRAY_FIELD_TYPE_INT:
-            INIT_FIELD(FieldNum, d.tag, d.label, DR_AS(d.arg1, FieldNumProps));
+            INIT_FIELD(FieldNum, tag, d.label, DR_AS(d.arg1, FieldNumProps));
             break;
 
         case FARRAY_FIELD_TYPE_ARRAY:
-            INIT_FIELD(FieldArr, d.tag, d.label, DR_AS(d.arg1, FArrayDescr));
+            INIT_FIELD(FieldArr, tag, d.label, DR_AS(d.arg1, FArrayDescr));
             break;
 
-        case FARRAY_FIELD_TYPE_CHECKBOX: INIT_FIELD(FieldCheckbox, d.tag, d.label); break;
+        case FARRAY_FIELD_TYPE_STR:
+            INIT_FIELD(FieldStr, tag, d.label, DR_AS(d.arg1, FStrType));
+            break;
+
+        case FARRAY_FIELD_TYPE_CHECKBOX: INIT_FIELD(FieldCheckbox, tag, d.label); break;
         }
     }
 
@@ -150,14 +175,33 @@ FieldArr::appendEntry(nlohmann::json j) {
     appendEntry();
     FArrayEntry &entry = entries.back();
 
+    /* flat array path */
+    if (flat) {
+        if (entry.fields.empty()) {
+            return;
+        }
+
+        nlohmann::json jfield;
+        jfield[BLANK_TAG] = j;
+
+        entry.fields[0]->set(jfield);
+
+        array_container.show_all();
+        return;
+    }
+
+    /* nested array path */
     for (auto &&i : entry.fields) {
         i->set(j);
     }
     array_container.show_all();
 }
 
-FieldArr::FieldArr(std::string tag, std::string label, FArrayDescr &array_description)
-    : FieldBase(tag, label), array_description(array_description) {
+FieldArr::FieldArr(std::string  tag,
+                   std::string  label,
+                   FArrayDescr &array_description,
+                   bool         flat)
+    : FieldBase(tag, label), flat(flat), array_description(array_description) {
     //
     btn_add.set_label("      +      ");
     btn_add.set_hexpand(false);

@@ -5,10 +5,13 @@
 
 #include "fieldBase.hpp"
 
+#define BLANK_TAG "tag"
+
 enum FArrayType {
     FARRAY_FIELD_TYPE_ENUM,
     FARRAY_FIELD_TYPE_INT,
     FARRAY_FIELD_TYPE_CHECKBOX,
+    FARRAY_FIELD_TYPE_STR,
     FARRAY_FIELD_TYPE_ARRAY,
 };
 
@@ -25,6 +28,22 @@ typedef std::vector<ArrayDescriptor>            FArrayDescr;
 
 class FieldArr : public FieldBase {
   private:
+    // plain means field array contains only one type of entries, each entry will have
+    // only one field and field's will have same tag "tag" which won't be present in exported
+    // json and not needed when importing
+    // good example is guid string array:
+    // "guids": [
+    //     "3c83af87-7595-4711-abff-692bc2b58758",
+    //     "81c36d83-7280-45d8-b529-9cc3fe2680c8"
+    //  ],
+    //
+    // Note! If you use plain you *shall*:
+    // 1. send FArrayDescr with only one entry
+    // 2. make sure entering json is an array with no nested objects
+    // 3. probably shouldn't use plain array of arrays. who knows...
+    // in case of plane array FArrayDescr's field's tag doesn't matter
+    bool flat;
+
     FArrayDescr array_description;
 
     struct FArrayEntry {
@@ -60,6 +79,9 @@ class FieldArr : public FieldBase {
     void appendEntry();
     void appendEntry(nlohmann::json j);
 
-    FieldArr(std::string tag, std::string label, FArrayDescr &array_description);
+    FieldArr(std::string  tag,
+             std::string  label,
+             FArrayDescr &array_description,
+             bool         flat = false);
     ~FieldArr();
 };
