@@ -16,20 +16,6 @@ class MRecordBoardP2PCon : public MRecordBase {
 
     std::string IFaceToStr(Interface ifac);
 
-    struct LinkDesignator {
-        bool      port_3;
-        bool      port_2;
-        bool      port_1;
-        bool      port_0;
-        Interface iface;
-        uchar     ch_number;
-    };
-
-    template <typename T>
-    bool tryParseLDesignator(T v, LinkDesignator &ld, Errs &errs);
-    void emitLDesignator(nlohmann::json &j, LinkDesignator &ld);
-    void emitLDesignator(toml::table &t, LinkDesignator &ld);
-
     std::vector<bytes> guids;
 
     bool strToGUID(std::string s, bytes &guid, std::string err);
@@ -40,7 +26,13 @@ class MRecordBoardP2PCon : public MRecordBase {
         uchar link_type_extension;
         uchar link_type;
 
-        LinkDesignator link_designator;
+        // link_designator;
+        bool      port_3;
+        bool      port_2;
+        bool      port_1;
+        bool      port_0;
+        Interface iface;
+        uchar     ch_number;
     };
 
     template <typename T>

@@ -41,17 +41,17 @@ MRecordBoardP2PCon::debug_printOutVals() {
                   << std::endl;
         std::cout << "  link_type:           " << static_cast<int>(ld.link_type) << std::endl;
         std::cout << "  link_designator:" << std::endl;
-        LinkDesignator &ldg = ld.link_designator;
-        std::cout << "    port_3:         " << (ldg.port_3 ? "included" : "excluded")
+        // LinkDesignator &ld = ld.link_designator;
+        std::cout << "    port_3:         " << (ld.port_3 ? "included" : "excluded")
                   << std::endl;
-        std::cout << "    port_2:         " << (ldg.port_2 ? "included" : "excluded")
+        std::cout << "    port_2:         " << (ld.port_2 ? "included" : "excluded")
                   << std::endl;
-        std::cout << "    port_1:         " << (ldg.port_1 ? "included" : "excluded")
+        std::cout << "    port_1:         " << (ld.port_1 ? "included" : "excluded")
                   << std::endl;
-        std::cout << "    port_0:         " << (ldg.port_0 ? "included" : "excluded")
+        std::cout << "    port_0:         " << (ld.port_0 ? "included" : "excluded")
                   << std::endl;
-        std::cout << "    interface:      " << IFaceToStr(ldg.iface) << std::endl;
-        std::cout << "    channel_number: " << static_cast<int>(ldg.ch_number) << std::endl;
+        std::cout << "    interface:      " << IFaceToStr(ld.iface) << std::endl;
+        std::cout << "    channel_number: " << static_cast<int>(ld.ch_number) << std::endl;
     }
 }
 
@@ -71,17 +71,29 @@ MRecordBoardP2PCon::getLength() {
     return len;
 }
 
-//  #      # #    # #    #    #####  ######  ####  #  ####  #    #   ##   #####  ####  #####
-//  #      # ##   # #   #     #    # #      #      # #    # ##   #  #  #    #   #    # #    #
-//  #      # # #  # ####      #    # #####   ####  # #      # #  # #    #   #   #    # #    #
-//  #      # #  # # #  #      #    # #           # # #  ### #  # # ######   #   #    # #####
-//  #      # #   ## #   #     #    # #      #    # # #    # #   ## #    #   #   #    # #   #
-//  ###### # #    # #    #    #####  ######  ####  #  ####  #    # #    #   #    ####  #    #
+//  #      # #    # #    #    #####  ######  ####   ####  #####  # #####  #####  ####  #####
+//  #      # ##   # #   #     #    # #      #      #    # #    # # #    #   #   #    # #    #
+//  #      # # #  # ####      #    # #####   ####  #      #    # # #    #   #   #    # #    #
+//  #      # #  # # #  #      #    # #           # #      #####  # #####    #   #    # #####
+//  #      # #   ## #   #     #    # #      #    # #    # #   #  # #        #   #    # #   #
+//  ###### # #    # #    #    #####  ######  ####   ####  #    # # #        #    ####  #    #
 
 template <typename T>
 bool
-MRecordBoardP2PCon::tryParseLDesignator(T v, LinkDesignator &ld, Errs &errs) {
+MRecordBoardP2PCon::tryParseLDescriptor(T v, LinkDescriptor &ld, Errs &errs) {
     bool valid = true;
+
+    if (!tryParseField_uchar(v, "link_grouping_id", ld.link_grouping_id, errs)) {
+        valid = false;
+    }
+
+    if (!tryParseField_uchar(v, "link_type_extension", ld.link_type_extension, errs)) {
+        valid = false;
+    }
+
+    if (!tryParseField_uchar(v, "link_type", ld.link_type, errs)) {
+        valid = false;
+    }
 
     if (!tryParseField_bool(v, "port_3", ld.port_3, errs)) {
         valid = false;
@@ -136,62 +148,6 @@ MRecordBoardP2PCon::tryParseLDesignator(T v, LinkDesignator &ld, Errs &errs) {
     return valid;
 }
 
-void
-MRecordBoardP2PCon::emitLDesignator(nlohmann::json &j, LinkDesignator &ld) {
-    j["port_3"]         = ld.port_3;
-    j["port_2"]         = ld.port_2;
-    j["port_1"]         = ld.port_1;
-    j["port_0"]         = ld.port_0;
-    j["interface"]      = IFaceToStr(ld.iface);
-    j["channel_number"] = ld.ch_number;
-}
-
-void
-MRecordBoardP2PCon::emitLDesignator(toml::table &t, LinkDesignator &ld) {
-    t["port_3"]         = toml::value(ld.port_3);
-    t["port_2"]         = toml::value(ld.port_2);
-    t["port_1"]         = toml::value(ld.port_1);
-    t["port_0"]         = toml::value(ld.port_0);
-    t["interface"]      = toml::value(IFaceToStr(ld.iface));
-    t["channel_number"] = toml::value(ld.ch_number);
-}
-
-//  #      # #    # #    #    #####  ######  ####   ####  #####  # #####  #####  ####  #####
-//  #      # ##   # #   #     #    # #      #      #    # #    # # #    #   #   #    # #    #
-//  #      # # #  # ####      #    # #####   ####  #      #    # # #    #   #   #    # #    #
-//  #      # #  # # #  #      #    # #           # #      #####  # #####    #   #    # #####
-//  #      # #   ## #   #     #    # #      #    # #    # #   #  # #        #   #    # #   #
-//  ###### # #    # #    #    #####  ######  ####   ####  #    # # #        #    ####  #    #
-
-template <typename T>
-bool
-MRecordBoardP2PCon::tryParseLDescriptor(T v, LinkDescriptor &ld, Errs &errs) {
-    bool valid = true;
-
-    if (!tryParseField_uchar(v, "link_grouping_id", ld.link_grouping_id, errs)) {
-        valid = false;
-    }
-
-    if (!tryParseField_uchar(v, "link_type_extension", ld.link_type_extension, errs)) {
-        valid = false;
-    }
-
-    if (!tryParseField_uchar(v, "link_type", ld.link_type, errs)) {
-        valid = false;
-    }
-
-    T obj;
-    if (!tryParseField_obj(v, "link_designator", obj, errs)) {
-        return false;
-    }
-
-    if (!tryParseLDesignator(obj, ld.link_designator, errs)) {
-        return false;
-    }
-
-    return valid;
-}
-
 bool
 MRecordBoardP2PCon::tryParseLDescriptor(biterator begin, LinkDescriptor &ld, Errs &errs) {
     UNUSED(errs);
@@ -200,31 +156,29 @@ MRecordBoardP2PCon::tryParseLDescriptor(biterator begin, LinkDescriptor &ld, Err
     int n = DR_BYTE(begin + 0) << 0 | DR_BYTE(begin + 1) << 8 | DR_BYTE(begin + 2) << 16 |
             DR_BYTE(begin + 3) << 24;
 
-    LinkDesignator &ldg = ld.link_designator;
-
     // 5:0
-    ldg.ch_number = n & MASK_5b;
-    n             = n >> 6;
+    ld.ch_number = n & MASK_5b;
+    n            = n >> 6;
 
     // 7:6
-    ldg.iface = Interface(n & MASK_2b);
-    n         = n >> 2;
+    ld.iface = Interface(n & MASK_2b);
+    n        = n >> 2;
 
     // 8
-    ldg.port_0 = bool(n & MASK_1b);
-    n          = n >> 1;
+    ld.port_0 = bool(n & MASK_1b);
+    n         = n >> 1;
 
     // 9
-    ldg.port_1 = bool(n & MASK_1b);
-    n          = n >> 1;
+    ld.port_1 = bool(n & MASK_1b);
+    n         = n >> 1;
 
     // 10
-    ldg.port_2 = bool(n & MASK_1b);
-    n          = n >> 1;
+    ld.port_2 = bool(n & MASK_1b);
+    n         = n >> 1;
 
     // 11
-    ldg.port_3 = bool(n & MASK_1b);
-    n          = n >> 1;
+    ld.port_3 = bool(n & MASK_1b);
+    n         = n >> 1;
 
     // 19:12
     ld.link_type = n & MASK_8b;
@@ -245,10 +199,12 @@ MRecordBoardP2PCon::emitLDescriptor(nlohmann::json &j, LinkDescriptor &ld) {
     j["link_grouping_id"]    = ld.link_grouping_id;
     j["link_type_extension"] = ld.link_type_extension;
     j["link_type"]           = ld.link_type;
-
-    json link_designator;
-    emitLDesignator(link_designator, ld.link_designator);
-    j["link_designator"] = link_designator;
+    j["port_3"]              = ld.port_3;
+    j["port_2"]              = ld.port_2;
+    j["port_1"]              = ld.port_1;
+    j["port_0"]              = ld.port_0;
+    j["interface"]           = IFaceToStr(ld.iface);
+    j["channel_number"]      = ld.ch_number;
 }
 
 void
@@ -256,27 +212,27 @@ MRecordBoardP2PCon::emitLDescriptor(toml::table &t, LinkDescriptor &ld) {
     t["link_grouping_id"]    = toml::value(ld.link_grouping_id);
     t["link_type_extension"] = toml::value(ld.link_type_extension);
     t["link_type"]           = toml::value(ld.link_type);
-
-    toml::table link_designator;
-    emitLDesignator(link_designator, ld.link_designator);
-    t["link_designator"] = toml::value(std::move(link_designator));
+    t["port_3"]              = toml::value(ld.port_3);
+    t["port_2"]              = toml::value(ld.port_2);
+    t["port_1"]              = toml::value(ld.port_1);
+    t["port_0"]              = toml::value(ld.port_0);
+    t["interface"]           = toml::value(IFaceToStr(ld.iface));
+    t["channel_number"]      = toml::value(ld.ch_number);
 }
 
 void
 MRecordBoardP2PCon::emitLDescriptor(bytes &out_bin, LinkDescriptor &ld) {
-    LinkDesignator &ldg = ld.link_designator;
-
     int b  = 0;
-    b     |= ldg.ch_number & MASK_5b;
-    b     |= (static_cast<int>(ldg.iface) & MASK_2b) << 6;
+    b     |= ld.ch_number & MASK_5b;
+    b     |= (static_cast<int>(ld.iface) & MASK_2b) << 6;
     out_bin.emplace_back(std::byte{static_cast<uchar>(b)});
     // first byte out
 
     b  = 0;
-    b |= (static_cast<int>(ldg.port_0) & MASK_1b) << 0;
-    b |= (static_cast<int>(ldg.port_1) & MASK_1b) << 1;
-    b |= (static_cast<int>(ldg.port_2) & MASK_1b) << 2;
-    b |= (static_cast<int>(ldg.port_3) & MASK_1b) << 3;
+    b |= (static_cast<int>(ld.port_0) & MASK_1b) << 0;
+    b |= (static_cast<int>(ld.port_1) & MASK_1b) << 1;
+    b |= (static_cast<int>(ld.port_2) & MASK_1b) << 2;
+    b |= (static_cast<int>(ld.port_3) & MASK_1b) << 3;
     b |= (ld.link_type & MASK_4b) << 4;
     out_bin.emplace_back(std::byte{static_cast<uchar>(b)});
     // second byte out
