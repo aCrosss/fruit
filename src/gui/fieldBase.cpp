@@ -23,7 +23,7 @@ FieldBase::FieldBase(std::string tag, std::string label) {
     container.set_orientation(Gtk::ORIENTATION_VERTICAL);
 
     label_tag.set_text(label);
-    label_tag.set_width_chars(16);
+    label_tag.set_width_chars(20);
     label_tag.set_padding(4, 0);
     label_tag.set_xalign(0.0f);
     label_tag.set_yalign(0.0f);
