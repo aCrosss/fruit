@@ -2,7 +2,7 @@
 
 void
 FieldEnum::clear() {
-    return;
+    combo_box.unset_active();
 }
 
 void

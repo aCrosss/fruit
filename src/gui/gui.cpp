@@ -129,6 +129,35 @@ show_open_file_dialog(ustring title, FileFilter filter, std::string &path) {
     return false;
 }
 
+bool
+show_confirmation_dialog(std::string title, std::string msg) {
+    Gtk::MessageDialog dialog(
+        title, false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, true);
+    if (!msg.empty()) {
+        dialog.set_secondary_text(msg);
+    }
+
+    int result = dialog.run();
+    return result == Gtk::ResponseType::RESPONSE_OK;
+}
+
+static void
+on_new() {
+    std::string title = "Внимание!";
+    std::string msg =
+        "Это действие очистит все введенные данные, Вы уверены, что хотите продолжить?";
+
+    if (!show_confirmation_dialog(title, msg)) {
+        return;
+    }
+
+    for (size_t i = 0; i < gui_areas.size(); i++) {
+        auto &&a = gui_areas[i];
+        a->clear();
+        set_area_enabled(i, false);
+    }
+}
+
 static void
 load_json(nlohmann::json j) {
     for (int i = 0; i < GUI_MRECORDS_START_INDEX; ++i) {
@@ -425,6 +454,11 @@ on_area_toggle_toggled(const ustring &path) {
 
 inline void
 connect_menu_bar(Glib::RefPtr<Gtk::Builder> refBuilder) {
+    // menu_new
+    Gtk::MenuItem *menu_new;
+    refBuilder->get_widget<Gtk::MenuItem>("menu_new", menu_new);
+    menu_new->signal_activate().connect(sigc::ptr_fun(&on_new));
+
     // menu_import_json
     Gtk::MenuItem *menu_import_json;
     refBuilder->get_widget<Gtk::MenuItem>("menu_import_json", menu_import_json);

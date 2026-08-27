@@ -2,7 +2,9 @@
 
 void
 FieldEncStr::clear() {
-    return;
+    entry.set_text("");
+    encoding.set_active(3);
+    label_error.set_text("");
 }
 
 void

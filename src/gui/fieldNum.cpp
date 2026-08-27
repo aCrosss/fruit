@@ -3,7 +3,7 @@
 
 void
 FieldNum::clear() {
-    return;
+    entry.set_value(0);
 }
 
 void

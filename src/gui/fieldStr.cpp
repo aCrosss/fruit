@@ -8,6 +8,7 @@
 void
 FieldStr::clear() {
     entry.set_text("");
+    label_error.set_text("");
 }
 
 void
