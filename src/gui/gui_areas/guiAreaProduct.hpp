@@ -1,5 +1,6 @@
 #pragma once
 
+#include "fieldArr.hpp"
 #include "guiAreaBase.hpp"
 
 class GUIAreaProduct : public GUIAreaBase {
@@ -141,6 +142,10 @@ class GUIAreaProduct : public GUIAreaBase {
         {"Yoruba", 134},
         {"Chinese", 135},
         {"Zulu ", 136},
+    };
+
+    FArrayDescr custom = {
+        {FARRAY_FIELD_TYPE_ENC_STR, "", "", nullptr, nullptr},
     };
 
   public:

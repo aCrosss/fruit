@@ -1,5 +1,6 @@
 #pragma once
 
+#include "fieldArr.hpp"
 #include "guiAreaBase.hpp"
 
 class GUIAreaChassis : public GUIAreaBase {
@@ -34,6 +35,10 @@ class GUIAreaChassis : public GUIAreaBase {
         {"AdvancedTCA", 0x1B},
         {"Blade", 0x1C},
         {"Blade Enclosure", 0x1D},
+    };
+
+    FArrayDescr custom = {
+        {FARRAY_FIELD_TYPE_ENC_STR, "", "", nullptr, nullptr},
     };
 
   public:
