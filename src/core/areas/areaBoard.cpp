@@ -135,7 +135,7 @@ AreaBoard::tryParseImpl(T v, Errs &errs) {
     bool        valid = true;
 
     if (tryParseField_int(v, "language_code", language_code, errs)) {
-        if (language_code > 136) {
+        if (language_code > LANG_CODE_CAP) {
             errs.append(tag, "language_code", "lanugage codes capped at 136");
             valid = false;
         }

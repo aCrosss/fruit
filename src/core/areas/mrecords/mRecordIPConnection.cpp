@@ -56,8 +56,6 @@ MRecordIPConnection::strToIP(std::string s, IP &ip, std::string &err) {
     char dot;
     int  bs[4];
 
-    std::cout << ">parsing ip: " << s << std::endl;
-
     std::istringstream iss(s);
     if (iss >> bs[0] >> dot >> bs[1] >> dot >> bs[2] >> dot >> bs[3]) {
         for (size_t i = 0; i < 4; i++) {
