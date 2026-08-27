@@ -16,6 +16,7 @@
 #include "gui_areas/guiAreaBoardP2PCon.hpp"
 #include "gui_areas/guiAreaFanGeography.hpp"
 #include "gui_areas/guiAreaFormFactor.hpp"
+#include "gui_areas/guiAreaLedDescriptor.hpp"
 // clang-format on
 
 #include "manager.hpp"
@@ -452,6 +453,7 @@ init_gui_areas() {
     gui_areas.emplace_back(std::make_shared<GUIAreaBoardP2PCon>());
     gui_areas.emplace_back(std::make_shared<GUIAreaFanGeography>());
     gui_areas.emplace_back(std::make_shared<GUIAreaFormFactor>());
+    gui_areas.emplace_back(std::make_shared<GUIAreaLEDDescriptor>());
 }
 
 void
