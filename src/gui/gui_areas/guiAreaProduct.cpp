@@ -1,7 +1,7 @@
 #include "guiAreaProduct.hpp"
 #include "guiAreaBase.hpp"
 
-GUIAreaProduct::GUIAreaProduct() : GUIAreaBase("product_info", "Product Info Area") {
+GUIAreaProduct::GUIAreaProduct() : GUIAreaBase("product", "Product Info Area") {
     INIT_FIELD(FieldEnum, "language_code", "Language Code", lang_codes_enum, VAL_TYPE_INT);
     INIT_FIELD(FieldEncStr, "manufacturer", "Manufacturer Name");
     INIT_FIELD(FieldEncStr, "product_name", "Product Name");

@@ -26,7 +26,7 @@ AreaCommonHeader::debug_printOutVals() {
     std::cout << "internal_use: " << static_cast<int>(offsets[0]) << std::endl;
     std::cout << "chassis:      " << static_cast<int>(offsets[1]) << std::endl;
     std::cout << "board:        " << static_cast<int>(offsets[2]) << std::endl;
-    std::cout << "product_info: " << static_cast<int>(offsets[3]) << std::endl;
+    std::cout << "product:      " << static_cast<int>(offsets[3]) << std::endl;
     std::cout << "multi_record: " << static_cast<int>(offsets[4]) << std::endl;
 }
 

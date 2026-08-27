@@ -369,6 +369,6 @@ AreaProductInfo::emitBinary(bytes &out_bin, Errs &errs) {
 //     ##  ##   ###  ##     ##
 //    #### ##    ## ####    ##
 
-AreaProductInfo::AreaProductInfo() : Section("product_info", "Product Info Area") {
+AreaProductInfo::AreaProductInfo() : Section("product", "Product Info Area") {
     //
 }
