@@ -224,7 +224,7 @@ MRecordFanMapping::emitBinary(bytes &out_bin, Errs &errs) {
         payload.emplace_back(std::byte{e.site_type});
     }
 
-    buildMRecordHeader(header, false, payload);
+    buildMRecordHeader(header, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);

@@ -5,6 +5,8 @@
 #define IPMI_HEADER_LEN  5
 #define PICMG_HEADER_LEN IPMI_HEADER_LEN + 5
 
+#define MREC_DEF_FORMAT_VER (0x02)
+
 #define DR_BYTE(v) static_cast<uchar>(*(v))
 #define DR_INT(v)  static_cast<int>(*(v))
 #define SC_I(v)    static_cast<int>(v)
@@ -35,7 +37,7 @@ class MRecordBase : public Section {
 
     void clear() override = 0;
 
-    void buildMRecordHeader(bytes &out, bool eol, bytes &data);
+    void buildMRecordHeader(bytes &out, bytes &data);
     void prependPICMGHeader(bytes &out);
 
   public:

@@ -337,7 +337,7 @@ MRecordPowerDistribuiton::emitBinary(bytes &out_bin, Errs &errs) {
         }
     }
 
-    buildMRecordHeader(header, false, payload);
+    buildMRecordHeader(header, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);

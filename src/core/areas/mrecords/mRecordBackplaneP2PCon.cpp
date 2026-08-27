@@ -410,7 +410,7 @@ MRecordBackplaneP2PCon::emitBinary(bytes &out_bin, Errs &errs) {
         emitSlotDescr(payload, slots[i]);
     }
 
-    buildMRecordHeader(header, false, payload);
+    buildMRecordHeader(header, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);

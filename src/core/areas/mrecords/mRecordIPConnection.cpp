@@ -222,7 +222,7 @@ MRecordIPConnection::emitBinary(bytes &out_bin, Errs &errs) {
     APPEND_IP_BYTES(payload, gateway_address);
     APPEND_IP_BYTES(payload, subnet_mask);
 
-    buildMRecordHeader(header, false, payload);
+    buildMRecordHeader(header, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);

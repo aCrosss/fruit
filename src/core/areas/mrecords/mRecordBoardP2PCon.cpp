@@ -477,7 +477,7 @@ MRecordBoardP2PCon::emitBinary(bytes &out_bin, Errs &errs) {
         APPEND_BYTES(payload, bs);
     }
 
-    buildMRecordHeader(header, false, payload);
+    buildMRecordHeader(header, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);
@@ -494,7 +494,7 @@ MRecordBoardP2PCon::emitBinary(bytes &out_bin, Errs &errs) {
 //    #### ##    ## ####    ##
 
 MRecordBoardP2PCon::MRecordBoardP2PCon()
-    : MRecordBase("board_p2p_con", "Activation and Power Management") {
+    : MRecordBase("board_p2p_con", "Board Point-to-Point Connectivity") {
     record_id       = MRECORD_PICMG_RECORD;
     picmg_record_id = PICMGREC_BOARD_P2PCON;
 }

@@ -247,7 +247,7 @@ MRecordAddressTable::emitBinary(bytes &out_bin, Errs &errs) {
     APPEND_BYTES(payload, shelf_address_bs);
     APPEND_BYTES(payload, entries_bs);
 
-    buildMRecordHeader(header, false, payload);
+    buildMRecordHeader(header, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);

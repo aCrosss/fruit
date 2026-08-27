@@ -34,13 +34,13 @@ isPICMGMRecordIDValid(int id) {
 }
 
 void
-MRecordBase::buildMRecordHeader(bytes &bs, bool eol, bytes &data) {
+MRecordBase::buildMRecordHeader(bytes &bs, bytes &data) {
     uchar header_len = IPMI_HEADER_LEN;
     uchar total_len  = static_cast<uchar>(header_len + data.size());
     bs.resize(header_len);
 
     bs[0] = std::byte{static_cast<uchar>(record_id)};
-    bs[1] = std::byte{eol ? static_cast<uchar>(128) : static_cast<uchar>(0)};
+    bs[1] = std::byte{static_cast<uchar>(MREC_DEF_FORMAT_VER)};
     bs[2] = std::byte{total_len};
     bs[3] = calcZeroChecksum(data);
     bs[4] = calcZeroChecksum(bs);

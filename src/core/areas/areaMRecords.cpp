@@ -61,7 +61,7 @@ AreaMRecords::validateMRecordHeader(biterator begin, Errs &errs) {
     int  record_id       = static_cast<int>(*begin);
     int  byte9           = static_cast<int>(*(begin + 8));
     bool is_PICMG_record = record_id == MRECORD_PICMG_RECORD;
-    int  record_len      = static_cast<int>(*(begin + 2));
+    int  record_len      = static_cast<int>(*(begin + HDR_OFFSET_LEN));
 
     if (!isMRecordIDValid(record_id)) {
         std::stringstream s;
@@ -318,11 +318,9 @@ AreaMRecords::emitBinary(bytes &out_bin, Errs &errs) {
         }
 
         // last one - make eol
-        // Note: maybe should have this inside MultiRecords itself. But this way it's
-        // actually easier
         if (i == mrecords.size() - 1) {
-            bs[1] = std::byte{128};
-            bs[4] = calcZeroChecksum(bs.begin(), bs.begin() + 3);
+            bs[HDR_OFFSET_EOL]    |= std::byte{128};
+            bs[HDR_OFFSET_HDR_CS]  = calcZeroChecksum(bs.begin(), bs.begin() + 3);
         }
 
         APPEND_BYTES(out_bin, bs);
