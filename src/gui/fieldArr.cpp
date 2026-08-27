@@ -1,6 +1,7 @@
 #include "fieldArr.hpp"
 #include "fieldBase.hpp"
 #include "fieldCheckbox.hpp"
+#include "fieldEncStr.hpp"
 #include "fieldEnum.hpp"
 #include "fieldNum.hpp"
 #include "fieldStr.hpp"
@@ -157,6 +158,8 @@ FieldArr::appendEntry() {
         case FARRAY_FIELD_TYPE_STR:
             INIT_FIELD(FieldStr, tag, d.label, DR_AS(d.arg1, FStrType));
             break;
+
+        case FARRAY_FIELD_TYPE_ENC_STR: INIT_FIELD(FieldEncStr, tag, d.label); break;
 
         case FARRAY_FIELD_TYPE_CHECKBOX: INIT_FIELD(FieldCheckbox, tag, d.label); break;
         }
