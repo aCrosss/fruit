@@ -34,7 +34,7 @@ class GUIAreaBase {
     void hide(Gtk::Box *parent);
 
     void get(nlohmann::json &j);
-    void set(nlohmann::json &j);
+    bool set(nlohmann::json &j);
 
     bool validate();
 

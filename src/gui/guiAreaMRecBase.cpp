@@ -50,20 +50,22 @@ GUIAreaMRecBase::get(nlohmann::json &j) {
 
 // get reference to json array containing multirecords
 // records *shall* contain multirecord id field and *may* contain PICMG record id
-void
+bool
 GUIAreaMRecBase::set(nlohmann::json &j) {
     nlohmann::json jarray;
 
     jarray  = j.get<nlohmann::json::array_t>();
     int ind = -1;
     if ((ind = findMRecordEntry(jarray, record_id, picmg_record_id)) < 0) {
-        return;
+        return false;
     }
 
     nlohmann::json jarea = jarray[ind];
     for (auto &&i : fields) {
         i->set(jarea);
     }
+
+    return true;
 }
 
 GUIAreaMRecBase::GUIAreaMRecBase(std::string label, uchar record_id, uchar picmg_record_id)

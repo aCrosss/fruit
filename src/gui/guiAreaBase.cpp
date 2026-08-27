@@ -43,17 +43,19 @@ GUIAreaBase::get(nlohmann::json &j) {
     j[tag] = jarea;
 }
 
-void
+bool
 GUIAreaBase::set(nlohmann::json &j) {
     nlohmann::json area;
     if (!j.contains(tag)) {
-        return;
+        return false;
     }
 
     area = j[tag];
     for (auto &&i : fields) {
         i->set(area);
     }
+
+    return true;
 }
 
 bool

@@ -74,6 +74,34 @@ on_app_shutdown() {
     exit(0);
 }
 
+static inline bool
+get_area_enabled(size_t ind) {
+    bool area_enabled = false;
+
+    std::stringstream path;
+    path << ind;
+    auto iter = areas_list->get_iter(Gtk::TreeModel::Path(path.str()));
+    if (iter) {
+        iter->get_value(1, area_enabled);
+    } else {
+        return false;
+    }
+
+    return area_enabled;
+}
+
+static inline void
+set_area_enabled(size_t ind, bool area_enabled) {
+    std::stringstream path;
+    path << ind;
+    auto iter = areas_list->get_iter(Gtk::TreeModel::Path(path.str()));
+    if (!iter) {
+        return;
+    }
+
+    iter->set_value(1, area_enabled);
+}
+
 bool
 show_open_file_dialog(ustring title, FileFilter filter, std::string &path) {
     ustring ok   = "Выбрать";
@@ -106,7 +134,8 @@ load_json(nlohmann::json j) {
     for (int i = 0; i < GUI_MRECORDS_START_INDEX; ++i) {
         auto &&a = gui_areas[i];
         a->clear();
-        a->set(j);
+        bool enabled = a->set(j);
+        set_area_enabled(i, enabled);
     }
 
     if (!j.contains(AREA_TAG_MRECORDS)) {
@@ -117,7 +146,8 @@ load_json(nlohmann::json j) {
     for (size_t i = GUI_MRECORDS_START_INDEX; i < gui_areas.size(); ++i) {
         auto a = std::dynamic_pointer_cast<GUIAreaMRecBase>(gui_areas[i]);
         a->clear();
-        a->set(mrecs);
+        bool enabled = a->set(mrecs);
+        set_area_enabled(i, enabled);
     }
 
     main_container->show_all();
@@ -264,24 +294,11 @@ manager_parse_ui() {
 
     nlohmann::json jarray;
     for (size_t i = GUI_MRECORDS_START_INDEX; i < gui_areas.size(); ++i) {
-        bool area_enabled;
-
-        std::stringstream path;
-        path << i;
-        auto iter = areas_list->get_iter(Gtk::TreeModel::Path(path.str()));
-        if (iter) {
-            iter->get_value(1, area_enabled);
-        } else {
-            return false;
-        }
-
-        if (area_enabled) {
+        if (get_area_enabled(i)) {
             auto a = std::dynamic_pointer_cast<GUIAreaMRecBase>(gui_areas[i]);
             a->get(jarray);
         }
     }
-
-    std::cout << jarray.dump() << std::endl;
 
     if (!jarray.empty()) {
         j[AREA_TAG_MRECORDS] = jarray;
