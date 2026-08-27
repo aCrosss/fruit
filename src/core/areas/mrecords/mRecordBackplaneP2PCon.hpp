@@ -54,5 +54,4 @@ class MRecordBackplaneP2PCon : public MRecordBase {
     bool emitBinary(bytes &out_bin, Errs &errs) override;
 
     MRecordBackplaneP2PCon();
-    ~MRecordBackplaneP2PCon();
 };

@@ -24,5 +24,4 @@ class AreaInternalUse : public Section {
     bool emitBinary(bytes &out_bin, Errs &errs) override;
 
     AreaInternalUse();
-    ~AreaInternalUse();
 };

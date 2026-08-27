@@ -96,12 +96,6 @@ AreaCommonHeader::setOffsets(std::vector<std::unique_ptr<Section>> &sections) {
 //    ##        ##     ## ##    ##  ##    ##  ##  ##   ### ##    ##
 //    ##        ##     ## ##     ##  ######  #### ##    ##  ######
 
-// template <typename T>
-// inline bool
-// AreaCommonHeader::tryParseImpl(T v, Errs &errs) {
-//     return false;
-// }
-
 bool
 AreaCommonHeader::tryParse(nlohmann::json j, Errs &errs) {
     // common header generating automaticaly
@@ -191,9 +185,5 @@ AreaCommonHeader::emitBinary(bytes &out_bin, Errs &errs) {
 //    #### ##    ## ####    ##
 
 AreaCommonHeader::AreaCommonHeader() : Section("common_header", "Common Header Area") {
-    //
-}
-
-AreaCommonHeader::~AreaCommonHeader() {
     //
 }

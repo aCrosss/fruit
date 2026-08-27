@@ -32,5 +32,4 @@ class FieldBase {
     virtual bool validate() = 0;
 
     FieldBase(std::string tag, std::string label);
-    virtual ~FieldBase() = default;
 };

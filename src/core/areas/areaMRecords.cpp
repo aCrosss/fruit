@@ -342,7 +342,3 @@ AreaMRecords::emitBinary(bytes &out_bin, Errs &errs) {
 AreaMRecords::AreaMRecords(/* args */) : Section("multi_records", "MultiRecords") {
     //
 }
-
-AreaMRecords::~AreaMRecords() {
-    //
-}

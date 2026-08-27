@@ -431,6 +431,3 @@ MRecordBackplaneP2PCon::MRecordBackplaneP2PCon()
     record_id       = MRECORD_PICMG_RECORD;
     picmg_record_id = PICMGREC_BACKPLANE_P2PCON;
 }
-
-MRecordBackplaneP2PCon::~MRecordBackplaneP2PCon() {
-}

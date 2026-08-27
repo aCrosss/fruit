@@ -269,7 +269,3 @@ AreaChassis::emitBinary(bytes &out_bin, Errs &errs) {
 AreaChassis::AreaChassis(/* args */) : Section("chassis", "Chassis Info Area") {
     //
 }
-
-AreaChassis::~AreaChassis() {
-    //
-}

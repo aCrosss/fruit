@@ -39,7 +39,7 @@ MRecordBase::buildMRecordHeader(bytes &bs, bool eol, bytes &data) {
     uchar total_len  = static_cast<uchar>(header_len + data.size());
     bs.resize(header_len);
 
-    bs[0] = std::byte{record_id};
+    bs[0] = std::byte{static_cast<uchar>(record_id)};
     bs[1] = std::byte{eol ? static_cast<uchar>(128) : static_cast<uchar>(0)};
     bs[2] = std::byte{total_len};
     bs[3] = calcZeroChecksum(data);

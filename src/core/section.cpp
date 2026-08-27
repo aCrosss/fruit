@@ -691,9 +691,6 @@ Section::emitEncStrArr(toml::table &t, std::string ftag, std::vector<encodedStr>
 //     ##  ##   ###  ##     ##
 //    #### ##    ## ####    ##
 
-Section::Section(std::string tag, std::string label) {
-    this->tag   = tag;
-    this->label = label;
-
+Section::Section(std::string tag, std::string label) : tag(tag), label(label) {
     present = false;
 }

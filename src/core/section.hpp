@@ -113,5 +113,4 @@ class Section {
     virtual bool emitBinary(bytes &out_bin, Errs &errs) = 0;
 
     Section(std::string tag, std::string label);
-    virtual ~Section() = default;
 };

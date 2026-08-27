@@ -162,6 +162,5 @@ AreaInternalUse::emitBinary(bytes &out_bin, Errs &errs) {
 //    #### ##    ## ####    ##
 
 AreaInternalUse::AreaInternalUse() : Section("internal_use", "Internal Use Area") {
-}
-AreaInternalUse::~AreaInternalUse() {
+    //
 }

@@ -33,6 +33,5 @@ class MRecordAddressTable : public MRecordBase {
     void emitTOML(toml::table &t) override;
     bool emitBinary(bytes &out_bin, Errs &errs) override;
 
-    MRecordAddressTable(/* args */);
-    ~MRecordAddressTable();
+    MRecordAddressTable();
 };

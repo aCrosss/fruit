@@ -57,6 +57,5 @@ class MRecordBoardP2PCon : public MRecordBase {
     void emitTOML(toml::table &t) override;
     bool emitBinary(bytes &out_bin, Errs &errs) override;
 
-    MRecordBoardP2PCon(/* args */);
-    ~MRecordBoardP2PCon();
+    MRecordBoardP2PCon();
 };

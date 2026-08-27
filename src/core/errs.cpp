@@ -30,9 +30,3 @@ Errs::getPlainText() {
 
     return s.str();
 }
-
-Errs::Errs(/* args */) {
-}
-
-Errs::~Errs() {
-}

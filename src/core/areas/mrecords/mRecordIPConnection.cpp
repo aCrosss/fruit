@@ -240,11 +240,7 @@ MRecordIPConnection::emitBinary(bytes &out_bin, Errs &errs) {
 //     ##  ##   ###  ##     ##
 //    #### ##    ## ####    ##
 
-MRecordIPConnection::MRecordIPConnection(/* args */)
-    : MRecordBase("ip_connection", "IP Connection") {
+MRecordIPConnection::MRecordIPConnection() : MRecordBase("ip_connection", "IP Connection") {
     record_id       = MRECORD_PICMG_RECORD;
     picmg_record_id = PICMGREC_IP_CONNECTION;
-}
-
-MRecordIPConnection::~MRecordIPConnection() {
 }

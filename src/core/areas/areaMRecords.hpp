@@ -30,6 +30,5 @@ class AreaMRecords : public Section {
     void emitTOML(toml::table &t) override;
     bool emitBinary(bytes &out_bin, Errs &errs) override;
 
-    AreaMRecords(/* args */);
-    ~AreaMRecords();
+    AreaMRecords();
 };

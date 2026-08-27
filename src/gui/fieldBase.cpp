@@ -15,10 +15,7 @@ FieldBase::hide(Gtk::Box *parent) {
     parent->remove(top_container);
 }
 
-FieldBase::FieldBase(std::string tag, std::string label) {
-    this->tag   = tag;
-    this->label = label;
-
+FieldBase::FieldBase(std::string tag, std::string label) : tag(tag), label(label) {
     top_container.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
     container.set_orientation(Gtk::ORIENTATION_VERTICAL);
 

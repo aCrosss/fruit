@@ -17,8 +17,6 @@ class AreaCommonHeader : public Section {
     uchar getNextOffset(Areas offset_ind);
     bool  setOffsets(std::vector<std::unique_ptr<Section>> &sections);
 
-    // template <typename T>
-    // bool tryParseImpl(T v, Errs &errs);
     bool tryParse(nlohmann::json j, Errs &errs) override;
     bool tryParse(toml::value &t, Errs &errs) override;
     bool tryParseBinary(biterator begin, biterator end, Errs &errs) override;
@@ -28,5 +26,4 @@ class AreaCommonHeader : public Section {
     bool emitBinary(bytes &out_bin, Errs &errs) override;
 
     AreaCommonHeader();
-    ~AreaCommonHeader();
 };

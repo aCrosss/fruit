@@ -263,11 +263,7 @@ MRecordAddressTable::emitBinary(bytes &out_bin, Errs &errs) {
 //     ##  ##   ###  ##     ##
 //    #### ##    ## ####    ##
 
-MRecordAddressTable::MRecordAddressTable(/* args */)
-    : MRecordBase("address_tabe", "Address Table") {
+MRecordAddressTable::MRecordAddressTable() : MRecordBase("address_tabe", "Address Table") {
     record_id       = MRECORD_PICMG_RECORD;
     picmg_record_id = PICMGREC_ADDRESS_TABLE;
-}
-
-MRecordAddressTable::~MRecordAddressTable() {
 }

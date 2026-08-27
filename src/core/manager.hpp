@@ -26,6 +26,5 @@ class Manager {
     bool saveTOML(std::string patch, Errs &errs);
     bool saveBinary(std::string patch, Errs &errs);
 
-    Manager(/* args */);
-    ~Manager();
+    Manager();
 };

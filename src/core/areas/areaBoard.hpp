@@ -33,5 +33,4 @@ class AreaBoard : public Section {
     bool emitBinary(bytes &out_bin, Errs &errs) override;
 
     AreaBoard();
-    ~AreaBoard();
 };

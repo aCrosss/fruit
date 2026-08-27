@@ -306,12 +306,9 @@ MRecordActivationAndPowerMng::emitBinary(bytes &out_bin, Errs &errs) {
 //     ##  ##   ###  ##     ##
 //    #### ##    ## ####    ##
 
-MRecordActivationAndPowerMng::MRecordActivationAndPowerMng(/* args */)
+MRecordActivationAndPowerMng::MRecordActivationAndPowerMng()
     : MRecordBase("activation_and_power_mng", "Activation and Power Management") {
     record_id       = MRECORD_PICMG_RECORD;
     picmg_record_id = PICMGREC_ACTIVATION_AND_POWER_MNG;
     record_ver      = 1;
-}
-
-MRecordActivationAndPowerMng::~MRecordActivationAndPowerMng() {
 }

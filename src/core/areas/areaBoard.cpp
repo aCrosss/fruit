@@ -411,7 +411,3 @@ AreaBoard::emitBinary(bytes &out_bin, Errs &errs) {
 AreaBoard::AreaBoard() : Section("board", "Board Info Area") {
     //
 }
-
-AreaBoard::~AreaBoard() {
-    //
-}

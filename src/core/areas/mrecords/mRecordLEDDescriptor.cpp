@@ -255,11 +255,7 @@ MRecordLEDDescriptor::emitBinary(bytes &out_bin, Errs &errs) {
 //     ##  ##   ###  ##     ##
 //    #### ##    ## ####    ##
 
-MRecordLEDDescriptor::MRecordLEDDescriptor(/* args */)
-    : MRecordBase("led_descriptor", "LED Descriptor") {
+MRecordLEDDescriptor::MRecordLEDDescriptor() : MRecordBase("led_descriptor", "LED Descriptor") {
     record_id       = MRECORD_PICMG_RECORD;
     picmg_record_id = PICMGREC_LED_DESCRIPTOR;
-}
-
-MRecordLEDDescriptor::~MRecordLEDDescriptor() {
 }

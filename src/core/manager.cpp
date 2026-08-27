@@ -257,10 +257,6 @@ Manager::saveBinary(std::string path, Errs &errs) {
     return false;
 }
 
-Manager::Manager(/* args */) {
+Manager::Manager() {
     initSections();
-}
-
-Manager::~Manager() {
-    //
 }

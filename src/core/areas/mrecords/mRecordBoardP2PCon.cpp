@@ -493,11 +493,8 @@ MRecordBoardP2PCon::emitBinary(bytes &out_bin, Errs &errs) {
 //     ##  ##   ###  ##     ##
 //    #### ##    ## ####    ##
 
-MRecordBoardP2PCon::MRecordBoardP2PCon(/* args */)
+MRecordBoardP2PCon::MRecordBoardP2PCon()
     : MRecordBase("board_p2p_con", "Activation and Power Management") {
     record_id       = MRECORD_PICMG_RECORD;
     picmg_record_id = PICMGREC_BOARD_P2PCON;
-}
-
-MRecordBoardP2PCon::~MRecordBoardP2PCon() {
 }

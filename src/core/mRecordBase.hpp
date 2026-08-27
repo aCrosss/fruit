@@ -50,5 +50,4 @@ class MRecordBase : public Section {
     bool emitBinary(bytes &out_bin, Errs &errs) override = 0;
 
     MRecordBase(std::string tag, std::string label);
-    virtual ~MRecordBase() = default;
 };

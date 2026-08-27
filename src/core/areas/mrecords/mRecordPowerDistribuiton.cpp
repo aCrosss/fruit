@@ -353,11 +353,8 @@ MRecordPowerDistribuiton::emitBinary(bytes &out_bin, Errs &errs) {
 //     ##  ##   ###  ##     ##
 //    #### ##    ## ####    ##
 
-MRecordPowerDistribuiton::MRecordPowerDistribuiton(/* args */)
+MRecordPowerDistribuiton::MRecordPowerDistribuiton()
     : MRecordBase("power_distribution", "Power Distribution") {
     record_id       = MRECORD_PICMG_RECORD;
     picmg_record_id = PICMGREC_POWER_DISTRIBUTION;
-}
-
-MRecordPowerDistribuiton::~MRecordPowerDistribuiton() {
 }

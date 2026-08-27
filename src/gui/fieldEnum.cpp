@@ -50,8 +50,7 @@ FieldEnum::validate() {
 }
 
 FieldEnum::FieldEnum(std::string tag, std::string label, enumVals vars, ValType type)
-    : FieldBase(tag, label) {
-    this->type = type;
+    : FieldBase(tag, label), type(type) {
 
     for (auto &&i : vars) {
         combo_box.append(std::get<0>(i));
@@ -60,7 +59,4 @@ FieldEnum::FieldEnum(std::string tag, std::string label, enumVals vars, ValType 
 
     container.add(combo_box);
     container.reorder_child(combo_box, 1);
-}
-
-FieldEnum::~FieldEnum() {
 }

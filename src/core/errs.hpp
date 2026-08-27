@@ -15,7 +15,4 @@ class Errs {
     void        append(std::string section, std::string field, std::string text);
     errors      getSectionErrs(std::string section);
     std::string getPlainText();
-
-    Errs();
-    ~Errs();
 };

@@ -29,6 +29,5 @@ class AreaChassis : public Section {
     void emitTOML(toml::table &t) override;
     bool emitBinary(bytes &out_bin, Errs &errs) override;
 
-    AreaChassis(/* args */);
-    ~AreaChassis();
+    AreaChassis();
 };

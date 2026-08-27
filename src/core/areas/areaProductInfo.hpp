@@ -32,6 +32,5 @@ class AreaProductInfo : public Section {
     void emitTOML(toml::table &t) override;
     bool emitBinary(bytes &out_bin, Errs &errs) override;
 
-    AreaProductInfo(/* args */);
-    ~AreaProductInfo();
+    AreaProductInfo();
 };

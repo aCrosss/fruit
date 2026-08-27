@@ -172,11 +172,7 @@ MRecordFormFactor::emitBinary(bytes &out_bin, Errs &errs) {
 //     ##  ##   ###  ##     ##
 //    #### ##    ## ####    ##
 
-MRecordFormFactor::MRecordFormFactor(/* args */)
-    : MRecordBase("form_factor", "Form Factor Information") {
+MRecordFormFactor::MRecordFormFactor() : MRecordBase("form_factor", "Form Factor Information") {
     record_id       = MRECORD_PICMG_RECORD;
     picmg_record_id = PICMGREC_FORM_FACTOR;
-}
-
-MRecordFormFactor::~MRecordFormFactor() {
 }

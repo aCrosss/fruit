@@ -240,11 +240,8 @@ MRecordFanMapping::emitBinary(bytes &out_bin, Errs &errs) {
 //     ##  ##   ###  ##     ##
 //    #### ##    ## ####    ##
 
-MRecordFanMapping::MRecordFanMapping(/* args */)
+MRecordFanMapping::MRecordFanMapping()
     : MRecordBase("shelf_fan_geography", "Shelf Fan Geography") {
     record_id       = MRECORD_PICMG_RECORD;
     picmg_record_id = PICMGREC_FAN_GEOGRAPHY;
-}
-
-MRecordFanMapping::~MRecordFanMapping() {
 }
