@@ -14,6 +14,7 @@
 #include "gui_areas/guiAreaActivationAndPowerMng.hpp"
 #include "gui_areas/guiAreaIPConnection.hpp"
 #include "gui_areas/guiAreaBoardP2PCon.hpp"
+#include "gui_areas/guiAreaFanGeography.hpp"
 // clang-format on
 
 #include "manager.hpp"
@@ -448,6 +449,7 @@ init_gui_areas() {
     gui_areas.emplace_back(std::make_shared<GUIAreaActivationAndPowerMng>());
     gui_areas.emplace_back(std::make_shared<GUIAreaIPConnection>());
     gui_areas.emplace_back(std::make_shared<GUIAreaBoardP2PCon>());
+    gui_areas.emplace_back(std::make_shared<GUIAreaFanGeography>());
 }
 
 void
