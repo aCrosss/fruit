@@ -353,9 +353,9 @@ bool
 makeTypeLengthByte(Encoding enc, uchar byte_count, std::byte &outb, std::string &err) {
     uchar type_code = 0;
 
-    // can't encode more than 31 bytes
+    // can't encode more than 64 bytes
     if (byte_count > ENCODED_MAX_BYTE_LENGTH) {
-        err = "encoded more than 31 bytes";
+        err = "encoded more than 64 bytes";
         return false;
     }
 
@@ -367,7 +367,7 @@ makeTypeLengthByte(Encoding enc, uchar byte_count, std::byte &outb, std::string 
     default                    : err = "unknown type code"; return false;
     }
 
-    uchar byte = static_cast<uchar>(type_code << 6 | (byte_count & ENCODED_MAX_BYTE_LENGTH));
+    uchar byte = static_cast<uchar>(type_code << 6 | (byte_count & MASK_6b));
     outb       = std::byte{byte};
     return true;
 }
@@ -376,8 +376,8 @@ bool
 decodeTypeLengthByte(Encoding &enc, uchar &byte_count, std::byte inb, std::string &err) {
     uchar byte = static_cast<uchar>(inb);
 
-    int type_code = (byte >> 6) & 0x03;
-    int length    = byte & ENCODED_MAX_BYTE_LENGTH;
+    int type_code = (byte >> 6) & MASK_2b;
+    int length    = byte & MASK_6b;
 
     if (type_code < ENCODING_BINARY_UNSPEC || type_code > ENCODING_UNOCODE) {
         std::stringstream s;
