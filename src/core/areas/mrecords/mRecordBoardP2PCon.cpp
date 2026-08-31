@@ -458,7 +458,7 @@ MRecordBoardP2PCon::emitTOML(toml::table &t) {
 }
 
 bool
-MRecordBoardP2PCon::emitBinary(bytes &out_bin, Errs &errs) {
+MRecordBoardP2PCon::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     UNUSED(errs);
 
     bytes header;
@@ -477,7 +477,7 @@ MRecordBoardP2PCon::emitBinary(bytes &out_bin, Errs &errs) {
         APPEND_BYTES(payload, bs);
     }
 
-    buildMRecordHeader(header, payload);
+    buildMRecordHeader(header, eol, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);

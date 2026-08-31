@@ -206,7 +206,7 @@ MRecordFanMapping::emitTOML(toml::table &t) {
 }
 
 bool
-MRecordFanMapping::emitBinary(bytes &out_bin, Errs &errs) {
+MRecordFanMapping::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     UNUSED(errs);
 
     bytes header;
@@ -224,7 +224,7 @@ MRecordFanMapping::emitBinary(bytes &out_bin, Errs &errs) {
         payload.emplace_back(std::byte{e.site_type});
     }
 
-    buildMRecordHeader(header, payload);
+    buildMRecordHeader(header, eol, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);

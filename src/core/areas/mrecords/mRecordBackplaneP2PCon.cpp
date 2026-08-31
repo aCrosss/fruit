@@ -400,7 +400,7 @@ MRecordBackplaneP2PCon::emitTOML(toml::table &t) {
 }
 
 bool
-MRecordBackplaneP2PCon::emitBinary(bytes &out_bin, Errs &errs) {
+MRecordBackplaneP2PCon::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     UNUSED(errs);
 
     if (slots.size() == 0) {
@@ -419,7 +419,7 @@ MRecordBackplaneP2PCon::emitBinary(bytes &out_bin, Errs &errs) {
     while (i < slots.size()) {
         // one full record: push into out_bin, prepend next one
         if (payload.size() + tmp.size() + MRECORD_HEADER_LEN_IPMI >= MAX_AREA_LEN) {
-            buildMRecordHeader(header, payload);
+            buildMRecordHeader(header, false, payload);
             APPEND_BYTES(out_bin, header);
             APPEND_BYTES(out_bin, payload);
 
@@ -435,7 +435,7 @@ MRecordBackplaneP2PCon::emitBinary(bytes &out_bin, Errs &errs) {
         i++;
     }
 
-    buildMRecordHeader(header, payload);
+    buildMRecordHeader(header, eol, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);

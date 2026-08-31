@@ -308,7 +308,7 @@ MRecordPowerDistribuiton::emitTOML(toml::table &t) {
 }
 
 bool
-MRecordPowerDistribuiton::emitBinary(bytes &out_bin, Errs &errs) {
+MRecordPowerDistribuiton::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     UNUSED(errs);
 
     bytes header;
@@ -337,7 +337,7 @@ MRecordPowerDistribuiton::emitBinary(bytes &out_bin, Errs &errs) {
         }
     }
 
-    buildMRecordHeader(header, payload);
+    buildMRecordHeader(header, eol, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);

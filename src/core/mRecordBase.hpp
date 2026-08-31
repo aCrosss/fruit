@@ -30,6 +30,9 @@ bool
 isPICMGMRecordIDValid(int id);
 
 class MRecordBase : public Section {
+  private:
+    bool emitBinary(bytes &out_bin, Errs &errs) override;
+
   protected:
     MRecID       record_id;
     PICMGMRecdID picmg_record_id;
@@ -37,7 +40,7 @@ class MRecordBase : public Section {
 
     void clear() override = 0;
 
-    void buildMRecordHeader(bytes &out, bytes &data);
+    void buildMRecordHeader(bytes &out, bool eol, bytes &data);
     void prependPICMGHeader(bytes &out);
 
   public:
@@ -47,9 +50,10 @@ class MRecordBase : public Section {
     bool tryParse(toml::value &t, Errs &errs) override                       = 0;
     bool tryParseBinary(biterator begin, biterator end, Errs &errs) override = 0;
 
-    void emitJSON(nlohmann::json &j) override            = 0;
-    void emitTOML(toml::table &t) override               = 0;
-    bool emitBinary(bytes &out_bin, Errs &errs) override = 0;
+    void         emitJSON(nlohmann::json &j) override             = 0;
+    void         emitTOML(toml::table &t) override                = 0;
+    virtual bool emitBinary(bytes &out_bin, bool eol, Errs &errs) = 0;
 
     MRecordBase(std::string tag, std::string label);
+    virtual ~MRecordBase() = default;
 };

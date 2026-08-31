@@ -9,8 +9,6 @@ class AreaMRecords : public Section {
   private:
     std::vector<MRecord> mrecords;
 
-    // template <typename T>
-    // bool validateMRecordHeader(T record, Errs &errs);
     bool validateMRecordHeader(biterator begin, Errs &errs);
     bool tryAppendMRecord(std::byte type, std::byte byte8, MRecord &mrecord, Errs &errs);
 

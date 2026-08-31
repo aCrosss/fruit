@@ -313,14 +313,9 @@ AreaMRecords::emitBinary(bytes &out_bin, Errs &errs) {
         MRecord mr = mrecords[i];
         bytes   bs;
 
-        if (!mr->emitBinary(bs, errs)) {
+        bool eol = i == mrecords.size() - 1;
+        if (!mr->emitBinary(bs, eol, errs)) {
             valid = false;
-        }
-
-        // last one - make eol
-        if (i == mrecords.size() - 1) {
-            bs[HDR_OFFSET_EOL]    |= std::byte{128};
-            bs[HDR_OFFSET_HDR_CS]  = calcZeroChecksum(bs.begin(), bs.begin() + 3);
         }
 
         APPEND_BYTES(out_bin, bs);

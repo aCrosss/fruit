@@ -152,7 +152,7 @@ MRecordFormFactor::emitTOML(toml::table &t) {
 }
 
 bool
-MRecordFormFactor::emitBinary(bytes &out_bin, Errs &errs) {
+MRecordFormFactor::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     UNUSED(errs);
 
     bytes header;
@@ -162,7 +162,7 @@ MRecordFormFactor::emitBinary(bytes &out_bin, Errs &errs) {
 
     payload.emplace_back(std::byte{static_cast<uchar>(form_factor)});
 
-    buildMRecordHeader(header, payload);
+    buildMRecordHeader(header, eol, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);

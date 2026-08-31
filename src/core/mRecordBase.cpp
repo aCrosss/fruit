@@ -1,4 +1,18 @@
 #include "mRecordBase.hpp"
+#include "types.hpp"
+#include <cstdlib>
+
+bool
+MRecordBase::emitBinary(bytes &out_bin, Errs &errs) {
+    UNUSED(out_bin);
+    UNUSED(errs);
+
+    std::cerr << "classes derived from MRecordBase should use "
+              << "emitBinary(bytes &out_bin, bool eol, Errs &errs) instead of "
+              << "emitBinary(bytes &out_bin, Errs &errs)" << std::endl;
+
+    exit(1);
+}
 
 bool
 isMRecordIDValid(int id) {
@@ -34,13 +48,15 @@ isPICMGMRecordIDValid(int id) {
 }
 
 void
-MRecordBase::buildMRecordHeader(bytes &bs, bytes &data) {
+MRecordBase::buildMRecordHeader(bytes &bs, bool eol, bytes &data) {
     uchar header_len = IPMI_HEADER_LEN;
     uchar total_len  = static_cast<uchar>(header_len + data.size());
     bs.resize(header_len);
 
+    uchar eolb = eol ? MREC_DEF_FORMAT_VER | MRECORD_EOL_BYTE : MREC_DEF_FORMAT_VER;
+
     bs[0] = std::byte{static_cast<uchar>(record_id)};
-    bs[1] = std::byte{static_cast<uchar>(MREC_DEF_FORMAT_VER)};
+    bs[1] = std::byte{eolb};
     bs[2] = std::byte{total_len};
     bs[3] = calcZeroChecksum(data);
     bs[4] = calcZeroChecksum(bs);

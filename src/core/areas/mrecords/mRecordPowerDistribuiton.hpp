@@ -42,7 +42,7 @@ class MRecordPowerDistribuiton : public MRecordBase {
 
     void emitJSON(nlohmann::json &j) override;
     void emitTOML(toml::table &t) override;
-    bool emitBinary(bytes &out_bin, Errs &errs) override;
+    bool emitBinary(bytes &out_bin, bool eol, Errs &errs) override;
 
     MRecordPowerDistribuiton();
 };

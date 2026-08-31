@@ -210,7 +210,7 @@ MRecordIPConnection::emitTOML(toml::table &t) {
 }
 
 bool
-MRecordIPConnection::emitBinary(bytes &out_bin, Errs &errs) {
+MRecordIPConnection::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     UNUSED(errs);
 
     bytes header;
@@ -222,7 +222,7 @@ MRecordIPConnection::emitBinary(bytes &out_bin, Errs &errs) {
     APPEND_IP_BYTES(payload, gateway_address);
     APPEND_IP_BYTES(payload, subnet_mask);
 
-    buildMRecordHeader(header, payload);
+    buildMRecordHeader(header, eol, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);

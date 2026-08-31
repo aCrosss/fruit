@@ -207,7 +207,7 @@ MRecordLEDDescriptor::emitTOML(toml::table &t) {
 }
 
 bool
-MRecordLEDDescriptor::emitBinary(bytes &out_bin, Errs &errs) {
+MRecordLEDDescriptor::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     bool valid = true;
 
     bytes header;
@@ -245,7 +245,7 @@ MRecordLEDDescriptor::emitBinary(bytes &out_bin, Errs &errs) {
         return false;
     }
 
-    buildMRecordHeader(header, payload);
+    buildMRecordHeader(header, eol, payload);
 
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);

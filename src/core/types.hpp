@@ -19,6 +19,8 @@
 #define MRECORD_HEADER_LEN_IPMI  5
 #define MRECORD_HEADER_LEN_PICMG 10
 
+#define MRECORD_EOL_BYTE 128
+
 #define AREA_TAG_MRECORDS "multi_records"
 
 #define FIELD_TAG_MRECORD_ID       "record_id"
