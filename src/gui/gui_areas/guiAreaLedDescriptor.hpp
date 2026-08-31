@@ -17,9 +17,9 @@ class GUIAreaLEDDescriptor : public GUIAreaMRecBase {
 
     FArrayDescr entries_descr = {
         {FARRAY_FIELD_TYPE_INT, "led_id", "LED ID", &byte_cpp, nullptr},
-        {FARRAY_FIELD_TYPE_ENC_STR, "led_legend", "LED ID", &byte_cpp, nullptr},
-        {FARRAY_FIELD_TYPE_ENC_STR, "led_symbol", "LED ID", &byte_cpp, nullptr},
-        {FARRAY_FIELD_TYPE_ENC_STR, "led_description", "LED ID", &byte_cpp, nullptr},
+        {FARRAY_FIELD_TYPE_ENC_STR, "led_legend", "LED Legend", &byte_cpp, nullptr},
+        {FARRAY_FIELD_TYPE_ENC_STR, "led_symbol", "LED Symbol", &byte_cpp, nullptr},
+        {FARRAY_FIELD_TYPE_ENC_STR, "led_description", "LED Description", &byte_cpp, nullptr},
     };
 
   public:
