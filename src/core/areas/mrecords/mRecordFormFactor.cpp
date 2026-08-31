@@ -133,6 +133,9 @@ MRecordFormFactor::tryParseBinary(biterator begin, biterator end, Errs &errs) {
 
 void
 MRecordFormFactor::emitJSON(nlohmann::json &j) {
+    j["record_id"]       = record_id;
+    j["picmg_record_id"] = picmg_record_id;
+
     std::string s = FormFactorToStr(form_factor);
 
     j["form_factor"] = s;
@@ -140,6 +143,9 @@ MRecordFormFactor::emitJSON(nlohmann::json &j) {
 
 void
 MRecordFormFactor::emitTOML(toml::table &t) {
+    t["record_id"]       = toml::value(SC_I(record_id));
+    t["picmg_record_id"] = toml::value(SC_I(picmg_record_id));
+
     std::string s = FormFactorToStr(form_factor);
 
     t["form_factor"] = toml::value(s);

@@ -170,6 +170,9 @@ MRecordLEDDescriptor::tryParseBinary(biterator begin, biterator end, Errs &errs)
 
 void
 MRecordLEDDescriptor::emitJSON(nlohmann::json &j) {
+    j["record_id"]       = record_id;
+    j["picmg_record_id"] = picmg_record_id;
+
     json array;
     for (auto &&e : entries) {
         json entry;
@@ -186,6 +189,9 @@ MRecordLEDDescriptor::emitJSON(nlohmann::json &j) {
 
 void
 MRecordLEDDescriptor::emitTOML(toml::table &t) {
+    t["record_id"]       = toml::value(SC_I(record_id));
+    t["picmg_record_id"] = toml::value(SC_I(picmg_record_id));
+
     toml::array array;
     for (auto &&e : entries) {
         toml::table entry;
