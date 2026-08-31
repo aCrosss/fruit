@@ -14,6 +14,11 @@
 
 #define LANG_CODE_CAP 136 // Zulu!
 
+#define MAX_AREA_LEN 0xFF
+
+#define MRECORD_HEADER_LEN_IPMI  5
+#define MRECORD_HEADER_LEN_PICMG 10
+
 #define AREA_TAG_MRECORDS "multi_records"
 
 #define FIELD_TAG_MRECORD_ID       "record_id"
