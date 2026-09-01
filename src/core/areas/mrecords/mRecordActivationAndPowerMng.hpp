@@ -22,6 +22,8 @@ class MRecordActivationAndPowerMng : public MRecordBase {
 
     std::vector<ActivationAndPwrDescr> entries;
 
+    void emitEntry(bytes &out_bin, ActivationAndPwrDescr &entry);
+
     void debug_printOutVals();
     void clear() override;
 

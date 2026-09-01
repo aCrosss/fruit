@@ -1,4 +1,5 @@
 #include "mRecordActivationAndPowerMng.hpp"
+#include "types.hpp"
 
 //    ##        #######   ######     ###    ##
 //    ##       ##     ## ##    ##   ## ##   ##
@@ -130,6 +131,21 @@ MRecordActivationAndPowerMng::tryParseDescr(biterator             &begin,
     return true;
 }
 
+void
+MRecordActivationAndPowerMng::emitEntry(bytes &out_bin, ActivationAndPwrDescr &entry) {
+    out_bin.emplace_back(std::byte{entry.hardware_address});
+    out_bin.emplace_back(std::byte{entry.fru_device_id});
+
+    unsigned int pcap = entry.max_fru_power_cap;
+    out_bin.emplace_back(std::byte{static_cast<uchar>(pcap & 0xFF)});
+    out_bin.emplace_back(std::byte{static_cast<uchar>((pcap >> 8) & 0xFF)});
+
+    uchar b  = entry.next_power_on_delay & MASK_5b;
+    b       |= entry.controlled_activation << 6;
+    b       |= !entry.controlled_deactivation << 7;
+    out_bin.emplace_back(std::byte{b});
+}
+
 //    ########     ###    ########   ######  #### ##    ##  ######
 //    ##     ##   ## ##   ##     ## ##    ##  ##  ###   ## ##    ##
 //    ##     ##  ##   ##  ##     ## ##        ##  ####  ## ##
@@ -184,14 +200,13 @@ bool
 MRecordActivationAndPowerMng::tryParseBinary(biterator begin, biterator end, Errs &errs) {
     UNUSED(end);
 
-    clear();
     begin += PICMG_HEADER_LEN;
 
     allowance_for_activation = DR_BYTE(begin++);
 
     uchar count = DR_BYTE(begin++);
     for (uchar i = 0; i < count; i++) {
-        if (begin >= end) {
+        if (begin > end) {
             errs.append(tag, "common", " binary parsing out of bounds");
             return false;
         }
@@ -263,30 +278,53 @@ bool
 MRecordActivationAndPowerMng::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     UNUSED(errs);
 
-    bytes header;
-    bytes payload;
-
-    prependPICMGHeader(payload);
-
-    payload.emplace_back(std::byte{allowance_for_activation});
-    payload.emplace_back(std::byte{static_cast<uchar>(entries.size())});
-
-    for (auto &&e : entries) {
-        payload.emplace_back(std::byte{e.hardware_address});
-        payload.emplace_back(std::byte{e.fru_device_id});
-
-        unsigned int pcap = e.max_fru_power_cap;
-        payload.emplace_back(std::byte{static_cast<uchar>(pcap & 0xFF)});
-        payload.emplace_back(std::byte{static_cast<uchar>((pcap >> 8) & 0xFF)});
-
-        uchar b  = e.next_power_on_delay & MASK_5b;
-        b       |= e.controlled_activation << 6;
-        b       |= !e.controlled_deactivation << 7;
-        payload.emplace_back(std::byte{b});
+    if (entries.size() == 0) {
+        return true;
     }
 
-    buildMRecordHeader(header, eol, payload);
+    bytes header;
+    bytes payload;
+    bytes tmp;
+    bytes tmppl;
 
+    size_t i         = 0;
+    uchar  out_count = 0; // count of power feed in current record
+
+    while (i < entries.size()) {
+        size_t len = tmp.size() + tmppl.size() + MRECORD_HEADER_LEN_PICMG + /*entry count*/ 1 +
+                     /*allowance*/ 1;
+        if (len >= MAX_AREA_LEN) {
+            prependPICMGHeader(payload);
+            payload.emplace_back(std::byte{allowance_for_activation});
+            payload.emplace_back(std::byte{static_cast<uchar>(out_count - 1)});
+            APPEND_BYTES(payload, tmppl);
+
+            buildMRecordHeader(header, false, payload);
+            APPEND_BYTES(out_bin, header);
+            APPEND_BYTES(out_bin, payload);
+
+            header.clear();
+            payload.clear();
+            tmppl.clear();
+            out_count = 1; // we still have one buffered
+            prependPICMGHeader(payload);
+        }
+
+        APPEND_BYTES(tmppl, tmp);
+        tmp.clear();
+
+        emitEntry(tmp, entries[i]);
+        out_count++;
+        i++;
+    }
+
+    APPEND_BYTES(tmppl, tmp);
+
+    payload.emplace_back(std::byte{allowance_for_activation});
+    payload.emplace_back(std::byte{out_count});
+    APPEND_BYTES(payload, tmppl);
+
+    buildMRecordHeader(header, eol, payload);
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);
 
