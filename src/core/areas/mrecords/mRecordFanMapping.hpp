@@ -18,7 +18,9 @@ class MRecordFanMapping : public MRecordBase {
 
     template <typename T>
     bool tryParseEntry(T v, TableEntry &e, Errs &errs);
-    bool tryParseEntry(biterator begin, TableEntry &e, Errs &errs);
+    bool tryParseEntry(biterator &begin, TableEntry &e, Errs &errs);
+
+    void emitEntry(bytes &out_bin, TableEntry &entry);
 
   public:
     uchar getLength() override;

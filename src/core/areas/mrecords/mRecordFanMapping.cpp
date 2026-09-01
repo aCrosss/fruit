@@ -16,7 +16,7 @@ MRecordFanMapping::debug_printOutVals() {
 
     for (size_t i = 0; i < entries.size(); i++) {
         TableEntry &e = entries[i];
-        std::cout << "enty[" << i << "]:" << std::endl;
+        std::cout << "entry[" << i << "]:" << std::endl;
         std::cout << "  hardware_address: " << SC_I(e.hardware_address) << std::endl;
         std::cout << "  fru_device_id:    " << SC_I(e.fru_device_id) << std::endl;
         std::cout << "  site_number:      " << SC_I(e.site_number) << std::endl;
@@ -77,7 +77,7 @@ MRecordFanMapping::tryParseEntry(T v, TableEntry &e, Errs &errs) {
 }
 
 bool
-MRecordFanMapping::tryParseEntry(biterator begin, TableEntry &e, Errs &errs) {
+MRecordFanMapping::tryParseEntry(biterator &begin, TableEntry &e, Errs &errs) {
     UNUSED(errs);
 
     e.hardware_address = DR_BYTE(begin + 0);
@@ -87,6 +87,14 @@ MRecordFanMapping::tryParseEntry(biterator begin, TableEntry &e, Errs &errs) {
 
     begin += 4;
     return true;
+}
+
+void
+MRecordFanMapping::emitEntry(bytes &out_bin, TableEntry &entry) {
+    out_bin.emplace_back(std::byte{entry.hardware_address});
+    out_bin.emplace_back(std::byte{entry.fru_device_id});
+    out_bin.emplace_back(std::byte{entry.site_number});
+    out_bin.emplace_back(std::byte{entry.site_type});
 }
 
 //    ########     ###    ########   ######  #### ##    ##  ######
@@ -204,23 +212,50 @@ bool
 MRecordFanMapping::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     UNUSED(errs);
 
-    bytes header;
-    bytes payload;
-
-    prependPICMGHeader(payload);
-
-    uchar entries_count = static_cast<uchar>(entries.size());
-    payload.emplace_back(std::byte{entries_count});
-
-    for (auto &&e : entries) {
-        payload.emplace_back(std::byte{e.hardware_address});
-        payload.emplace_back(std::byte{e.fru_device_id});
-        payload.emplace_back(std::byte{e.site_number});
-        payload.emplace_back(std::byte{e.site_type});
+    if (entries.size() == 0) {
+        return true;
     }
 
-    buildMRecordHeader(header, eol, payload);
+    bytes header;
+    bytes payload;
+    bytes tmp;
+    bytes tmppl;
 
+    size_t i         = 0;
+    uchar  out_count = 0; // count of entries in current record
+
+    while (i < entries.size()) {
+        size_t len = tmp.size() + tmppl.size() + MRECORD_HEADER_LEN_PICMG + /*entry count*/ 1;
+        if (len >= MAX_AREA_LEN) {
+            prependPICMGHeader(payload);
+            payload.emplace_back(std::byte{static_cast<uchar>(out_count - 1)});
+            APPEND_BYTES(payload, tmppl);
+
+            buildMRecordHeader(header, false, payload);
+            APPEND_BYTES(out_bin, header);
+            APPEND_BYTES(out_bin, payload);
+
+            header.clear();
+            payload.clear();
+            tmppl.clear();
+            out_count = 1; // we still have one buffered
+            prependPICMGHeader(payload);
+        }
+
+        APPEND_BYTES(tmppl, tmp);
+        tmp.clear();
+
+        emitEntry(tmp, entries[i]);
+        out_count++;
+        i++;
+    }
+
+    APPEND_BYTES(tmppl, tmp);
+
+    payload.emplace_back(std::byte{out_count});
+    APPEND_BYTES(payload, tmppl);
+
+    buildMRecordHeader(header, eol, payload);
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);
 
