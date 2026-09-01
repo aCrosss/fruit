@@ -51,6 +51,8 @@ class FieldArr : public FieldBase {
         FieldsRef        fields;
         // contains collection of full array entries
         Gtk::Box         entry_container;
+        // separates entries
+        Gtk::Separator   separator;
         // single array entry, contains fields widgets and del button
         Gtk::Box         subentry_container;
         // contains all fields' widgets

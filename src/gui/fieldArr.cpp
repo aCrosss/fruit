@@ -169,6 +169,10 @@ FieldArr::appendEntry() {
         entry.fields_container.pack_start(*i->getTopContainer());
     }
     entry.subentry_container.pack_start(entry.fields_container);
+    if (ind > 0) {
+        entry.separator.set_margin_bottom(16);
+        array_container.pack_start(entry.separator);
+    }
     array_container.pack_start(entry.subentry_container);
     array_container.show_all();
 }
