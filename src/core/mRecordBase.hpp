@@ -1,6 +1,7 @@
 #pragma once
 
 #include "section.hpp"
+#include "types.hpp"
 
 #define IPMI_HEADER_LEN  5
 #define PICMG_HEADER_LEN IPMI_HEADER_LEN + 5
@@ -53,6 +54,8 @@ class MRecordBase : public Section {
     void         emitJSON(nlohmann::json &j) override             = 0;
     void         emitTOML(toml::table &t) override                = 0;
     virtual bool emitBinary(bytes &out_bin, bool eol, Errs &errs) = 0;
+
+    bool isMe(MRecID rid, PICMGMRecdID picmg_rid);
 
     MRecordBase(std::string tag, std::string label);
     virtual ~MRecordBase() = default;

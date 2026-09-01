@@ -58,10 +58,10 @@ AreaMRecords::getLength() {
 
 bool
 AreaMRecords::validateMRecordHeader(biterator begin, Errs &errs) {
-    int  record_id       = static_cast<int>(*begin);
-    int  byte9           = static_cast<int>(*(begin + 8));
+    int  record_id       = DR_INT(begin);
+    int  byte9           = DR_INT(begin + 8);
     bool is_PICMG_record = record_id == MRECORD_PICMG_RECORD;
-    int  record_len      = static_cast<int>(*(begin + HDR_OFFSET_LEN));
+    int  record_len      = DR_INT(begin + HDR_OFFSET_LEN);
 
     if (!isMRecordIDValid(record_id)) {
         std::stringstream s;
@@ -108,7 +108,16 @@ AreaMRecords::validateMRecordHeader(biterator begin, Errs &errs) {
 
 bool
 AreaMRecords::tryAppendMRecord(std::byte type, std::byte byte9, MRecord &mrecord, Errs &errs) {
-    MRecID record_type = MRecID(type);
+    MRecID       record_type = MRecID(type);
+    PICMGMRecdID picmg_record_id =
+        record_type == MRECORD_PICMG_RECORD ? PICMGMRecdID(byte9) : PICMGMRecdID(0);
+
+    for (size_t i = 0; i < mrecords.size(); ++i) {
+        if (mrecords[i]->isMe(record_type, picmg_record_id)) {
+            mrecord = mrecords[i];
+            return true;
+        }
+    }
 
     switch (record_type) {
     case MRECORD_POWER_SUPPLY_INFO   : break;
@@ -118,8 +127,6 @@ AreaMRecords::tryAppendMRecord(std::byte type, std::byte byte9, MRecord &mrecord
     case MRECORD_BASE_COMPATIBILITY  : break;
     case MRECORD_EXTEND_COMPATIBILITY: break;
     case MRECORD_PICMG_RECORD        : {
-        PICMGMRecdID picmg_record_id = PICMGMRecdID(byte9);
-
         switch (picmg_record_id) {
         case PICMGREC_BACKPLANE_P2PCON        : APPEND_MRECORD(MRecordBackplaneP2PCon)
         case PICMGREC_ADDRESS_TABLE           : APPEND_MRECORD(MRecordAddressTable)
@@ -233,6 +240,8 @@ AreaMRecords::tryParse(toml::value &t, Errs &errs) {
 
 bool
 AreaMRecords::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+    clear();
+
     while (true) {
         if (!validateMRecordHeader(begin, errs)) {
             return false;
@@ -243,13 +252,13 @@ AreaMRecords::tryParseBinary(biterator begin, biterator end, Errs &errs) {
             return false;
         }
 
-        biterator record_end = begin + static_cast<int>(*(begin + 2));
+        biterator record_end = begin + DR_INT(begin + HDR_OFFSET_LEN);
         if (!record->tryParseBinary(begin, record_end, errs)) {
             return false;
         }
 
         // end of fields
-        if (static_cast<int>(*(begin + 1)) & 128) {
+        if (DR_INT(begin + HDR_OFFSET_EOL) & MRECORD_EOL_BYTE) {
             present = true;
             return true;
         }

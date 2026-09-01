@@ -62,6 +62,11 @@ MRecordBase::buildMRecordHeader(bytes &bs, bool eol, bytes &data) {
     bs[4] = calcZeroChecksum(bs);
 }
 
+bool
+MRecordBase::isMe(MRecID rid, PICMGMRecdID picmg_rid) {
+    return (rid == record_id) && (picmg_rid == 0 || picmg_rid == picmg_record_id);
+}
+
 void
 MRecordBase::prependPICMGHeader(bytes &out) {
     // Note: maybe should be changed to custom manufacturer id, this value taken from PICMG
