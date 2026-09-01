@@ -92,15 +92,11 @@ MRecordFormFactor::tryParseImpl(T v, Errs &errs) {
 
 bool
 MRecordFormFactor::tryParse(nlohmann::json j, Errs &errs) {
-    clear();
-
     return tryParseImpl(j, errs);
 }
 
 bool
 MRecordFormFactor::tryParse(toml::value &t, Errs &errs) {
-    clear();
-
     return tryParseImpl(t, errs);
 }
 

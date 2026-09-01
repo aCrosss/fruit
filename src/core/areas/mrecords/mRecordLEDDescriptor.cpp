@@ -116,15 +116,11 @@ MRecordLEDDescriptor::tryParseImpl(T v, Errs &errs) {
 
 bool
 MRecordLEDDescriptor::tryParse(nlohmann::json j, Errs &errs) {
-    clear();
-
     return tryParseImpl(j, errs);
 }
 
 bool
 MRecordLEDDescriptor::tryParse(toml::value &t, Errs &errs) {
-    clear();
-
     return tryParseImpl(t, errs);
 }
 

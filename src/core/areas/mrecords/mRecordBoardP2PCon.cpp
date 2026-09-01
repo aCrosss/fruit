@@ -353,23 +353,16 @@ MRecordBoardP2PCon::tryParseImpl(T v, Errs &errs) {
 
 bool
 MRecordBoardP2PCon::tryParse(nlohmann::json j, Errs &errs) {
-    clear();
-
     return tryParseImpl(j, errs);
 }
 
 bool
 MRecordBoardP2PCon::tryParse(toml::value &t, Errs &errs) {
-    clear();
-
     return tryParseImpl(t, errs);
 }
 
 bool
 MRecordBoardP2PCon::tryParseBinary(biterator begin, biterator end, Errs &errs) {
-    clear();
-
-    // uchar record_len  = DR_BYTE(begin + 2);
     begin += PICMG_HEADER_LEN;
 
     uchar count = DR_BYTE(begin++);

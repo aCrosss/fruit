@@ -141,7 +141,6 @@ MRecordActivationAndPowerMng::tryParseDescr(biterator             &begin,
 template <typename T>
 bool
 MRecordActivationAndPowerMng::tryParseImpl(T v, Errs &errs) {
-    clear();
     bool valid = true;
 
     if (!tryParseField_uchar(v, "allowance_for_activation", allowance_for_activation, errs)) {
@@ -173,15 +172,11 @@ MRecordActivationAndPowerMng::tryParseImpl(T v, Errs &errs) {
 
 bool
 MRecordActivationAndPowerMng::tryParse(nlohmann::json j, Errs &errs) {
-    clear();
-
     return tryParseImpl(j, errs);
 }
 
 bool
 MRecordActivationAndPowerMng::tryParse(toml::value &t, Errs &errs) {
-    clear();
-
     return tryParseImpl(t, errs);
 }
 

@@ -33,6 +33,7 @@ MRecordBackplaneP2PCon::debug_printOutVals() {
 
 void
 MRecordBackplaneP2PCon::clear() {
+    slots.clear();
 }
 
 uchar
@@ -294,15 +295,11 @@ MRecordBackplaneP2PCon::tryParseImpl(T v, Errs &errs) {
 
 bool
 MRecordBackplaneP2PCon::tryParse(nlohmann::json j, Errs &errs) {
-    clear();
-
     return tryParseImpl(j, errs);
 }
 
 bool
 MRecordBackplaneP2PCon::tryParse(toml::value &t, Errs &errs) {
-    clear();
-
     return tryParseImpl(t, errs);
 }
 
@@ -312,7 +309,6 @@ MRecordBackplaneP2PCon::tryParseBinary(biterator begin, biterator end, Errs &err
     // maybe we should validate data again, but it is already was validated in
     // multirecord area. So for PICMG we basicaly don't need first 10 bytes at all
     // We SHOULD recieve coorect begin and end so we can work with that
-    clear();
     begin += PICMG_HEADER_LEN;
 
     while (begin < end) {
@@ -416,7 +412,7 @@ MRecordBackplaneP2PCon::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     prependPICMGHeader(payload);
     emitSlotDescr(tmp, slots[i++]);
 
-    while (i < slots.size()) {
+    while (i <= slots.size()) {
         // one full record: push into out_bin, prepend next one
         if (payload.size() + tmp.size() + MRECORD_HEADER_LEN_IPMI >= MAX_AREA_LEN) {
             buildMRecordHeader(header, false, payload);

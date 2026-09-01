@@ -35,6 +35,7 @@ MRecordIPConnection::debug_printOutVals() {
 
 void
 MRecordIPConnection::clear() {
+    return;
 }
 
 uchar
@@ -135,15 +136,11 @@ MRecordIPConnection::tryParseImpl(T v, Errs &errs) {
 
 bool
 MRecordIPConnection::tryParse(nlohmann::json j, Errs &errs) {
-    clear();
-
     return tryParseImpl(j, errs);
 }
 
 bool
 MRecordIPConnection::tryParse(toml::value &t, Errs &errs) {
-    clear();
-
     return tryParseImpl(t, errs);
 }
 

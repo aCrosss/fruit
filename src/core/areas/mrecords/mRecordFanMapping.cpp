@@ -100,7 +100,6 @@ MRecordFanMapping::tryParseEntry(biterator begin, TableEntry &e, Errs &errs) {
 template <typename T>
 bool
 MRecordFanMapping::tryParseImpl(T v, Errs &errs) {
-    clear();
     bool valid = true;
 
     T array;
@@ -128,15 +127,11 @@ MRecordFanMapping::tryParseImpl(T v, Errs &errs) {
 
 bool
 MRecordFanMapping::tryParse(nlohmann::json j, Errs &errs) {
-    clear();
-
     return tryParseImpl(j, errs);
 }
 
 bool
 MRecordFanMapping::tryParse(toml::value &t, Errs &errs) {
-    clear();
-
     return tryParseImpl(t, errs);
 }
 

@@ -97,7 +97,6 @@ MRecordAddressTable::tryParseTableEntry(biterator &begin, TableEntry &te, Errs &
 template <typename T>
 inline bool
 MRecordAddressTable::tryParseImpl(T v, Errs &errs) {
-    clear();
     bool valid = true;
 
     if (!tryParseField_encStr(v, "shelf_address", shelf_address, errs)) {
@@ -129,15 +128,11 @@ MRecordAddressTable::tryParseImpl(T v, Errs &errs) {
 
 bool
 MRecordAddressTable::tryParse(nlohmann::json j, Errs &errs) {
-    clear();
-
     return tryParseImpl(j, errs);
 }
 
 bool
 MRecordAddressTable::tryParse(toml::value &t, Errs &errs) {
-    clear();
-
     return tryParseImpl(t, errs);
 }
 
