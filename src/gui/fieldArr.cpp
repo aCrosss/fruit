@@ -98,15 +98,59 @@ void
 FieldArr::reconnectSignals() {
     for (size_t i = 0; i < entries.size(); i++) {
         entries[i].btn_del_con.disconnect();
+        entries[i].btn_up_con.disconnect();
+        entries[i].btn_down_con.disconnect();
     }
 
     for (size_t i = 0; i < entries.size(); i++) {
-        Gtk::Button &b = entries[i].btn_del;
-
         size_t ind = i;
+
+        Gtk::Button &b = entries[i].btn_del;
         entries[i].btn_del_con =
             b.signal_clicked().connect([this, ind]() { this->removeEntry(ind); });
+
+        Gtk::Button &bup = entries[i].btn_up;
+        entries[i].btn_up_con =
+            bup.signal_clicked().connect([this, ind]() { this->moveEntry(ind, -1); });
+
+        Gtk::Button &bdown = entries[i].btn_down;
+        entries[i].btn_down_con =
+            bdown.signal_clicked().connect([this, ind]() { this->moveEntry(ind, 1); });
     }
+}
+
+void
+FieldArr::moveEntry(int ind, int d) {
+    int cap = static_cast<int>(entries.size());
+    if (ind + d < 0 || ind + d >= cap) {
+        return;
+    }
+
+    // can skip elements before swaping ones, near the end of array it's significantly faster
+    size_t from = d < 0 ? ind + d : ind;
+
+    for (size_t i = from; i < entries.size(); ++i) {
+        auto &e = entries[i];
+
+        if (i > 0) {
+            array_container.remove(e.separator);
+        }
+        array_container.remove(e.subentry_container);
+    }
+
+    std::swap(entries[ind], entries[ind + d]);
+
+    for (size_t i = from; i < entries.size(); ++i) {
+        auto &e = entries[i];
+
+        if (i > 0) {
+            array_container.pack_start(e.separator);
+        }
+        array_container.pack_start(e.subentry_container);
+    }
+
+    array_container.show_all();
+    reconnectSignals();
 }
 
 void
@@ -126,16 +170,31 @@ FieldArr::appendEntry() {
     size_t       ind    = entries.size() - 1;
     FieldsRef   &fields = entry.fields;
 
-    entry.entry_container.set_orientation(Gtk::ORIENTATION_VERTICAL);
     entry.subentry_container.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
     entry.fields_container.set_orientation(Gtk::ORIENTATION_VERTICAL);
 
+    // del button
     entry.btn_del.set_label("x");
     entry.btn_del.set_vexpand(false);
     entry.btn_del.set_valign(Gtk::ALIGN_START);
     entry.btn_del_con =
         entry.btn_del.signal_clicked().connect([this, ind]() { this->removeEntry(ind); });
     entry.subentry_container.pack_end(entry.btn_del, Gtk::PACK_SHRINK);
+    // down  button
+    entry.btn_down.set_label("▼");
+    entry.btn_down.set_vexpand(false);
+    entry.btn_down.set_valign(Gtk::ALIGN_START);
+    entry.btn_down_con =
+        entry.btn_down.signal_clicked().connect([this, ind]() { this->moveEntry(ind, 1); });
+    entry.subentry_container.pack_end(entry.btn_down, Gtk::PACK_SHRINK);
+    // up button
+    entry.btn_up.set_label("▲");
+    entry.btn_up.set_vexpand(false);
+    entry.btn_up.set_valign(Gtk::ALIGN_START);
+    entry.btn_up_con =
+        entry.btn_up.signal_clicked().connect([this, ind]() { this->moveEntry(ind, -1); });
+    entry.subentry_container.pack_end(entry.btn_up, Gtk::PACK_SHRINK);
+
     entry.subentry_container.set_homogeneous(false);
 
     for (auto &&d : array_description) {
@@ -169,8 +228,8 @@ FieldArr::appendEntry() {
         entry.fields_container.pack_start(*i->getTopContainer());
     }
     entry.subentry_container.pack_start(entry.fields_container);
+    entry.separator.set_margin_bottom(16);
     if (ind > 0) {
-        entry.separator.set_margin_bottom(16);
         array_container.pack_start(entry.separator);
     }
     array_container.pack_start(entry.subentry_container);

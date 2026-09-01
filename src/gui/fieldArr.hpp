@@ -48,15 +48,20 @@ class FieldArr : public FieldBase {
     FArrayDescr array_description;
 
     struct FArrayEntry {
-        FieldsRef        fields;
+        FieldsRef      fields;
         // contains collection of full array entries
-        Gtk::Box         entry_container;
+        // Gtk::Box         entry_container;
         // separates entries
-        Gtk::Separator   separator;
+        Gtk::Separator separator;
         // single array entry, contains fields widgets and del button
-        Gtk::Box         subentry_container;
+        Gtk::Box       subentry_container;
         // contains all fields' widgets
-        Gtk::Box         fields_container;
+        Gtk::Box       fields_container;
+
+        Gtk::Button      btn_up;
+        sigc::connection btn_up_con;
+        Gtk::Button      btn_down;
+        sigc::connection btn_down_con;
         Gtk::Button      btn_del;
         sigc::connection btn_del_con;
     };
@@ -67,6 +72,8 @@ class FieldArr : public FieldBase {
 
     Gtk::Box    btn_container;
     Gtk::Button btn_add;
+
+    void moveEntry(int ind, int d);
 
     void reconnectSignals();
     void removeEntry(size_t ind);
