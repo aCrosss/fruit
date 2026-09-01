@@ -343,13 +343,11 @@ MRecordPowerDistribuiton::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     size_t i         = 0;
     uchar  out_count = 0; // count of power feed in current record
 
-    emitPowerFeed(tmppl, power_feeds[i++]);
-
     while (i < power_feeds.size()) {
         size_t len = tmp.size() + tmppl.size() + MRECORD_HEADER_LEN_PICMG + /*entry count*/ 1;
         if (len >= MAX_AREA_LEN) {
             prependPICMGHeader(payload);
-            payload.emplace_back(std::byte{out_count});
+            payload.emplace_back(std::byte{static_cast<uchar>(out_count - 1)});
             APPEND_BYTES(payload, tmppl);
 
             buildMRecordHeader(header, false, payload);
@@ -359,7 +357,7 @@ MRecordPowerDistribuiton::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
             header.clear();
             payload.clear();
             tmppl.clear();
-            out_count = 0;
+            out_count = 1; // we still have one buffered
             prependPICMGHeader(payload);
         }
 
@@ -371,9 +369,10 @@ MRecordPowerDistribuiton::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
         i++;
     }
 
-    prependPICMGHeader(payload);
+    APPEND_BYTES(tmppl, tmp);
+
     payload.emplace_back(std::byte{out_count});
-    APPEND_BYTES(payload, tmp);
+    APPEND_BYTES(payload, tmppl);
 
     buildMRecordHeader(header, eol, payload);
     APPEND_BYTES(out_bin, header);
