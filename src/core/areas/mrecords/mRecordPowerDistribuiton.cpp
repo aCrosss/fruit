@@ -1,4 +1,5 @@
 #include "mRecordPowerDistribuiton.hpp"
+#include "types.hpp"
 
 #define IS_FLOAT_MULT_OF(v, divider) (std::fabs(std::fmod(v, divider)) < 1e-6f)
 
@@ -147,8 +148,6 @@ MRecordPowerDistribuiton::tryParsePowerFeedsImpl(T v, Map &m, Errs &errs) {
 
 bool
 MRecordPowerDistribuiton::tryParsePowerFeeds(biterator &begin, Map &m, Errs &errs) {
-    // bool valid = true;
-
     bytesToFloat(begin + 0, m.max_external_current);
     bytesToFloat(begin + 2, m.max_internal_current);
 
@@ -173,6 +172,27 @@ MRecordPowerDistribuiton::tryParsePowerFeeds(biterator &begin, Map &m, Errs &err
     }
 
     return true;
+}
+
+void
+MRecordPowerDistribuiton::emitPowerFeed(bytes &out_bin, Map &power_feed) {
+    bytes ext_current_bs;
+    bytes int_current_bs;
+
+    floatToBytes(power_feed.max_external_current, ext_current_bs);
+    floatToBytes(power_feed.max_internal_current, int_current_bs);
+
+    APPEND_BYTES(out_bin, ext_current_bs);
+    APPEND_BYTES(out_bin, int_current_bs);
+
+    int min_volt = static_cast<int>(roundf(power_feed.min_expected_voltage / 0.5));
+    out_bin.emplace_back(std::byte{static_cast<uchar>(min_volt)});
+
+    out_bin.emplace_back(std::byte{static_cast<uchar>(power_feed.entries.size())});
+    for (auto &&e : power_feed.entries) {
+        out_bin.emplace_back(std::byte{e.hardware_address});
+        out_bin.emplace_back(std::byte{e.fru_device_id});
+    }
 }
 
 //    ########     ###    ########   ######  #### ##    ##  ######
@@ -311,34 +331,51 @@ bool
 MRecordPowerDistribuiton::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     UNUSED(errs);
 
-    bytes header;
-    bytes payload;
-
-    prependPICMGHeader(payload);
-
-    payload.emplace_back(std::byte{static_cast<uchar>(power_feeds.size())});
-    for (auto &&m : power_feeds) {
-        bytes ext_current_bs;
-        bytes int_current_bs;
-
-        floatToBytes(m.max_external_current, ext_current_bs);
-        floatToBytes(m.max_internal_current, int_current_bs);
-
-        APPEND_BYTES(payload, ext_current_bs);
-        APPEND_BYTES(payload, int_current_bs);
-
-        int min_volt = static_cast<int>(roundf(m.min_expected_voltage / 0.5));
-        payload.emplace_back(std::byte{static_cast<uchar>(min_volt)});
-
-        payload.emplace_back(std::byte{static_cast<uchar>(m.entries.size())});
-        for (auto &&e : m.entries) {
-            payload.emplace_back(std::byte{e.hardware_address});
-            payload.emplace_back(std::byte{e.fru_device_id});
-        }
+    if (power_feeds.size() == 0) {
+        return true;
     }
 
-    buildMRecordHeader(header, eol, payload);
+    bytes header;
+    bytes payload;
+    bytes tmp;
+    bytes tmppl;
 
+    size_t i         = 0;
+    uchar  out_count = 0; // count of power feed in current record
+
+    emitPowerFeed(tmppl, power_feeds[i++]);
+
+    while (i < power_feeds.size()) {
+        size_t len = tmp.size() + tmppl.size() + MRECORD_HEADER_LEN_PICMG + /*entry count*/ 1;
+        if (len >= MAX_AREA_LEN) {
+            prependPICMGHeader(payload);
+            payload.emplace_back(std::byte{out_count});
+            APPEND_BYTES(payload, tmppl);
+
+            buildMRecordHeader(header, false, payload);
+            APPEND_BYTES(out_bin, header);
+            APPEND_BYTES(out_bin, payload);
+
+            header.clear();
+            payload.clear();
+            tmppl.clear();
+            out_count = 0;
+            prependPICMGHeader(payload);
+        }
+
+        APPEND_BYTES(tmppl, tmp);
+        tmp.clear();
+
+        emitPowerFeed(tmp, power_feeds[i]);
+        out_count++;
+        i++;
+    }
+
+    prependPICMGHeader(payload);
+    payload.emplace_back(std::byte{out_count});
+    APPEND_BYTES(payload, tmp);
+
+    buildMRecordHeader(header, eol, payload);
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);
 

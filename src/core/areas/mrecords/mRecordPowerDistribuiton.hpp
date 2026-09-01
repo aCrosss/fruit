@@ -29,6 +29,8 @@ class MRecordPowerDistribuiton : public MRecordBase {
     bool tryParsePowerFeedsImpl(T v, Map &m, Errs &errs);
     bool tryParsePowerFeeds(biterator &begin, Map &m, Errs &errs);
 
+    void emitPowerFeed(bytes &out_bin, Map &power_feed);
+
     std::vector<Map> power_feeds;
 
   public:
