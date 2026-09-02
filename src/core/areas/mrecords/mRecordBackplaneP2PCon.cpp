@@ -406,33 +406,38 @@ MRecordBackplaneP2PCon::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     bytes header;
     bytes payload;
     bytes tmp;
+    bytes tmppl;
 
     size_t i = 0;
 
-    prependPICMGHeader(payload);
-    emitSlotDescr(tmp, slots[i++]);
-
-    while (i <= slots.size()) {
+    while (i < slots.size()) {
         // one full record: push into out_bin, prepend next one
         if (payload.size() + tmp.size() + MRECORD_HEADER_LEN_IPMI >= MAX_AREA_LEN) {
+            prependPICMGHeader(payload);
+            APPEND_BYTES(payload, tmppl);
+
             buildMRecordHeader(header, false, payload);
             APPEND_BYTES(out_bin, header);
             APPEND_BYTES(out_bin, payload);
 
             header.clear();
             payload.clear();
-            prependPICMGHeader(payload);
+            tmppl.clear();
         }
 
-        APPEND_BYTES(payload, tmp);
+        APPEND_BYTES(tmppl, tmp);
         tmp.clear();
 
         emitSlotDescr(tmp, slots[i]);
         i++;
     }
 
-    buildMRecordHeader(header, eol, payload);
+    APPEND_BYTES(tmppl, tmp);
 
+    prependPICMGHeader(payload);
+    APPEND_BYTES(payload, tmppl);
+
+    buildMRecordHeader(header, eol, payload);
     APPEND_BYTES(out_bin, header);
     APPEND_BYTES(out_bin, payload);
 

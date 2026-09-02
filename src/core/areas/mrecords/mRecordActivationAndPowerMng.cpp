@@ -307,7 +307,6 @@ MRecordActivationAndPowerMng::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
             payload.clear();
             tmppl.clear();
             out_count = 1; // we still have one buffered
-            prependPICMGHeader(payload);
         }
 
         APPEND_BYTES(tmppl, tmp);
@@ -319,7 +318,9 @@ MRecordActivationAndPowerMng::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     }
 
     APPEND_BYTES(tmppl, tmp);
+    tmp.clear();
 
+    prependPICMGHeader(payload);
     payload.emplace_back(std::byte{allowance_for_activation});
     payload.emplace_back(std::byte{out_count});
     APPEND_BYTES(payload, tmppl);

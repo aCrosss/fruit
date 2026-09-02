@@ -113,11 +113,11 @@ MRecordBoardP2PCon::tryParseLDescriptor(T v, LinkDescriptor &ld, Errs &errs) {
 
     std::string iface;
     if (tryParseField_str(v, "interface", iface, errs)) {
-        if (iface.compare("base")) {
+        if (iface.compare("base") == 0) {
             ld.iface = IFACE_BASE;
-        } else if (iface.compare("fabric")) {
+        } else if (iface.compare("fabric") == 0) {
             ld.iface = IFACE_FABRIC;
-        } else if (iface.compare("update_channel")) {
+        } else if (iface.compare("update_channel") == 0) {
             ld.iface = IFACE_UCHANNEL;
         } else {
             std::stringstream ss;
