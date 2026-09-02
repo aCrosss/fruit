@@ -1,4 +1,6 @@
 #include "fieldEncStr.hpp"
+#include "types.hpp"
+#include <sstream>
 
 void
 FieldEncStr::clear() {
@@ -35,8 +37,11 @@ FieldEncStr::validate() {
     Encoding    enc     = encoding_map[encoding.get_active_text()];
     std::string txt     = entry.get_text();
     int         str_len = precalcLength(txt, enc) - 1;
-    if (str_len > ENCODED_MAX_BYTE_LENGTH) {
-        label_error.set_text("Text byte representation is more than 64 bytes");
+    int         cap     = byte_cap > 0 ? byte_cap : ENCODED_MAX_BYTE_LENGTH;
+    if (str_len > cap) {
+        std::stringstream ss;
+        ss << "Text byte representation is more than " << cap << " bytes";
+        label_error.set_text(ss.str());
         return false;
     }
 
@@ -50,7 +55,9 @@ FieldEncStr::validate() {
     return true;
 }
 
-FieldEncStr::FieldEncStr(std::string tag, std::string label) : FieldBase(tag, label) {
+FieldEncStr::FieldEncStr(std::string tag, std::string label, uchar byte_cap)
+    : FieldBase(tag, label), byte_cap(byte_cap) {
+    //
     subbox.set_orientation(Gtk::ORIENTATION_VERTICAL);
 
     entry.set_has_frame(false);

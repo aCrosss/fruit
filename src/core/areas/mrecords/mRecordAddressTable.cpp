@@ -221,11 +221,16 @@ MRecordAddressTable::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
         return false;
     }
 
+    if (shelf_address_bs.size() > 20) {
+        errs.append(tag, "shelf_address", "shelf address exceeds 20 bytes length");
+        return false;
+    }
+
     // in Address Table record shelf addres bytes is fixed sized field
-    // type/length byte + 30 bytes of bytes field should be 31
+    // type/length byte + 20 bytes of bytes field should be 21
     // values of unused space bytes are undefined, we will use zeroes
-    if (shelf_address_bs.size() < 31) {
-        size_t len = 31 - shelf_address_bs.size();
+    if (shelf_address_bs.size() < 21) {
+        size_t len = 21 - shelf_address_bs.size();
         shelf_address_bs.insert(shelf_address_bs.end(), len, std::byte{0});
     }
 

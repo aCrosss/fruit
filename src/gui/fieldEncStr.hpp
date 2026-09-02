@@ -10,6 +10,8 @@ class FieldEncStr : public FieldBase {
     Gtk::Entry        entry;
     Gtk::ComboBoxText encoding;
 
+    uchar byte_cap;
+
   public:
     void clear() override;
 
@@ -18,5 +20,5 @@ class FieldEncStr : public FieldBase {
 
     bool validate() override;
 
-    FieldEncStr(std::string tag, std::string label);
+    FieldEncStr(std::string tag, std::string label, uchar byte_cap = 0);
 };
