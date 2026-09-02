@@ -34,7 +34,7 @@ FieldDateTime::validate() {
         return false;
     }
 
-    return false;
+    return true;
 }
 
 FieldDateTime::FieldDateTime(std::string tag, std::string label) : FieldBase(tag, label) {
