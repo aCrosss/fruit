@@ -49,8 +49,6 @@ class FieldArr : public FieldBase {
 
     struct FArrayEntry {
         FieldsRef      fields;
-        // contains collection of full array entries
-        // Gtk::Box         entry_container;
         // separates entries
         Gtk::Separator separator;
         // single array entry, contains fields widgets and del button
