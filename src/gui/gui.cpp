@@ -74,6 +74,13 @@ on_app_shutdown() {
     exit(0);
 }
 
+static inline Gtk::TreeModel::Path
+get_area_path(size_t ind) {
+    std::stringstream path;
+    path << ind;
+    return Gtk::TreeModel::Path(path.str());
+}
+
 static inline bool
 get_area_enabled(size_t ind) {
     bool area_enabled = false;
@@ -139,6 +146,16 @@ show_confirmation_dialog(std::string title, std::string msg) {
 
     int result = dialog.run();
     return result == Gtk::ResponseType::RESPONSE_OK;
+}
+
+void
+show_alert_dialog(std::string title, std::string msg) {
+    Gtk::MessageDialog dialog(title, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE, true);
+    if (!msg.empty()) {
+        dialog.set_secondary_text(msg);
+    }
+
+    dialog.run();
 }
 
 static void
@@ -301,15 +318,41 @@ show_save_file_dialog(ustring title, ustring file, FileFilter filter, std::strin
 }
 
 bool
+getAreaIfValid(size_t ind, nlohmann::json &j) {
+    auto path = get_area_path(ind);
+
+    if (!gui_areas[ind]->validate()) {
+        Glib::RefPtr<Gtk::TreeSelection> selection = nav_tree->get_selection();
+        selection->select(get_area_path(ind));
+
+        gui_areas[curent_area]->hide(main_container);
+
+        gui_areas[ind]->show(main_container);
+        main_container->show_all();
+
+        show_alert_dialog("Ошибка!", "Некорректные введенные данные");
+        return false;
+    }
+
+    if (ind < GUI_MRECORDS_START_INDEX) {
+        gui_areas[ind]->get(j);
+        return true;
+    } else {
+        auto a = std::dynamic_pointer_cast<GUIAreaMRecBase>(gui_areas[ind]);
+        a->get(j);
+
+        return true;
+    }
+}
+
+bool
 manager_parse_ui() {
     nlohmann::json j;
 
     for (size_t i = 0; i < GUI_MRECORDS_START_INDEX; i++) {
         bool area_enabled;
 
-        std::stringstream path;
-        path << i;
-        auto iter = areas_list->get_iter(Gtk::TreeModel::Path(path.str()));
+        auto iter = areas_list->get_iter(get_area_path(i));
         if (iter) {
             iter->get_value(1, area_enabled);
         } else {
@@ -317,15 +360,20 @@ manager_parse_ui() {
         }
 
         if (area_enabled) {
-            gui_areas[i]->get(j);
+            if (!getAreaIfValid(i, j)) {
+                return false;
+            }
         }
     }
 
     nlohmann::json jarray;
     for (size_t i = GUI_MRECORDS_START_INDEX; i < gui_areas.size(); ++i) {
-        if (get_area_enabled(i)) {
-            auto a = std::dynamic_pointer_cast<GUIAreaMRecBase>(gui_areas[i]);
-            a->get(jarray);
+        if (!get_area_enabled(i)) {
+            continue;
+        }
+
+        if (!getAreaIfValid(i, jarray)) {
+            return false;
         }
     }
 
