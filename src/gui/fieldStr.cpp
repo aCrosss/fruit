@@ -1,3 +1,4 @@
+#include <sstream>
 #include <string>
 
 #include "encoding.hpp"
@@ -71,6 +72,24 @@ validate_guid(std::string s, std::string &err) {
     return true;
 }
 
+static bool
+validate_hex(std::string s, size_t expected_len, std::string &err) {
+    bytes tmp;
+
+    if (!hexStrToBytes(s, tmp, err)) {
+        return false;
+    }
+
+    if (expected_len > 0 && tmp.size() != expected_len) {
+        std::stringstream ss;
+        ss << "expected " << expected_len << " bytes len, but got " << tmp.size();
+        err = ss.str();
+        return false;
+    }
+
+    return true;
+}
+
 bool
 FieldStr::validate() {
     label_error.set_text("");
@@ -91,19 +110,35 @@ FieldStr::validate() {
             return false;
         }
         break;
+
+    case FSTR_TYPE_HEX:
+        if (!validate_hex(entry.get_text(), expected_len, err)) {
+            label_error.set_text(err);
+            return false;
+        }
+        break;
     }
 
     return true;
 }
 
-FieldStr::FieldStr(std::string tag, std::string label, FStrType type)
+FieldStr::FieldStr(std::string tag, std::string label, FStrType type, int add_prop)
     : FieldBase(tag, label), type(type) {
     //
     switch (type) {
-    case FSTR_TYPE_IP: entry.set_placeholder_text("0.0.0.0"); break;
+    case FSTR_TYPE_IP:
+        entry.set_placeholder_text("0.0.0.0");
+        expected_len = 0;
+        break;
 
     case FSTR_TYPE_GUID:
         entry.set_placeholder_text("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
+        expected_len = 0;
+        break;
+
+    case FSTR_TYPE_HEX:
+        entry.set_placeholder_text("0A0B0C");
+        expected_len = add_prop > 0 ? add_prop : 0;
         break;
     }
 
