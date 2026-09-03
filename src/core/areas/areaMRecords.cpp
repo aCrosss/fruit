@@ -7,6 +7,7 @@
 #include "mrecords/mRecordActivationAndPowerMng.hpp"
 #include "mrecords/mRecordIPConnection.hpp"
 #include "mrecords/mRecordBoardP2PCon.hpp"
+#include "mrecords/mRecordRadialIPMB0Topology.hpp"
 #include "mrecords/mRecordFanMapping.hpp"
 #include "mrecords/mRecordFormFactor.hpp"
 #include "mrecords/mRecordLEDDescriptor.hpp"
@@ -134,7 +135,7 @@ AreaMRecords::tryAppendMRecord(std::byte type, std::byte byte9, MRecord &mrecord
         case PICMGREC_ACTIVATION_AND_POWER_MNG: APPEND_MRECORD(MRecordActivationAndPowerMng)
         case PICMGREC_IP_CONNECTION           : APPEND_MRECORD(MRecordIPConnection)
         case PICMGREC_BOARD_P2PCON            : APPEND_MRECORD(MRecordBoardP2PCon)
-        case PICMGREC_RADIAL_IPMB0_LINK_MAP   : break;
+        case PICMGREC_RADIAL_IPMB0_LINK_MAP   : APPEND_MRECORD(MRecordRadialIPMB0Topology)
         case PICMGREC_FAN_GEOGRAPHY           : APPEND_MRECORD(MRecordFanMapping)
         case PICMGREC_FORM_FACTOR             : APPEND_MRECORD(MRecordFormFactor)
         case PICMGREC_LED_DESCRIPTOR          : APPEND_MRECORD(MRecordLEDDescriptor)

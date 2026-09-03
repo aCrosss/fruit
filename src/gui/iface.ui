@@ -51,6 +51,10 @@
         <col id="1">False</col>
       </row>
       <row>
+        <col id="0" translatable="yes">Radial IPMB-0 Link Mapping</col>
+        <col id="1">False</col>
+      </row>
+      <row>
         <col id="0" translatable="yes">Shelf Fan Geography</col>
         <col id="1">False</col>
       </row>
