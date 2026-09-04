@@ -192,14 +192,14 @@ FieldArr::appendEntry() {
         entry.btn_del.signal_clicked().connect([this, ind]() { this->removeEntry(ind); });
     entry.subentry_container.pack_end(entry.btn_del, Gtk::PACK_SHRINK);
     // down  button
-    entry.btn_down.set_label("▼");
+    entry.btn_down.set_label("v");
     entry.btn_down.set_vexpand(false);
     entry.btn_down.set_valign(Gtk::ALIGN_START);
     entry.btn_down_con =
         entry.btn_down.signal_clicked().connect([this, ind]() { this->moveEntry(ind, 1); });
     entry.subentry_container.pack_end(entry.btn_down, Gtk::PACK_SHRINK);
     // up button
-    entry.btn_up.set_label("▲");
+    entry.btn_up.set_label("ʌ");
     entry.btn_up.set_vexpand(false);
     entry.btn_up.set_valign(Gtk::ALIGN_START);
     entry.btn_up_con =

@@ -7,7 +7,7 @@
 #include "types.hpp"
 
 // that's garbage, but it works and i don't want to deal with it anymore
-#define BUTTON_LEN         26
+#define BUTTON_LEN         22
 #define BUTTON_LEN_TRIPPLE BUTTON_LEN * 3
 
 #define BLEN_CALC(level) (BUTTON_LEN_TRIPPLE * level)
