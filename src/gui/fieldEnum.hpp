@@ -17,6 +17,8 @@ class FieldEnum : public FieldBase {
   public:
     void clear() override;
 
+    void setWidthLevel(uchar level) override;
+
     void get(nlohmann::json &j) override;
     void set(nlohmann::json &j) override;
 

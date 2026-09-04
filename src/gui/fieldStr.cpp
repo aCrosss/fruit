@@ -13,6 +13,13 @@ FieldStr::clear() {
 }
 
 void
+FieldStr::setWidthLevel(uchar level) {
+    uchar chars_width = FLEN_CALC_CHARS(level);
+    entry.set_width_chars(chars_width);
+    entry.set_max_width_chars(chars_width);
+}
+
+void
 FieldStr::get(nlohmann::json &j) {
     j[tag] = entry.get_text();
 }
@@ -143,7 +150,8 @@ FieldStr::FieldStr(std::string tag, std::string label, FStrType type, int add_pr
     }
 
     entry.set_has_frame(false);
-    entry.set_width_chars(64);
+    entry.set_width_chars(FLEN_BASE_LEN_CHARS);
+    entry.set_max_width_chars(FLEN_BASE_LEN_CHARS);
     entry.signal_changed().connect([this]() { this->validate(); });
     container.add(entry);
 }

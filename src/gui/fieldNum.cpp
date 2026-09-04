@@ -1,9 +1,15 @@
 #include "fieldNum.hpp"
 #include "json.hpp"
+#include "types.hpp"
 
 void
 FieldNum::clear() {
     entry.set_value(0);
+}
+
+void
+FieldNum::setWidthLevel(uchar level) {
+    entry.set_size_request(FLEN_CALC(level), -1);
 }
 
 void
@@ -46,6 +52,11 @@ FieldNum::FieldNum(std::string tag, std::string label, FieldNumProps props)
 
     is_integer = (props.step_increment == 1.0);
     is_signed  = (props.min < 0);
+
+    entry.set_hexpand(false);
+    entry.set_halign(Gtk::ALIGN_START);
+    // entry.set_width_chars(FLEN_BASE_LEN_CHARS);
+    // entry.set_max_width_chars(FLEN_BASE_LEN_CHARS);
 
     container.add(entry);
 }

@@ -26,7 +26,7 @@ FieldBase::FieldBase(std::string tag, std::string label) : tag(tag), label(label
     label_tag.set_yalign(0.0f);
     top_container.add(label_tag);
 
-    label_error.set_width_chars(64);
+    // label_error.set_width_chars(64);
     label_error.set_text("");
     label_error.set_xalign(0.0f);
     label_error.set_padding(4, 0);

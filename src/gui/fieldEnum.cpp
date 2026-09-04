@@ -1,8 +1,14 @@
 #include "fieldEnum.hpp"
+#include "fieldBase.hpp"
 
 void
 FieldEnum::clear() {
     combo_box.unset_active();
+}
+
+void
+FieldEnum::setWidthLevel(uchar level) {
+    combo_box.set_size_request(FLEN_CALC(level), -1);
 }
 
 void
@@ -56,6 +62,10 @@ FieldEnum::FieldEnum(std::string tag, std::string label, enumVals vars, ValType 
         combo_box.append(std::get<0>(i));
         out_vals.push_back(std::get<1>(i));
     }
+
+    combo_box.set_hexpand(false);
+    combo_box.set_halign(Gtk::ALIGN_START);
+    combo_box.set_size_request(FLEN_BASE_LEN, -1);
 
     container.add(combo_box);
     container.reorder_child(combo_box, 1);

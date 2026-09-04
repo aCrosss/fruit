@@ -71,6 +71,8 @@ class FieldArr : public FieldBase {
     Gtk::Box    btn_container;
     Gtk::Button btn_add;
 
+    uchar personal_width_level;
+
     void moveEntry(int ind, int d);
 
     void reconnectSignals();
@@ -78,6 +80,8 @@ class FieldArr : public FieldBase {
 
   public:
     void clear() override;
+
+    void setWidthLevel(uchar level) override;
 
     void get(nlohmann::json &j) override;
     void set(nlohmann::json &j) override;

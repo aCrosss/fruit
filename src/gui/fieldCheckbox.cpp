@@ -6,6 +6,13 @@ FieldCheckbox::clear() {
 }
 
 void
+FieldCheckbox::setWidthLevel(uchar level) {
+    UNUSED(level);
+    // ma man perfect as he is
+    return;
+}
+
+void
 FieldCheckbox::get(nlohmann::json &j) {
     j[tag] = entry.get_active();
 }

@@ -23,6 +23,17 @@ FieldArr::clear() {
 }
 
 void
+FieldArr::setWidthLevel(uchar level) {
+    personal_width_level = level;
+
+    for (auto &&e : entries) {
+        for (auto &&i : e.fields) {
+            i->setWidthLevel(personal_width_level + 1);
+        }
+    }
+}
+
+void
 FieldArr::get(nlohmann::json &j) {
     nlohmann::json jarray;
 
@@ -226,6 +237,7 @@ FieldArr::appendEntry() {
 
     for (auto &&i : entry.fields) {
         entry.fields_container.pack_start(*i->getTopContainer());
+        i->setWidthLevel(personal_width_level + 1);
     }
     entry.subentry_container.pack_start(entry.fields_container);
     entry.separator.set_margin_bottom(16);
@@ -278,6 +290,8 @@ FieldArr::FieldArr(std::string  tag,
     array_container.set_orientation(Gtk::ORIENTATION_VERTICAL);
     array_container.set_spacing(2);
     array_container.pack_end(btn_container);
+
+    personal_width_level = 0;
 
     container.add(array_container);
     container.reorder_child(array_container, 1);

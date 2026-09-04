@@ -1,10 +1,16 @@
 #include "fieldDateTime.hpp"
 #include "common.hpp"
+#include "fieldBase.hpp"
 
 void
 FieldDateTime::clear() {
     entry.set_text("");
     label_error.set_text("");
+}
+
+void
+FieldDateTime::setWidthLevel(uchar level) {
+    entry.set_size_request(FLEN_CALC(level), -1);
 }
 
 void
@@ -39,7 +45,7 @@ FieldDateTime::validate() {
 
 FieldDateTime::FieldDateTime(std::string tag, std::string label) : FieldBase(tag, label) {
     entry.set_has_frame(false);
-    entry.set_width_chars(64);
+    entry.set_size_request(FLEN_BASE_LEN, -1);
     entry.signal_changed().connect([this]() { this->validate(); });
     entry.set_placeholder_text("YYYY-MM-DD HH:mm");
 

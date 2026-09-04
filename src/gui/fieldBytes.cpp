@@ -11,6 +11,11 @@ FieldBytes::clear() {
 }
 
 void
+FieldBytes::setWidthLevel(uchar level) {
+    entry.set_size_request(FLEN_CALC(level), -1);
+}
+
+void
 FieldBytes::get(nlohmann::json &j) {
     j[tag] = text_buffer->get_text(false);
 }
@@ -45,6 +50,8 @@ FieldBytes::FieldBytes(std::string tag, std::string label) : FieldBase(tag, labe
     entry.set_wrap_mode(Gtk::WRAP_WORD);
 
     text_buffer = entry.get_buffer();
+
+    entry.set_size_request(FLEN_BASE_LEN, -1);
 
     text_buffer->signal_changed().connect([this]() { this->validate(); });
 

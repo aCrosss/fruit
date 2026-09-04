@@ -1,4 +1,5 @@
 #include "fieldEncStr.hpp"
+#include "fieldBase.hpp"
 #include "types.hpp"
 #include <sstream>
 
@@ -7,6 +8,15 @@ FieldEncStr::clear() {
     entry.set_text("");
     encoding.set_active(3);
     label_error.set_text("");
+}
+
+void
+FieldEncStr::setWidthLevel(uchar level) {
+    encoding.set_size_request(FLEN_CALC(level), -1);
+
+    int chars_width = FLEN_CALC_CHARS(level);
+    entry.set_width_chars(chars_width);
+    entry.set_max_width_chars(chars_width);
 }
 
 void
@@ -61,10 +71,12 @@ FieldEncStr::FieldEncStr(std::string tag, std::string label, uchar byte_cap)
     subbox.set_orientation(Gtk::ORIENTATION_VERTICAL);
 
     entry.set_has_frame(false);
-    entry.set_width_chars(64);
+    entry.set_width_chars(FLEN_BASE_LEN_CHARS);
+    entry.set_max_width_chars(FLEN_BASE_LEN_CHARS);
     entry.signal_changed().connect([this]() { this->validate(); });
     subbox.add(entry);
 
+    encoding.set_size_request(FLEN_BASE_LEN, -1);
     encoding.append("binary");
     encoding.append("bcdp");
     encoding.append("ascii6bit");
