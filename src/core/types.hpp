@@ -26,7 +26,11 @@
 #define FIELD_TAG_MRECORD_ID       "record_id"
 #define FIELD_TAG_PICMG_MRECORD_ID "picmg_record_id"
 
-typedef unsigned char            uchar;
+typedef unsigned char  uchar;
+typedef unsigned short ushort;
+typedef unsigned int   uint;
+typedef unsigned long  ulong;
+
 typedef std::vector<std::byte>   bytes;
 typedef bytes::iterator          biterator;
 typedef std::vector<std::string> svector;
