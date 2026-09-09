@@ -160,8 +160,29 @@ FieldArr::removeEntry(size_t ind) {
         return;
     }
 
+    for (size_t i = ind; i < entries.size(); ++i) {
+        auto &e = entries[i];
+
+        if (i > 0) {
+            array_container.remove(e.separator);
+        }
+        array_container.remove(e.subentry_container);
+    }
+
     array_container.remove(entries[ind].subentry_container);
     entries.erase(entries.begin() + ind);
+
+    for (size_t i = ind; i < entries.size(); ++i) {
+        auto &e = entries[i];
+
+        if (i > 0) {
+            array_container.pack_start(e.separator);
+        }
+        array_container.pack_start(e.subentry_container);
+    }
+
+    array_container.show_all();
+    reconnectSignals();
 }
 
 void
