@@ -123,7 +123,7 @@ MRecordActivationAndPowerMng::tryParseDescr(biterator             &begin,
     uchar b = DR_BYTE(begin + 4);
 
     d.controlled_deactivation = bool(!(b & 128));
-    d.controlled_deactivation = bool(b & 64);
+    d.controlled_activation   = bool(b & 64);
     d.next_power_on_delay     = static_cast<uchar>(b & MASK_5b);
 
     // alway 5 bytes long, move iterator accordingly
