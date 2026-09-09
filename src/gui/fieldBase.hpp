@@ -7,16 +7,15 @@
 #include "types.hpp"
 
 // that's garbage, but it works and i don't want to deal with it anymore
-#define BUTTON_LEN         22
-#define BUTTON_LEN_TRIPPLE BUTTON_LEN * 3
+#ifdef _WIN32
+#    define FLEN_BASE_LEN 880
+#else
+#    define FLEN_BASE_LEN 800
+#endif
 
-#define BLEN_CALC(level) (BUTTON_LEN_TRIPPLE * level)
-
-#define FLEN_BASE_LEN          600
-#define FLEN_BASE_LEN_CHARS    FLEN_BASE_LEN / 8
-#define FLEN_LEVEL_MULTIPLIER  160 // it's also label_tag length in chars * 8
-#define FLEN_CALC(level)       (FLEN_BASE_LEN - level * FLEN_LEVEL_MULTIPLIER - BLEN_CALC(level))
-#define FLEN_CALC_CHARS(level) (FLEN_CALC(level) / 10)
+#define FLEN_LABEL_LEN     160
+#define FLEN_LABEL_LEN_MIN 20
+#define FLEN_LABEL_MARGIN  4
 
 class FieldBase {
   protected:
@@ -37,8 +36,6 @@ class FieldBase {
 
     void show(Gtk::Box *parent);
     void hide(Gtk::Box *parent);
-
-    virtual void setWidthLevel(uchar level) = 0;
 
     virtual void get(nlohmann::json &j) = 0;
     virtual void set(nlohmann::json &j) = 0;

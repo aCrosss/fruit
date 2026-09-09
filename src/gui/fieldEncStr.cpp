@@ -11,15 +11,6 @@ FieldEncStr::clear() {
 }
 
 void
-FieldEncStr::setWidthLevel(uchar level) {
-    encoding.set_size_request(FLEN_CALC(level), -1);
-
-    int chars_width = FLEN_CALC_CHARS(level);
-    entry.set_width_chars(chars_width);
-    entry.set_max_width_chars(chars_width);
-}
-
-void
 FieldEncStr::get(nlohmann::json &j) {
     nlohmann::json jes;
     jes["type"] = encoding.get_active_text();
@@ -70,13 +61,16 @@ FieldEncStr::FieldEncStr(std::string tag, std::string label, uchar byte_cap)
     //
     subbox.set_orientation(Gtk::ORIENTATION_VERTICAL);
 
+#ifdef _WIN32
+    entry.set_has_frame(true);
+#else
     entry.set_has_frame(false);
-    entry.set_width_chars(FLEN_BASE_LEN_CHARS);
-    entry.set_max_width_chars(FLEN_BASE_LEN_CHARS);
+#endif
+    entry.set_halign(Gtk::ALIGN_FILL);
+    entry.set_hexpand(true);
     entry.signal_changed().connect([this]() { this->validate(); });
     subbox.add(entry);
 
-    encoding.set_size_request(FLEN_BASE_LEN, -1);
     encoding.append("binary");
     encoding.append("bcdp");
     encoding.append("ascii6bit");

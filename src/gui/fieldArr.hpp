@@ -7,6 +7,8 @@
 
 #define BLANK_TAG "tag"
 
+#define STYLE_CLASS_ARR_BUTTON "array-button"
+
 enum FArrayType {
     FARRAY_FIELD_TYPE_ENUM,
     FARRAY_FIELD_TYPE_INT,
@@ -53,6 +55,8 @@ class FieldArr : public FieldBase {
         Gtk::Separator separator;
         // single array entry, contains fields widgets and del button
         Gtk::Box       subentry_container;
+        // contains array entry buttons
+        Gtk::Box       arrbtns_container;
         // contains all fields' widgets
         Gtk::Box       fields_container;
 
@@ -71,8 +75,6 @@ class FieldArr : public FieldBase {
     Gtk::Box    btn_container;
     Gtk::Button btn_add;
 
-    uchar personal_width_level;
-
     void moveEntry(int ind, int d);
 
     void reconnectSignals();
@@ -80,8 +82,6 @@ class FieldArr : public FieldBase {
 
   public:
     void clear() override;
-
-    void setWidthLevel(uchar level) override;
 
     void get(nlohmann::json &j) override;
     void set(nlohmann::json &j) override;

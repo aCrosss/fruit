@@ -1,4 +1,5 @@
 #include "guiAreaBase.hpp"
+#include "fieldBase.hpp"
 
 void
 GUIAreaBase::clear() {
@@ -72,5 +73,7 @@ GUIAreaBase::validate() {
 }
 
 GUIAreaBase::GUIAreaBase(std::string tag, std::string label) : tag(tag), label(label) {
-    //
+    container.set_size_request(FLEN_BASE_LEN, -1);
+    container.set_hexpand(false);
+    container.set_halign(Gtk::ALIGN_CENTER);
 }

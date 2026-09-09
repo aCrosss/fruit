@@ -20,16 +20,15 @@ FieldBase::FieldBase(std::string tag, std::string label) : tag(tag), label(label
     container.set_orientation(Gtk::ORIENTATION_VERTICAL);
 
     label_tag.set_text(label);
-    label_tag.set_width_chars(20);
-    label_tag.set_padding(4, 0);
+    label_tag.set_size_request(label.empty() ? FLEN_LABEL_LEN_MIN : FLEN_LABEL_LEN);
+    label_tag.set_margin_end(FLEN_LABEL_MARGIN);
     label_tag.set_xalign(0.0f);
     label_tag.set_yalign(0.0f);
     top_container.add(label_tag);
 
-    // label_error.set_width_chars(64);
     label_error.set_text("");
     label_error.set_xalign(0.0f);
-    label_error.set_padding(4, 0);
+    label_error.set_margin_end(FLEN_LABEL_MARGIN);
     container.pack_end(label_error);
 
     top_container.add(container);

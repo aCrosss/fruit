@@ -1,3 +1,5 @@
+#include <string>
+
 #include "fieldArr.hpp"
 #include "fieldBase.hpp"
 #include "fieldCheckbox.hpp"
@@ -6,7 +8,6 @@
 #include "fieldNum.hpp"
 #include "fieldStr.hpp"
 #include "guiAreaBase.hpp"
-#include <string>
 
 #define DR_AS(pointer, type) (*((type *)(pointer)))
 
@@ -19,17 +20,6 @@ FieldArr::clear() {
     size_t size = entries.size();
     for (size_t i = 0; i < size; i++) {
         removeEntry(size - i - 1);
-    }
-}
-
-void
-FieldArr::setWidthLevel(uchar level) {
-    personal_width_level = level;
-
-    for (auto &&e : entries) {
-        for (auto &&i : e.fields) {
-            i->setWidthLevel(personal_width_level + 1);
-        }
     }
 }
 
@@ -182,30 +172,38 @@ FieldArr::appendEntry() {
     FieldsRef   &fields = entry.fields;
 
     entry.subentry_container.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
+    entry.subentry_container.set_hexpand(true);
+
+    entry.arrbtns_container.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
     entry.fields_container.set_orientation(Gtk::ORIENTATION_VERTICAL);
+    entry.fields_container.set_hexpand(true);
 
     // del button
     entry.btn_del.set_label("x");
     entry.btn_del.set_vexpand(false);
     entry.btn_del.set_valign(Gtk::ALIGN_START);
+    entry.btn_del.get_style_context()->add_class(STYLE_CLASS_ARR_BUTTON);
     entry.btn_del_con =
         entry.btn_del.signal_clicked().connect([this, ind]() { this->removeEntry(ind); });
-    entry.subentry_container.pack_end(entry.btn_del, Gtk::PACK_SHRINK);
+    entry.arrbtns_container.pack_end(entry.btn_del, Gtk::PACK_SHRINK);
     // down  button
     entry.btn_down.set_label("v");
     entry.btn_down.set_vexpand(false);
     entry.btn_down.set_valign(Gtk::ALIGN_START);
+    entry.btn_down.get_style_context()->add_class(STYLE_CLASS_ARR_BUTTON);
     entry.btn_down_con =
         entry.btn_down.signal_clicked().connect([this, ind]() { this->moveEntry(ind, 1); });
-    entry.subentry_container.pack_end(entry.btn_down, Gtk::PACK_SHRINK);
+    entry.arrbtns_container.pack_end(entry.btn_down, Gtk::PACK_SHRINK);
     // up button
     entry.btn_up.set_label("ʌ");
     entry.btn_up.set_vexpand(false);
     entry.btn_up.set_valign(Gtk::ALIGN_START);
+    entry.btn_up.get_style_context()->add_class(STYLE_CLASS_ARR_BUTTON);
     entry.btn_up_con =
         entry.btn_up.signal_clicked().connect([this, ind]() { this->moveEntry(ind, -1); });
-    entry.subentry_container.pack_end(entry.btn_up, Gtk::PACK_SHRINK);
+    entry.arrbtns_container.pack_end(entry.btn_up, Gtk::PACK_SHRINK);
 
+    entry.subentry_container.pack_end(entry.arrbtns_container, Gtk::PACK_SHRINK);
     entry.subentry_container.set_homogeneous(false);
 
     for (auto &&d : array_description) {
@@ -237,7 +235,6 @@ FieldArr::appendEntry() {
 
     for (auto &&i : entry.fields) {
         entry.fields_container.pack_start(*i->getTopContainer());
-        i->setWidthLevel(personal_width_level + 1);
     }
     entry.subentry_container.pack_start(entry.fields_container);
     entry.separator.set_margin_bottom(16);
@@ -282,19 +279,18 @@ FieldArr::FieldArr(std::string  tag,
     : FieldBase(tag, label), flat(flat), array_description(array_description) {
     //
     btn_add.set_label("      +      ");
-    btn_add.set_hexpand(false);
-    btn_add.set_halign(Gtk::ALIGN_END);
+    btn_add.set_halign(Gtk::ALIGN_CENTER);
     btn_add.signal_clicked().connect([this]() { this->appendEntry(); });
-    btn_container.pack_start(btn_add, Gtk::PACK_SHRINK);
+    btn_container.pack_start(btn_add);
 
     array_container.set_orientation(Gtk::ORIENTATION_VERTICAL);
     array_container.set_spacing(2);
     array_container.pack_end(btn_container);
 
-    personal_width_level = 0;
-
     container.add(array_container);
     container.reorder_child(array_container, 1);
+
+    appendEntry();
 }
 
 FieldArr::~FieldArr() {

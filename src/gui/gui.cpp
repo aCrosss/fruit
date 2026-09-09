@@ -571,6 +571,15 @@ on_app_activate() {
     // load make window and make it visible
     Gtk::Window *win;
     refBuilder->get_widget<Gtk::Window>("main_window", win);
+
+    auto csspr = Gtk::CssProvider::create();
+    csspr->load_from_data("* {font-size:12px;} .array-button {font-size:10px;} ");
+
+    auto style_context = win->get_style_context();
+    auto screen        = Gdk::Screen::get_default();
+    style_context->add_provider_for_screen(
+        screen, csspr, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
     app->add_window(*win);
     win->set_visible(true);
 

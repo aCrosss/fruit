@@ -50,13 +50,13 @@ class GUIAreaActivationAndPowerMng : public GUIAreaMRecBase {
         // ---
         {FARRAY_FIELD_TYPE_CHECKBOX,
          "controlled_deactivation",
-         "Shelf Manager Controlled\nDeactivation",
+         "Shelf Manager\nControlled Deactivation",
          nullptr,
          nullptr},
         // ---
         {FARRAY_FIELD_TYPE_CHECKBOX,
          "controlled_activation",
-         "Shelf Manager Controlled\nActivation",
+         "Shelf Manager\nControlled Activation",
          nullptr,
          nullptr},
         // ---

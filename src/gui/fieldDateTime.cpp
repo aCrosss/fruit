@@ -9,11 +9,6 @@ FieldDateTime::clear() {
 }
 
 void
-FieldDateTime::setWidthLevel(uchar level) {
-    entry.set_size_request(FLEN_CALC(level), -1);
-}
-
-void
 FieldDateTime::get(nlohmann::json &j) {
     j[tag] = entry.get_text();
 }
@@ -44,8 +39,12 @@ FieldDateTime::validate() {
 }
 
 FieldDateTime::FieldDateTime(std::string tag, std::string label) : FieldBase(tag, label) {
+#ifdef _WIN32
+    entry.set_has_frame(true);
+#else
     entry.set_has_frame(false);
-    entry.set_size_request(FLEN_BASE_LEN, -1);
+#endif
+    entry.set_hexpand(true);
     entry.signal_changed().connect([this]() { this->validate(); });
     entry.set_placeholder_text("YYYY-MM-DD HH:mm");
 
