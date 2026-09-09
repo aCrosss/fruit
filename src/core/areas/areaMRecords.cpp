@@ -253,7 +253,8 @@ AreaMRecords::tryParseBinary(biterator begin, biterator end, Errs &errs) {
             return false;
         }
 
-        biterator record_end = begin + DR_INT(begin + HDR_OFFSET_LEN);
+        size_t    rlen       = DR_INT(begin + HDR_OFFSET_LEN);
+        biterator record_end = begin + rlen;
         if (!record->tryParseBinary(begin, record_end, errs)) {
             return false;
         }
@@ -264,7 +265,7 @@ AreaMRecords::tryParseBinary(biterator begin, biterator end, Errs &errs) {
             return true;
         }
 
-        begin += record->getLength();
+        begin += rlen;
         if (begin >= end) {
             errs.append(tag, "common", "parsing went out of bounds");
             return false;
