@@ -351,19 +351,12 @@ manager_parse_ui() {
     nlohmann::json j;
 
     for (size_t i = 0; i < GUI_MRECORDS_START_INDEX; i++) {
-        bool area_enabled;
-
-        auto iter = areas_list->get_iter(get_area_path(i));
-        if (iter) {
-            iter->get_value(1, area_enabled);
-        } else {
-            return false;
+        if (!get_area_enabled(i)) {
+            continue;
         }
 
-        if (area_enabled) {
-            if (!getAreaIfValid(i, j)) {
-                return false;
-            }
+        if (!getAreaIfValid(i, j)) {
+            return false;
         }
     }
 
