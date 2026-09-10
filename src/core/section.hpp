@@ -20,6 +20,18 @@ using namespace nlohmann;
         return false;                               \
     }
 
+// append error and return false if current begin is more than end
+#define OUT_OF_BOUNDS_GUARD(label)                             \
+    if (begin > end) {                                         \
+        errs.append(tag, label, "parsing went out of bounds"); \
+        return false;                                          \
+    }
+#define OUT_OF_BOUNDS_GUARD_OFFSET(label, offset)              \
+    if (begin + offset > end) {                                \
+        errs.append(tag, label, "parsing went out of bounds"); \
+        return false;                                          \
+    }
+
 #define ROUND_LEN_TO_8_BYTES_MULTPL(len) ((len + 7) / 8)
 #define IPMI_TO_REAL_LEN(len)            (len * 8)
 
@@ -51,8 +63,6 @@ class Section {
     std::string tag;
     std::string label;
     bool        present;
-
-    virtual void clear() = 0;
 
     bool tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs);
     bool tryDecodeStr(biterator &inb, std::string ftag, encodedStr &str, Errs &errs);
@@ -102,6 +112,7 @@ class Section {
     std::string getTag();
     bool        isPresent();
 
+    virtual void  clear()     = 0;
     virtual uchar getLength() = 0;
 
     virtual bool tryParse(nlohmann::json j, Errs &errs)                     = 0;
