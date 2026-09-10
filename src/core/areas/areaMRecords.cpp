@@ -92,6 +92,7 @@ AreaMRecords::validateMRecordHeader(biterator begin, Errs &errs) {
         std::stringstream s;
         s << "header checksum is invalid to header itself";
         errs.append(tag, t.str(), s.str());
+        return false;
     }
 
     biterator data_begin = begin + IPMI_HEADER_LEN;
