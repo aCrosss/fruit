@@ -32,6 +32,13 @@
 
 #define GUI_MRECORDS_START_INDEX 4
 
+#define SHOW_ERRORW(msg)                       \
+    {                                          \
+        std::stringstream ss;                  \
+        ss << msg;                             \
+        show_alert_dialog("Ошибка", ss.str()); \
+    }
+
 typedef Glib::RefPtr<Gtk::FileFilter> FileFilter;
 
 using namespace Glib;
@@ -216,7 +223,13 @@ on_load_json() {
     std::string    err;
     nlohmann::json j;
     if (!manager.loadJSON(path, j, err)) {
-        std::cout << "failed to load JSON: " << err << std::endl;
+        SHOW_ERRORW("failed to load JSON: " << err)
+        return;
+    }
+
+    Errs errs;
+    if (!manager.parseJSON(j, errs)) {
+        SHOW_ERRORW("failed to parse JSON: " << std::endl << errs.getPlainText())
         return;
     }
 
@@ -239,14 +252,13 @@ on_load_toml() {
     std::string err;
     toml::value t;
     if (!manager.loadTOML(path, t, err)) {
-        std::cout << "failed to load TOML: " << err << std::endl;
+        SHOW_ERRORW("failed to load TOML: " << err)
         return;
     }
 
     Errs errs;
     if (!manager.parseTOML(t, errs)) {
-        std::cout << "failed to parse TOML: " << std::endl;
-        std::cout << errs.getPlainText() << std::endl;
+        SHOW_ERRORW("failed to parse TOML: " << std::endl << errs.getPlainText())
         return;
     }
 
@@ -272,14 +284,13 @@ on_load_bin() {
     std::string err;
     bytes       bs;
     if (!manager.loadBinary(path, bs, err)) {
-        std::cout << "failed to load FRU Image: " << err << std::endl;
+        SHOW_ERRORW("failed to load FRU Image: " << err)
         return;
     }
 
     Errs errs;
     if (!manager.parseBinary(bs, errs)) {
-        std::cout << "failed to parse FRU Image: " << std::endl;
-        std::cout << errs.getPlainText() << std::endl;
+        SHOW_ERRORW("failed to parse FRU Image: " << std::endl << errs.getPlainText())
         return;
     }
 
@@ -377,8 +388,7 @@ manager_parse_ui() {
 
     Errs errs;
     if (!manager.parseJSON(j, errs)) {
-        std::cout << "failed to parse JSON: " << std::endl;
-        std::cout << errs.getPlainText() << std::endl;
+        SHOW_ERRORW("failed to parse JSON: " << std::endl << errs.getPlainText())
         return false;
     }
 
@@ -405,8 +415,7 @@ on_save_json() {
 
     Errs errs;
     if (!manager.saveJSON(path, errs)) {
-        std::cout << "failed to save JSON: " << std::endl;
-        std::cout << errs.getPlainText() << std::endl;
+        SHOW_ERRORW("failed to save JSON: " << std::endl << errs.getPlainText())
         return;
     }
 }
@@ -431,8 +440,7 @@ on_save_toml() {
 
     Errs errs;
     if (!manager.saveTOML(path, errs)) {
-        std::cout << "failed to save TOML: " << std::endl;
-        std::cout << errs.getPlainText() << std::endl;
+        SHOW_ERRORW("failed to save TOML: " << std::endl << errs.getPlainText())
         return;
     }
 }
@@ -457,8 +465,7 @@ on_save_bin() {
 
     Errs errs;
     if (!manager.saveBinary(path, errs)) {
-        std::cout << "failed to save FRU Image: " << std::endl;
-        std::cout << errs.getPlainText() << std::endl;
+        SHOW_ERRORW("failed to save FRU Image: " << std::endl << errs.getPlainText())
         return;
     }
 }
