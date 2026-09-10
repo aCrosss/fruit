@@ -111,9 +111,10 @@ MRecordActivationAndPowerMng::tryParseDescrImpl(T v, ActivationAndPwrDescr &d, E
 
 bool
 MRecordActivationAndPowerMng::tryParseDescr(biterator             &begin,
+                                            biterator              end,
                                             ActivationAndPwrDescr &d,
                                             Errs                  &errs) {
-    UNUSED(errs);
+    OUT_OF_BOUNDS_GUARD_OFFSET("entries", DESCRIPTOR_BYTE_LEN)
 
     d.hardware_address = DR_BYTE(begin + 0);
     d.fru_device_id    = DR_BYTE(begin + 1);
@@ -127,7 +128,7 @@ MRecordActivationAndPowerMng::tryParseDescr(biterator             &begin,
     d.next_power_on_delay     = static_cast<uchar>(b & MASK_5b);
 
     // alway 5 bytes long, move iterator accordingly
-    begin += 5;
+    begin += DESCRIPTOR_BYTE_LEN;
     return true;
 }
 
@@ -198,7 +199,8 @@ MRecordActivationAndPowerMng::tryParse(toml::value &t, Errs &errs) {
 
 bool
 MRecordActivationAndPowerMng::tryParseBinary(biterator begin, biterator end, Errs &errs) {
-    UNUSED(end);
+    // + allowance + entry count
+    OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + 2)
 
     begin += PICMG_HEADER_LEN;
 
@@ -206,13 +208,8 @@ MRecordActivationAndPowerMng::tryParseBinary(biterator begin, biterator end, Err
 
     uchar count = DR_BYTE(begin++);
     for (uchar i = 0; i < count; i++) {
-        if (begin > end) {
-            errs.append(tag, "common", " binary parsing out of bounds");
-            return false;
-        }
-
         ActivationAndPwrDescr d;
-        if (!tryParseDescr(begin, d, errs)) {
+        if (!tryParseDescr(begin, end, d, errs)) {
             return false;
         }
         entries.push_back(d);

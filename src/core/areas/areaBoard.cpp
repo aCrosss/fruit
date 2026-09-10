@@ -202,7 +202,6 @@ AreaBoard::tryParse(toml::value &t, Errs &errs) {
 
 bool
 AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
-    UNUSED(end);
     clear();
 
     biterator beg = begin;
@@ -228,19 +227,19 @@ AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
     }
 
     begin += 5;
-    if (!tryDecodeStr(begin, "manufacturer", manufacturer, errs)) {
+    if (!tryDecodeStr(begin, end, "manufacturer", manufacturer, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(begin, "part_number", product_name, errs)) {
+    if (!tryDecodeStr(begin, end, "part_number", product_name, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(begin, "serial_number", serial_number, errs)) {
+    if (!tryDecodeStr(begin, end, "serial_number", serial_number, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(begin, "file_id", file_id, errs)) {
+    if (!tryDecodeStr(begin, end, "file_id", file_id, errs)) {
         return false;
     }
 
@@ -250,7 +249,7 @@ AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
         std::stringstream s;
         s << "custom[" << i++ << "]";
 
-        if (!tryDecodeStr(begin, s.str(), es, errs)) {
+        if (!tryDecodeStr(begin, end, s.str(), es, errs)) {
             return false;
         }
 

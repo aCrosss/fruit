@@ -1,4 +1,5 @@
 #include "mRecordPowerDistribuiton.hpp"
+#include "section.hpp"
 #include "types.hpp"
 
 #define IS_FLOAT_MULT_OF(v, divider) (std::fabs(std::fmod(v, divider)) < 1e-6f)
@@ -147,7 +148,12 @@ MRecordPowerDistribuiton::tryParsePowerFeedsImpl(T v, Map &m, Errs &errs) {
 }
 
 bool
-MRecordPowerDistribuiton::tryParsePowerFeeds(biterator &begin, Map &m, Errs &errs) {
+MRecordPowerDistribuiton::tryParsePowerFeeds(biterator &begin,
+                                             biterator  end,
+                                             Map       &m,
+                                             Errs      &errs) {
+    OUT_OF_BOUNDS_GUARD_OFFSET("power_feeds", POWER_FEED_BASE_BYTE_LEN)
+
     bytesToFloat(begin + 0, m.max_external_current);
     bytesToFloat(begin + 2, m.max_internal_current);
 
@@ -163,8 +169,10 @@ MRecordPowerDistribuiton::tryParsePowerFeeds(biterator &begin, Map &m, Errs &err
 
     uchar entries_count = DR_BYTE(begin + 5);
 
-    begin += 6;
+    begin += POWER_FEED_BASE_BYTE_LEN;
     for (uchar i = 0; i < entries_count; i++) {
+        OUT_OF_BOUNDS_GUARD_OFFSET("entries", MAP_ENTRY_BYTE_LEN)
+
         MapEntry e;
         e.hardware_address = DR_BYTE(begin++);
         e.fru_device_id    = DR_BYTE(begin++);
@@ -247,14 +255,15 @@ MRecordPowerDistribuiton::tryParse(toml::value &t, Errs &errs) {
 
 bool
 MRecordPowerDistribuiton::tryParseBinary(biterator begin, biterator end, Errs &errs) {
-    UNUSED(end);
+    // + feeds_count byte
+    OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + 1)
 
     begin             += PICMG_HEADER_LEN;
     uchar feeds_count  = DR_BYTE(begin++);
 
     for (uchar i = 0; i < feeds_count; i++) {
         Map m;
-        if (!tryParsePowerFeeds(begin, m, errs)) {
+        if (!tryParsePowerFeeds(begin, end, m, errs)) {
             return false;
         }
 

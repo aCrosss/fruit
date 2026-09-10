@@ -146,12 +146,8 @@ MRecordIPConnection::tryParse(toml::value &t, Errs &errs) {
 
 bool
 MRecordIPConnection::tryParseBinary(biterator begin, biterator end, Errs &errs) {
-    if (begin + PICMG_HEADER_LEN + 3 * 4 > end) {
-        errs.append(tag, "common", "out of bounds");
-        return false;
-    }
+    OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + IP_BYTE_LEN * 3)
 
-    clear();
     begin += PICMG_HEADER_LEN;
 
     bytesToIP(begin + 0, ip_address);

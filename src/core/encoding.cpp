@@ -313,11 +313,16 @@ decode_unicode(std::string &text, biterator &inb, uchar byte_count, std::string 
 }
 
 bool
-decode(std::string &text, Encoding &enc, biterator &inb, std::string &err) {
+decode(std::string &text, Encoding &enc, biterator &inb, biterator end, std::string &err) {
     std::string str;
     uchar       byte_count = 0;
 
     if (!decodeTypeLengthByte(enc, byte_count, *(inb++), err)) {
+        return false;
+    }
+
+    if (inb + byte_count > end) {
+        err = "out of bounds";
         return false;
     }
 

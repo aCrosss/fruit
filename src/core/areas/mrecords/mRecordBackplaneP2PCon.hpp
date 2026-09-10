@@ -4,6 +4,9 @@
 
 class MRecordBackplaneP2PCon : public MRecordBase {
   private:
+    const size_t SLOT_BASE_BYTE_LEN = 3; // type + address + channels count
+    const size_t CHANNEL_BYTE_LEN   = 3;
+
     /* CHANNEL DESCRIPTOR */
     struct ChannelDescr {
         uchar local_channel;
@@ -13,7 +16,7 @@ class MRecordBackplaneP2PCon : public MRecordBase {
 
     template <typename T>
     bool tryParseChannelDescrImpl(T v, ChannelDescr &cd, Errs &errs);
-    bool tryParseChannelDescr(biterator &begin, ChannelDescr &cd);
+    bool tryParseChannelDescr(biterator &begin, biterator end, ChannelDescr &cd, Errs &errs);
 
     void emitChannelDescr(nlohmann::json &j, ChannelDescr &cd);
     void emitChannelDescr(toml::table &t, ChannelDescr &cd);
@@ -28,7 +31,7 @@ class MRecordBackplaneP2PCon : public MRecordBase {
 
     template <typename T>
     bool tryParseSlotDescrImpl(T v, SlotDescriptor &sd, Errs &errs);
-    bool tryParseSlotDescr(biterator &begin, biterator end, SlotDescriptor &sd);
+    bool tryParseSlotDescr(biterator &begin, biterator end, SlotDescriptor &sd, Errs &errs);
 
     void emitSlotDescr(nlohmann::json &j, SlotDescriptor &sd);
     void emitSlotDescr(toml::table &t, SlotDescriptor &sd);

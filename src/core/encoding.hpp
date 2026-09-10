@@ -57,7 +57,7 @@ const std::vector<char> ascii_6b_table_reverse = {
 bool
 encode(std::string text, Encoding enc, bytes &outb, std::string &err);
 bool
-decode(std::string &text, Encoding &enc, biterator &inb, std::string &err);
+decode(std::string &text, Encoding &enc, biterator &inb, biterator end, std::string &err);
 bool
 makeTypeLengthByte(Encoding enc, uchar byte_count, std::byte &outb, std::string &err);
 bool

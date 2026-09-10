@@ -4,6 +4,10 @@
 
 class MRecordAddressTable : public MRecordBase {
   private:
+    const size_t ENTRY_BYTE_LEN                = 3;
+    const size_t SHELF_ADDR_STR_FIXED_LEN      = 20;
+    const size_t SHELF_ADDR_STR_FIXED_LEN_WTLB = 21; // with type/length byte
+
     struct TableEntry {
         uchar hardware_address;
         uchar site_number;
@@ -18,7 +22,7 @@ class MRecordAddressTable : public MRecordBase {
 
     template <typename T>
     bool tryParseTableEntryImpl(T v, TableEntry &sd, Errs &errs);
-    bool tryParseTableEntry(biterator &begin, TableEntry &sd, Errs &errs);
+    bool tryParseTableEntry(biterator &begin, biterator end, TableEntry &sd, Errs &errs);
 
   public:
     uchar getLength() override;

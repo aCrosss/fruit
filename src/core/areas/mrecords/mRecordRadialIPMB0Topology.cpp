@@ -121,13 +121,14 @@ MRecordRadialIPMB0Topology::tryParseLinkMappingImpl(T v, MappingEntry &me, Errs 
 bool
 MRecordRadialIPMB0Topology::tryParseLinkMapping(biterator    &begin,
                                                 biterator     end,
-                                                MappingEntry &me) {
-    UNUSED(end);
+                                                MappingEntry &me,
+                                                Errs         &errs) {
+    OUT_OF_BOUNDS_GUARD_OFFSET("link_mappings", LINK_MAPPING_BYTE_LEN)
 
     me.hardware_address = DR_BYTE(begin + 0);
     me.ipmb0_link_entry = DR_BYTE(begin + 1);
 
-    begin += 2;
+    begin += LINK_MAPPING_BYTE_LEN;
     return true;
 }
 
@@ -210,7 +211,10 @@ MRecordRadialIPMB0Topology::tryParseHubDescriptorImpl(T v, HubDescriptor &hd, Er
 bool
 MRecordRadialIPMB0Topology::tryParseHubDescriptor(biterator     &begin,
                                                   biterator      end,
-                                                  HubDescriptor &hd) {
+                                                  HubDescriptor &hd,
+                                                  Errs          &errs) {
+    OUT_OF_BOUNDS_GUARD_OFFSET("hub_descriptors", HUB_DESCRIPTOR_BASE_BYTE_LEN)
+
     hd.hardware_address = DR_BYTE(begin + 0);
 
     uchar bus_coverage = DR_BYTE(begin + 1) & MASK_2b;
@@ -220,10 +224,10 @@ MRecordRadialIPMB0Topology::tryParseHubDescriptor(biterator     &begin,
     hd.bus_coverage = BusCoverage(bus_coverage);
 
     uchar count  = DR_BYTE(begin + 2);
-    begin       += 3;
+    begin       += HUB_DESCRIPTOR_BASE_BYTE_LEN;
     for (uchar i = 0; i < count; ++i) {
         MappingEntry me;
-        if (!tryParseLinkMapping(begin, end, me)) {
+        if (!tryParseLinkMapping(begin, end, me, errs)) {
             return false;
         }
 
@@ -334,7 +338,7 @@ MRecordRadialIPMB0Topology::tryParse(toml::value &t, Errs &errs) {
 
 bool
 MRecordRadialIPMB0Topology::tryParseBinary(biterator begin, biterator end, Errs &errs) {
-    UNUSED(errs);
+    OUT_OF_BOUNDS_GUARD_OFFSET("common", CONST_BYTE_LEN)
 
     begin += PICMG_HEADER_LEN;
 
@@ -345,11 +349,11 @@ MRecordRadialIPMB0Topology::tryParseBinary(biterator begin, biterator end, Errs 
     connector_version_id.push_back(std::byte{DR_BYTE(begin + 3)});
     connector_version_id.push_back(std::byte{DR_BYTE(begin + 4)});
 
-    uchar count  = DR_BYTE(begin + 5);
-    begin       += 6;
+    uchar count  = DR_BYTE(begin + CONNECTOR_INFO_BYE_LEN);
+    begin       += CONNECTOR_INFO_BYE_LEN + 1; /*+1 count byte*/
     for (uchar i = 0; i < count; i++) {
         HubDescriptor hd;
-        if (!tryParseHubDescriptor(begin, end, hd)) {
+        if (!tryParseHubDescriptor(begin, end, hd, errs)) {
             return false;
         }
 

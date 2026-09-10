@@ -169,31 +169,31 @@ AreaProductInfo::tryParseBinary(biterator begin, biterator end, Errs &errs) {
     }
 
     begin += 2;
-    if (!tryDecodeStr(begin, "manufacturer", manufacturer, errs)) {
+    if (!tryDecodeStr(begin, end, "manufacturer", manufacturer, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(begin, "product_name", product_name, errs)) {
+    if (!tryDecodeStr(begin, end, "product_name", product_name, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(begin, "part", part, errs)) {
+    if (!tryDecodeStr(begin, end, "part", part, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(begin, "version", version, errs)) {
+    if (!tryDecodeStr(begin, end, "version", version, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(begin, "serial_number", serial_number, errs)) {
+    if (!tryDecodeStr(begin, end, "serial_number", serial_number, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(begin, "asset_tag", asset_tag, errs)) {
+    if (!tryDecodeStr(begin, end, "asset_tag", asset_tag, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(begin, "fru_file_id", fru_file_id, errs)) {
+    if (!tryDecodeStr(begin, end, "fru_file_id", fru_file_id, errs)) {
         return false;
     }
 
@@ -203,7 +203,7 @@ AreaProductInfo::tryParseBinary(biterator begin, biterator end, Errs &errs) {
         std::stringstream s;
         s << "custom[" << i++ << "]";
 
-        if (!tryDecodeStr(begin, s.str(), es, errs)) {
+        if (!tryDecodeStr(begin, end, s.str(), es, errs)) {
             return false;
         }
 

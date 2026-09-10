@@ -89,7 +89,12 @@ MRecordBackplaneP2PCon::tryParseChannelDescrImpl(T v, ChannelDescr &cd, Errs &er
 }
 
 bool
-MRecordBackplaneP2PCon::tryParseChannelDescr(biterator &begin, ChannelDescr &cd) {
+MRecordBackplaneP2PCon::tryParseChannelDescr(biterator    &begin,
+                                             biterator     end,
+                                             ChannelDescr &cd,
+                                             Errs         &errs) {
+    OUT_OF_BOUNDS_GUARD_OFFSET("slots", CHANNEL_BYTE_LEN)
+
     uchar b1 = DR_BYTE(begin + 0);
     uchar b2 = DR_BYTE(begin + 1);
     uchar b3 = DR_BYTE(begin + 2);
@@ -102,7 +107,7 @@ MRecordBackplaneP2PCon::tryParseChannelDescr(biterator &begin, ChannelDescr &cd)
     cd.remote_slot    = b1;
 
     // always 3 bytes, move iterator accordingly
-    begin += 3;
+    begin += CHANNEL_BYTE_LEN;
     return true;
 }
 
@@ -186,17 +191,20 @@ MRecordBackplaneP2PCon::tryParseSlotDescrImpl(T v, SlotDescriptor &sd, Errs &err
 }
 
 bool
-MRecordBackplaneP2PCon::tryParseSlotDescr(biterator &begin, biterator end, SlotDescriptor &sd) {
-    UNUSED(end);
+MRecordBackplaneP2PCon::tryParseSlotDescr(biterator      &begin,
+                                          biterator       end,
+                                          SlotDescriptor &sd,
+                                          Errs           &errs) {
+    OUT_OF_BOUNDS_GUARD_OFFSET("slots", SLOT_BASE_BYTE_LEN)
 
     sd.type    = DR_BYTE(begin + 0);
     sd.address = DR_BYTE(begin + 1);
 
     uchar channel_count  = DR_BYTE(begin + 2);
-    begin               += 3;
+    begin               += SLOT_BASE_BYTE_LEN;
     for (uchar i = 0; i < channel_count; i++) {
         ChannelDescr cd;
-        if (!tryParseChannelDescr(begin, cd)) {
+        if (!tryParseChannelDescr(begin, end, cd, errs)) {
             return false;
         }
 
@@ -289,7 +297,6 @@ MRecordBackplaneP2PCon::tryParseImpl(T v, Errs &errs) {
     }
 
     debug_printOutVals();
-    // present = true;
     return valid;
 }
 
@@ -305,15 +312,13 @@ MRecordBackplaneP2PCon::tryParse(toml::value &t, Errs &errs) {
 
 bool
 MRecordBackplaneP2PCon::tryParseBinary(biterator begin, biterator end, Errs &errs) {
-    UNUSED(errs);
-    // maybe we should validate data again, but it is already was validated in
-    // multirecord area. So for PICMG we basicaly don't need first 10 bytes at all
-    // We SHOULD recieve coorect begin and end so we can work with that
+    OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN)
+
     begin += PICMG_HEADER_LEN;
 
     while (begin < end) {
         SlotDescriptor sd;
-        if (!tryParseSlotDescr(begin, end, sd)) {
+        if (!tryParseSlotDescr(begin, end, sd, errs)) {
             return false;
         }
 
@@ -321,7 +326,6 @@ MRecordBackplaneP2PCon::tryParseBinary(biterator begin, biterator end, Errs &err
     }
 
     debug_printOutVals();
-    // present = true;
     return true;
 }
 

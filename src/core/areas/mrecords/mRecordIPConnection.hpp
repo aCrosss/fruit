@@ -2,11 +2,13 @@
 
 #include "mRecordBase.hpp"
 
+#define IP_BYTE_LEN 4
+
 class MRecordIPConnection : public MRecordBase {
   private:
     union IP {
-        std::byte bytes[4];
-        uchar     raw[4];
+        std::byte bytes[IP_BYTE_LEN];
+        uchar     raw[IP_BYTE_LEN];
     };
 
     void bytesToIP(biterator begin, IP &ip);

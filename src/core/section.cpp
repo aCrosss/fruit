@@ -48,10 +48,11 @@ Section::tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs)
 //@param &str out encoded string
 //@param Err class object for errors output
 bool
-Section::tryDecodeStr(biterator &inb, std::string ftag, encodedStr &str, Errs &errs) {
+Section::tryDecodeStr(
+    biterator &inb, biterator end, std::string ftag, encodedStr &str, Errs &errs) {
     std::string err;
 
-    if (!decode(str.str, str.enc, inb, err)) {
+    if (!decode(str.str, str.enc, inb, end, err)) {
         errs.append(tag, ftag, err);
         return false;
     }

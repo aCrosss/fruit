@@ -126,7 +126,8 @@ MRecordLEDDescriptor::tryParse(toml::value &t, Errs &errs) {
 
 bool
 MRecordLEDDescriptor::tryParseBinary(biterator begin, biterator end, Errs &errs) {
-    UNUSED(end);
+    // + entry count byte
+    OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + 1)
 
     begin += PICMG_HEADER_LEN;
 
@@ -135,17 +136,18 @@ MRecordLEDDescriptor::tryParseBinary(biterator begin, biterator end, Errs &errs)
     for (uchar i = 0; i < count; i++) {
         LEDDescriptor d;
 
+        OUT_OF_BOUNDS_GUARD("led_id")
         d.led_id = DR_BYTE(begin++);
 
-        if (!tryDecodeStr(begin, "led_legend", d.led_legend, errs)) {
+        if (!tryDecodeStr(begin, end, "led_legend", d.led_legend, errs)) {
             return false;
         }
 
-        if (!tryDecodeStr(begin, "led_symbol", d.led_symbol, errs)) {
+        if (!tryDecodeStr(begin, end, "led_symbol", d.led_symbol, errs)) {
             return false;
         }
 
-        if (!tryDecodeStr(begin, "led_description", d.led_description, errs)) {
+        if (!tryDecodeStr(begin, end, "led_description", d.led_description, errs)) {
             return false;
         }
 

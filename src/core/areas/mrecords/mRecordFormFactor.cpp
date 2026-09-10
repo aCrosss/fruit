@@ -102,7 +102,7 @@ MRecordFormFactor::tryParse(toml::value &t, Errs &errs) {
 
 bool
 MRecordFormFactor::tryParseBinary(biterator begin, biterator end, Errs &errs) {
-    UNUSED(end);
+    OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + 1)
 
     begin += PICMG_HEADER_LEN;
 

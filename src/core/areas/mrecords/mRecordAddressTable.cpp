@@ -9,9 +9,6 @@
 //    ##       ##     ## ##    ## ##     ## ##
 //    ########  #######   ######  ##     ## ########
 
-// 20 bytes of string + 1 type/length byte
-#define SHELF_ADDR_STR_FIXED_LEN 21
-
 void
 MRecordAddressTable::debug_printOutVals() {
     std::cout << "=== " << label << " ===" << std::endl;
@@ -39,8 +36,8 @@ MRecordAddressTable::clear() {
 uchar
 MRecordAddressTable::getLength() {
     uchar len  = PICMG_HEADER_LEN;
-    len       += SHELF_ADDR_STR_FIXED_LEN; // constant size shelf_address string
-    len       += 1;                        // entry count byte
+    len       += SHELF_ADDR_STR_FIXED_LEN_WTLB; // constant size shelf_address string
+    len       += 1;                             // entry count byte
     len       += static_cast<uchar>(entries.size() * 3);
 
     return len;
@@ -79,14 +76,17 @@ MRecordAddressTable::tryParseTableEntryImpl(T v, TableEntry &te, Errs &errs) {
 }
 
 bool
-MRecordAddressTable::tryParseTableEntry(biterator &begin, TableEntry &te, Errs &errs) {
-    UNUSED(errs);
+MRecordAddressTable::tryParseTableEntry(biterator  &begin,
+                                        biterator   end,
+                                        TableEntry &te,
+                                        Errs       &errs) {
+    OUT_OF_BOUNDS_GUARD_OFFSET("entries", ENTRY_BYTE_LEN)
 
     te.hardware_address = DR_BYTE(begin + 0);
     te.site_number      = DR_BYTE(begin + 1);
     te.site_type        = DR_BYTE(begin + 2);
 
-    begin += 3;
+    begin += ENTRY_BYTE_LEN;
     return true;
 }
 
@@ -142,21 +142,22 @@ MRecordAddressTable::tryParse(toml::value &t, Errs &errs) {
 
 bool
 MRecordAddressTable::tryParseBinary(biterator begin, biterator end, Errs &errs) {
-    UNUSED(end);
+    // + entry count byte
+    OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + SHELF_ADDR_STR_FIXED_LEN_WTLB + 1)
 
     biterator b = begin + PICMG_HEADER_LEN;
-    if (!tryDecodeStr(b, "shelf_address", shelf_address, errs)) {
+    if (!tryDecodeStr(b, end, "shelf_address", shelf_address, errs)) {
         return false;
     }
 
     begin               += PICMG_HEADER_LEN;
-    uchar entries_count  = DR_BYTE(begin + SHELF_ADDR_STR_FIXED_LEN);
+    uchar entries_count  = DR_BYTE(begin + SHELF_ADDR_STR_FIXED_LEN_WTLB);
 
-    // skip shelf address encoded string AND point to next byte after it
-    begin += SHELF_ADDR_STR_FIXED_LEN + 1;
+    // skip shelf address encoded string AND point to the next byte after it
+    begin += SHELF_ADDR_STR_FIXED_LEN_WTLB + 1;
     for (uchar i = 0; i < entries_count; i++) {
         TableEntry te;
-        if (!tryParseTableEntry(begin, te, errs)) {
+        if (!tryParseTableEntry(begin, end, te, errs)) {
             return false;
         }
         entries.push_back(te);
@@ -226,7 +227,7 @@ MRecordAddressTable::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
         return false;
     }
 
-    if (shelf_address_bs.size() > SHELF_ADDR_STR_FIXED_LEN - 1) {
+    if (shelf_address_bs.size() > SHELF_ADDR_STR_FIXED_LEN) {
         errs.append(tag, "shelf_address", "shelf address exceeds 20 bytes length");
         return false;
     }
@@ -234,8 +235,8 @@ MRecordAddressTable::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     // in Address Table record shelf addres bytes is fixed sized field
     // type/length byte + 20 bytes of bytes field should be 21
     // values of unused space bytes are undefined, we will use zeroes
-    if (shelf_address_bs.size() < SHELF_ADDR_STR_FIXED_LEN) {
-        size_t len = SHELF_ADDR_STR_FIXED_LEN - shelf_address_bs.size();
+    if (shelf_address_bs.size() < SHELF_ADDR_STR_FIXED_LEN_WTLB) {
+        size_t len = SHELF_ADDR_STR_FIXED_LEN_WTLB - shelf_address_bs.size();
         shelf_address_bs.insert(shelf_address_bs.end(), len, std::byte{0});
     }
 

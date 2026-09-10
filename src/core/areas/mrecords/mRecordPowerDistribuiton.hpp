@@ -3,6 +3,11 @@
 #include "mRecordBase.hpp"
 
 class MRecordPowerDistribuiton : public MRecordBase {
+  private:
+    // 2 bye external curren + 2 byte internal current + 1 bytes expected voltage + 1 byte count
+    const size_t POWER_FEED_BASE_BYTE_LEN = 6;
+    const size_t MAP_ENTRY_BYTE_LEN       = 2;
+
     const int MIN_VOLTAGE_HEX = 0x48;
     const int MAX_VOLTAGE_HEX = 0x90;
 
@@ -27,7 +32,7 @@ class MRecordPowerDistribuiton : public MRecordBase {
 
     template <typename T>
     bool tryParsePowerFeedsImpl(T v, Map &m, Errs &errs);
-    bool tryParsePowerFeeds(biterator &begin, Map &m, Errs &errs);
+    bool tryParsePowerFeeds(biterator &begin, biterator end, Map &m, Errs &errs);
 
     void emitPowerFeed(bytes &out_bin, Map &power_feed);
 

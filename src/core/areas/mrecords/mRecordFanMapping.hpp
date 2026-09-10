@@ -4,6 +4,8 @@
 
 class MRecordFanMapping : public MRecordBase {
   private:
+    const size_t ENTRY_BYTE_LEN = 4;
+
     void debug_printOutVals();
     void clear() override;
 
@@ -18,7 +20,7 @@ class MRecordFanMapping : public MRecordBase {
 
     template <typename T>
     bool tryParseEntry(T v, TableEntry &e, Errs &errs);
-    bool tryParseEntry(biterator &begin, TableEntry &e, Errs &errs);
+    bool tryParseEntry(biterator &begin, TableEntry &e);
 
     void emitEntry(bytes &out_bin, TableEntry &entry);
 

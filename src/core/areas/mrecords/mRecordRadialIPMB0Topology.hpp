@@ -4,7 +4,13 @@
 
 class MRecordRadialIPMB0Topology : public MRecordBase {
   private:
-    /* CONSTS */
+    const size_t CONNECTOR_INFO_BYE_LEN = 5; // 3 bytes definer + 2 bytes version id
+
+    const size_t CONST_BYTE_LEN = PICMG_HEADER_LEN + CONNECTOR_INFO_BYE_LEN + 1 /*count*/;
+
+    // 1 byte hardware address + 1 byte hub info + 1 count byte
+    const size_t HUB_DESCRIPTOR_BASE_BYTE_LEN = 3;
+    const size_t LINK_MAPPING_BYTE_LEN        = 2;
 
     enum BusCoverage {
         BUS_COVERAGE_IPMB_MIN  = 0b00,
@@ -37,7 +43,7 @@ class MRecordRadialIPMB0Topology : public MRecordBase {
 
     template <typename T>
     bool tryParseLinkMappingImpl(T v, MappingEntry &hd, Errs &errs);
-    bool tryParseLinkMapping(biterator &begin, biterator end, MappingEntry &hd);
+    bool tryParseLinkMapping(biterator &begin, biterator end, MappingEntry &hd, Errs &errs);
 
     void emitLinkMapping(nlohmann::json &j, MappingEntry &hd);
     void emitLinkMapping(toml::table &t, MappingEntry &hd);
@@ -55,7 +61,7 @@ class MRecordRadialIPMB0Topology : public MRecordBase {
 
     template <typename T>
     bool tryParseHubDescriptorImpl(T v, HubDescriptor &hd, Errs &errs);
-    bool tryParseHubDescriptor(biterator &begin, biterator end, HubDescriptor &hd);
+    bool tryParseHubDescriptor(biterator &begin, biterator end, HubDescriptor &hd, Errs &errs);
 
     void emitHubDescriptor(nlohmann::json &j, HubDescriptor &hd);
     void emitHubDescriptor(toml::table &t, HubDescriptor &hd);

@@ -65,7 +65,8 @@ class Section {
     bool        present;
 
     bool tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs);
-    bool tryDecodeStr(biterator &inb, std::string ftag, encodedStr &str, Errs &errs);
+    bool
+    tryDecodeStr(biterator &inb, biterator end, std::string ftag, encodedStr &str, Errs &errs);
 
     std::byte calcZeroChecksum(bytes bs);
     std::byte calcZeroChecksum(biterator begin, biterator end);

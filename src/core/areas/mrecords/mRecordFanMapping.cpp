@@ -77,15 +77,13 @@ MRecordFanMapping::tryParseEntry(T v, TableEntry &e, Errs &errs) {
 }
 
 bool
-MRecordFanMapping::tryParseEntry(biterator &begin, TableEntry &e, Errs &errs) {
-    UNUSED(errs);
-
+MRecordFanMapping::tryParseEntry(biterator &begin, TableEntry &e) {
     e.hardware_address = DR_BYTE(begin + 0);
     e.fru_device_id    = DR_BYTE(begin + 1);
     e.site_number      = DR_BYTE(begin + 2);
     e.site_type        = DR_BYTE(begin + 3);
 
-    begin += 4;
+    begin += ENTRY_BYTE_LEN;
     return true;
 }
 
@@ -145,14 +143,17 @@ MRecordFanMapping::tryParse(toml::value &t, Errs &errs) {
 
 bool
 MRecordFanMapping::tryParseBinary(biterator begin, biterator end, Errs &errs) {
-    UNUSED(end);
+    // + entry count byte
+    OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + 1)
 
     begin               += PICMG_HEADER_LEN;
     uchar entries_count  = DR_BYTE(begin++);
 
+    OUT_OF_BOUNDS_GUARD_OFFSET("entries", entries_count * ENTRY_BYTE_LEN);
+
     for (uchar i = 0; i < entries_count; i++) {
         TableEntry te;
-        if (!tryParseEntry(begin, te, errs)) {
+        if (!tryParseEntry(begin, te)) {
             return false;
         }
         entries.push_back(te);

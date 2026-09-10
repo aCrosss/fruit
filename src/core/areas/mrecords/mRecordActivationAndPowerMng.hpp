@@ -4,6 +4,8 @@
 
 class MRecordActivationAndPowerMng : public MRecordBase {
   private:
+    const size_t DESCRIPTOR_BYTE_LEN = 5;
+
     uchar allowance_for_activation;
 
     struct ActivationAndPwrDescr {
@@ -18,7 +20,7 @@ class MRecordActivationAndPowerMng : public MRecordBase {
 
     template <typename T>
     bool tryParseDescrImpl(T v, ActivationAndPwrDescr &d, Errs &errs);
-    bool tryParseDescr(biterator &begin, ActivationAndPwrDescr &d, Errs &errs);
+    bool tryParseDescr(biterator &begin, biterator end, ActivationAndPwrDescr &d, Errs &errs);
 
     std::vector<ActivationAndPwrDescr> entries;
 

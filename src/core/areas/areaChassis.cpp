@@ -130,11 +130,11 @@ AreaChassis::tryParseBinary(biterator begin, biterator end, Errs &errs) {
     type = static_cast<uchar>(*(++begin));
 
     begin += 1;
-    if (!tryDecodeStr(begin, "part_number", part_number, errs)) {
+    if (!tryDecodeStr(begin, end, "part_number", part_number, errs)) {
         return false;
     }
 
-    if (!tryDecodeStr(begin, "serial_number", serial_number, errs)) {
+    if (!tryDecodeStr(begin, end, "serial_number", serial_number, errs)) {
         return false;
     }
 
@@ -144,7 +144,7 @@ AreaChassis::tryParseBinary(biterator begin, biterator end, Errs &errs) {
         std::stringstream s;
         s << "custom[" << i++ << "]";
 
-        if (!tryDecodeStr(begin, s.str(), es, errs)) {
+        if (!tryDecodeStr(begin, end, s.str(), es, errs)) {
             return false;
         }
 
