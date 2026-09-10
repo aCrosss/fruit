@@ -69,7 +69,7 @@ AreaCommonHeader::getNextOffset(Areas offset_ind) {
 }
 
 bool
-AreaCommonHeader::setOffsets(std::vector<std::unique_ptr<Section>> &sections) {
+AreaCommonHeader::setOffsets(std::vector<std::shared_ptr<Section>> &sections) {
     offsets.resize(sections.size());
 
     uchar base = 1;

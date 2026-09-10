@@ -8,7 +8,7 @@
 
 class Manager {
   private:
-    std::vector<std::unique_ptr<Section>> sections;
+    std::vector<std::shared_ptr<Section>> sections;
 
     void initSections();
 

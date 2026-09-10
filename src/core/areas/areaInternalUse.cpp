@@ -32,6 +32,7 @@ AreaInternalUse::getLength() {
 void
 AreaInternalUse::clear() {
     internal_data.clear();
+    present = false;
 }
 
 //    ########     ###    ########   ######  #### ##    ##  ######

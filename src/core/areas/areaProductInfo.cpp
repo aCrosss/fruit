@@ -38,6 +38,7 @@ AreaProductInfo::clear() {
     CLEAR_ENC_STR(asset_tag);
     CLEAR_ENC_STR(fru_file_id);
     custom.clear();
+    present = false;
 }
 
 static void

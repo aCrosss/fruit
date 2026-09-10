@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 #include "manager.hpp"
 
@@ -12,14 +13,21 @@
 #include "areas/areaMRecords.hpp"
 // clang-format on
 
+#define REGULAR_AREAS_COUNT 5
+
+#define CLEAR_REGULAR_AREAS()                       \
+    for (int i = 0; i < REGULAR_AREAS_COUNT; ++i) { \
+        sections[i]->clear();                       \
+    }
+
 void
 Manager::initSections() {
-    sections.push_back(std::make_unique<AreaCommonHeader>());
-    sections.push_back(std::make_unique<AreaInternalUse>());
-    sections.push_back(std::make_unique<AreaChassis>());
-    sections.push_back(std::make_unique<AreaBoard>());
-    sections.push_back(std::make_unique<AreaProductInfo>());
-    sections.push_back(std::make_unique<AreaMRecords>());
+    sections.push_back(std::make_shared<AreaCommonHeader>());
+    sections.push_back(std::make_shared<AreaInternalUse>());
+    sections.push_back(std::make_shared<AreaChassis>());
+    sections.push_back(std::make_shared<AreaBoard>());
+    sections.push_back(std::make_shared<AreaProductInfo>());
+    sections.push_back(std::make_shared<AreaMRecords>());
 }
 
 bool
@@ -82,6 +90,7 @@ Manager::loadBinary(std::string path, bytes &bs, std::string &err) {
 bool
 Manager::parseJSON(nlohmann::json &j, Errs &errs) {
     bool valid = true;
+    CLEAR_REGULAR_AREAS();
 
     for (auto &&area : sections) {
         if (!j.contains(area->getTag())) {
@@ -101,6 +110,7 @@ Manager::parseJSON(nlohmann::json &j, Errs &errs) {
 bool
 Manager::parseTOML(toml::value &t, Errs &errs) {
     bool valid = true;
+    CLEAR_REGULAR_AREAS();
 
     for (auto &&area : sections) {
         if (!t.contains(area->getTag())) {
@@ -119,7 +129,9 @@ Manager::parseTOML(toml::value &t, Errs &errs) {
 
 bool
 Manager::parseBinary(bytes &bs, Errs &errs) {
-    auto *header = dynamic_cast<AreaCommonHeader *>(sections[0].get());
+    CLEAR_REGULAR_AREAS();
+
+    auto header = std::static_pointer_cast<AreaCommonHeader>(sections[0]);
 
     size_t offset_to_end = bs.end() - bs.begin();
 
@@ -230,7 +242,7 @@ Manager::saveBinary(std::string path, Errs &errs) {
     bytes bs;
     bool  valid = true;
 
-    auto *header = dynamic_cast<AreaCommonHeader *>(sections[0].get());
+    auto header = std::static_pointer_cast<AreaCommonHeader>(sections[0]);
     header->setOffsets(sections);
 
     for (auto &&area : sections) {

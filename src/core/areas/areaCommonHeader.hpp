@@ -15,7 +15,7 @@ class AreaCommonHeader : public Section {
 
     uchar getOffset(Areas offset_ind);
     uchar getNextOffset(Areas offset_ind);
-    bool  setOffsets(std::vector<std::unique_ptr<Section>> &sections);
+    bool  setOffsets(std::vector<std::shared_ptr<Section>> &sections);
 
     bool tryParse(nlohmann::json j, Errs &errs) override;
     bool tryParse(toml::value &t, Errs &errs) override;

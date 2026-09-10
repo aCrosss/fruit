@@ -103,6 +103,7 @@ AreaBoard::clear() {
     CLEAR_ENC_STR(serial_number);
     CLEAR_ENC_STR(file_id);
     custom.clear();
+    present = false;
 }
 
 uchar

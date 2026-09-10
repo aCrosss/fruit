@@ -38,6 +38,8 @@ AreaChassis::clear() {
     CLEAR_ENC_STR(part_number);
     CLEAR_ENC_STR(serial_number);
     custom.clear();
+
+    present = false;
 }
 
 uchar
