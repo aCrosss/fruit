@@ -125,7 +125,7 @@ MRecordLEDDescriptor::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-MRecordLEDDescriptor::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+MRecordLEDDescriptor::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     // + entry count byte
     OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + 1)
 

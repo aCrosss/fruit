@@ -149,11 +149,11 @@ AreaProductInfo::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-AreaProductInfo::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+AreaProductInfo::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     UNUSED(end);
     clear();
 
-    biterator beg = begin;
+    ibytes beg = begin;
 
     // get area length byte at index 1
     uchar length = IPMI_TO_REAL_LEN(static_cast<uchar>(*(++begin)));

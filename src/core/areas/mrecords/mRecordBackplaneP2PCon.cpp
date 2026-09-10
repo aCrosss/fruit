@@ -89,8 +89,8 @@ MRecordBackplaneP2PCon::tryParseChannelDescrImpl(T v, ChannelDescr &cd, Errs &er
 }
 
 bool
-MRecordBackplaneP2PCon::tryParseChannelDescr(biterator    &begin,
-                                             biterator     end,
+MRecordBackplaneP2PCon::tryParseChannelDescr(ibytes       &begin,
+                                             ibytes        end,
                                              ChannelDescr &cd,
                                              Errs         &errs) {
     OUT_OF_BOUNDS_GUARD_OFFSET("slots", CHANNEL_BYTE_LEN)
@@ -191,8 +191,8 @@ MRecordBackplaneP2PCon::tryParseSlotDescrImpl(T v, SlotDescriptor &sd, Errs &err
 }
 
 bool
-MRecordBackplaneP2PCon::tryParseSlotDescr(biterator      &begin,
-                                          biterator       end,
+MRecordBackplaneP2PCon::tryParseSlotDescr(ibytes         &begin,
+                                          ibytes          end,
                                           SlotDescriptor &sd,
                                           Errs           &errs) {
     OUT_OF_BOUNDS_GUARD_OFFSET("slots", SLOT_BASE_BYTE_LEN)
@@ -311,7 +311,7 @@ MRecordBackplaneP2PCon::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-MRecordBackplaneP2PCon::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+MRecordBackplaneP2PCon::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN)
 
     begin += PICMG_HEADER_LEN;

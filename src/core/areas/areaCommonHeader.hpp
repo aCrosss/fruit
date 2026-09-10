@@ -19,7 +19,7 @@ class AreaCommonHeader : public Section {
 
     bool tryParse(nlohmann::json j, Errs &errs) override;
     bool tryParse(toml::value &t, Errs &errs) override;
-    bool tryParseBinary(biterator begin, biterator end, Errs &errs) override;
+    bool tryParseBinary(ibytes begin, ibytes end, Errs &errs) override;
 
     void emitJSON(nlohmann::json &j) override;
     void emitTOML(toml::table &t) override;

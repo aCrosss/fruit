@@ -20,7 +20,7 @@ class MRecordActivationAndPowerMng : public MRecordBase {
 
     template <typename T>
     bool tryParseDescrImpl(T v, ActivationAndPwrDescr &d, Errs &errs);
-    bool tryParseDescr(biterator &begin, biterator end, ActivationAndPwrDescr &d, Errs &errs);
+    bool tryParseDescr(ibytes &begin, ibytes end, ActivationAndPwrDescr &d, Errs &errs);
 
     std::vector<ActivationAndPwrDescr> entries;
 
@@ -36,7 +36,7 @@ class MRecordActivationAndPowerMng : public MRecordBase {
     bool tryParseImpl(T v, Errs &errs);
     bool tryParse(nlohmann::json j, Errs &errs) override;
     bool tryParse(toml::value &t, Errs &errs) override;
-    bool tryParseBinary(biterator begin, biterator end, Errs &errs) override;
+    bool tryParseBinary(ibytes begin, ibytes end, Errs &errs) override;
 
     void emitJSON(nlohmann::json &j) override;
     void emitTOML(toml::table &t) override;

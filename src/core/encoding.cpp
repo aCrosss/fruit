@@ -210,7 +210,7 @@ encode(std::string text, Encoding enc, bytes &outb, std::string &err) {
 //    ########  ########  ######   #######  ########  #### ##    ##  ######
 
 bool
-decode_binary(std::string &text, biterator &inb, uchar byte_count, std::string &err) {
+decode_binary(std::string &text, ibytes &inb, uchar byte_count, std::string &err) {
     UNUSED(err);
 
     for (size_t i = 0; i < byte_count; i++, inb++) {
@@ -225,7 +225,7 @@ decode_binary(std::string &text, biterator &inb, uchar byte_count, std::string &
 }
 
 bool
-decode_bcdp(std::string &text, biterator &inb, uchar byte_count, std::string &err) {
+decode_bcdp(std::string &text, ibytes &inb, uchar byte_count, std::string &err) {
     for (size_t i = 0; i < byte_count; i++, inb++) {
         uchar b = static_cast<uchar>(*inb);
         uchar c;
@@ -260,7 +260,7 @@ decode_bcdp(std::string &text, biterator &inb, uchar byte_count, std::string &er
 }
 
 bool
-decode_ascii6bit(std::string &text, biterator &inb, uchar byte_count, std::string &err) {
+decode_ascii6bit(std::string &text, ibytes &inb, uchar byte_count, std::string &err) {
     // encoded by 3 bytes
     if ((byte_count) % 3) {
         err = "6 bit ascii text must be encoded in groups of 3 bytes";
@@ -300,7 +300,7 @@ decode_ascii6bit(std::string &text, biterator &inb, uchar byte_count, std::strin
 }
 
 bool
-decode_unicode(std::string &text, biterator &inb, uchar byte_count, std::string &err) {
+decode_unicode(std::string &text, ibytes &inb, uchar byte_count, std::string &err) {
     UNUSED(err);
 
     bytes bs;
@@ -313,7 +313,7 @@ decode_unicode(std::string &text, biterator &inb, uchar byte_count, std::string 
 }
 
 bool
-decode(std::string &text, Encoding &enc, biterator &inb, biterator end, std::string &err) {
+decode(std::string &text, Encoding &enc, ibytes &inb, ibytes end, std::string &err) {
     std::string str;
     uchar       byte_count = 0;
 

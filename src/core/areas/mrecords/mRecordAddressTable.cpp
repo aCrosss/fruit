@@ -76,10 +76,7 @@ MRecordAddressTable::tryParseTableEntryImpl(T v, TableEntry &te, Errs &errs) {
 }
 
 bool
-MRecordAddressTable::tryParseTableEntry(biterator  &begin,
-                                        biterator   end,
-                                        TableEntry &te,
-                                        Errs       &errs) {
+MRecordAddressTable::tryParseTableEntry(ibytes &begin, ibytes end, TableEntry &te, Errs &errs) {
     OUT_OF_BOUNDS_GUARD_OFFSET("entries", ENTRY_BYTE_LEN)
 
     te.hardware_address = DR_BYTE(begin + 0);
@@ -141,11 +138,11 @@ MRecordAddressTable::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-MRecordAddressTable::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+MRecordAddressTable::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     // + entry count byte
     OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + SHELF_ADDR_STR_FIXED_LEN_WTLB + 1)
 
-    biterator b = begin + PICMG_HEADER_LEN;
+    ibytes b = begin + PICMG_HEADER_LEN;
     if (!tryDecodeStr(b, end, "shelf_address", shelf_address, errs)) {
         return false;
     }

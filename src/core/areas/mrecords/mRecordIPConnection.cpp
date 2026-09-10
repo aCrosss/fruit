@@ -45,7 +45,7 @@ MRecordIPConnection::getLength() {
 }
 
 void
-MRecordIPConnection::bytesToIP(biterator begin, IP &ip) {
+MRecordIPConnection::bytesToIP(ibytes begin, IP &ip) {
     ip.raw[0] = DR_BYTE(begin + 0);
     ip.raw[1] = DR_BYTE(begin + 1);
     ip.raw[2] = DR_BYTE(begin + 2);
@@ -145,7 +145,7 @@ MRecordIPConnection::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-MRecordIPConnection::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+MRecordIPConnection::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + IP_BYTE_LEN * 3)
 
     begin += PICMG_HEADER_LEN;

@@ -113,11 +113,11 @@ AreaChassis::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-AreaChassis::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+AreaChassis::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     UNUSED(end);
     clear();
 
-    biterator beg = begin;
+    ibytes beg = begin;
 
     // get area length byte at index 1
     uchar length = IPMI_TO_REAL_LEN(static_cast<uchar>(*(++begin)));

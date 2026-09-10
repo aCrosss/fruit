@@ -110,8 +110,8 @@ MRecordActivationAndPowerMng::tryParseDescrImpl(T v, ActivationAndPwrDescr &d, E
 }
 
 bool
-MRecordActivationAndPowerMng::tryParseDescr(biterator             &begin,
-                                            biterator              end,
+MRecordActivationAndPowerMng::tryParseDescr(ibytes                &begin,
+                                            ibytes                 end,
                                             ActivationAndPwrDescr &d,
                                             Errs                  &errs) {
     OUT_OF_BOUNDS_GUARD_OFFSET("entries", DESCRIPTOR_BYTE_LEN)
@@ -198,7 +198,7 @@ MRecordActivationAndPowerMng::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-MRecordActivationAndPowerMng::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+MRecordActivationAndPowerMng::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     // + allowance + entry count
     OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + 2)
 

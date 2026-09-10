@@ -13,7 +13,7 @@
 //    ########  #######   ######  ##     ## ########
 
 inline void
-MRecordPowerDistribuiton::bytesToFloat(biterator b, float &out) {
+MRecordPowerDistribuiton::bytesToFloat(ibytes b, float &out) {
     int v = static_cast<int>(b[0]) | static_cast<int>(b[1]) << 8;
     out   = static_cast<float>(v) / 10;
 }
@@ -148,10 +148,7 @@ MRecordPowerDistribuiton::tryParsePowerFeedsImpl(T v, Map &m, Errs &errs) {
 }
 
 bool
-MRecordPowerDistribuiton::tryParsePowerFeeds(biterator &begin,
-                                             biterator  end,
-                                             Map       &m,
-                                             Errs      &errs) {
+MRecordPowerDistribuiton::tryParsePowerFeeds(ibytes &begin, ibytes end, Map &m, Errs &errs) {
     OUT_OF_BOUNDS_GUARD_OFFSET("power_feeds", POWER_FEED_BASE_BYTE_LEN)
 
     bytesToFloat(begin + 0, m.max_external_current);
@@ -254,7 +251,7 @@ MRecordPowerDistribuiton::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-MRecordPowerDistribuiton::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+MRecordPowerDistribuiton::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     // + feeds_count byte
     OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + 1)
 

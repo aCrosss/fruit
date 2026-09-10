@@ -113,7 +113,7 @@ AreaCommonHeader::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-AreaCommonHeader::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+AreaCommonHeader::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     UNUSED(end);
 
     clear();

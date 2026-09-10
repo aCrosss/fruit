@@ -65,12 +65,11 @@ class Section {
     bool        present;
 
     bool tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs);
-    bool
-    tryDecodeStr(biterator &inb, biterator end, std::string ftag, encodedStr &str, Errs &errs);
+    bool tryDecodeStr(ibytes &inb, ibytes end, std::string ftag, encodedStr &str, Errs &errs);
 
     std::byte calcZeroChecksum(bytes bs);
-    std::byte calcZeroChecksum(biterator begin, biterator end);
-    bool      checkChecksums(biterator cs1p, biterator cs2beg, biterator cs2end, Errs &errs);
+    std::byte calcZeroChecksum(ibytes begin, ibytes end);
+    bool      checkChecksums(ibytes cs1p, ibytes cs2beg, ibytes cs2end, Errs &errs);
 
     bool tryParseField_bool(json j, std::string ftag, bool &val, Errs &errs);
     bool tryParseField_bool(toml::value t, std::string ftag, bool &val, Errs &errs);
@@ -116,9 +115,9 @@ class Section {
     virtual void  clear()     = 0;
     virtual uchar getLength() = 0;
 
-    virtual bool tryParse(nlohmann::json j, Errs &errs)                     = 0;
-    virtual bool tryParse(toml::value &t, Errs &errs)                       = 0;
-    virtual bool tryParseBinary(biterator begin, biterator end, Errs &errs) = 0;
+    virtual bool tryParse(nlohmann::json j, Errs &errs)               = 0;
+    virtual bool tryParse(toml::value &t, Errs &errs)                 = 0;
+    virtual bool tryParseBinary(ibytes begin, ibytes end, Errs &errs) = 0;
 
     virtual void emitJSON(nlohmann::json &j)            = 0;
     virtual void emitTOML(toml::table &t)               = 0;

@@ -32,7 +32,7 @@ typedef unsigned int   uint;
 typedef unsigned long  ulong;
 
 typedef std::vector<std::byte>   bytes;
-typedef bytes::iterator          biterator;
+typedef bytes::iterator          ibytes;
 typedef std::vector<std::string> svector;
 
 enum ValType {

@@ -119,8 +119,8 @@ MRecordRadialIPMB0Topology::tryParseLinkMappingImpl(T v, MappingEntry &me, Errs 
 }
 
 bool
-MRecordRadialIPMB0Topology::tryParseLinkMapping(biterator    &begin,
-                                                biterator     end,
+MRecordRadialIPMB0Topology::tryParseLinkMapping(ibytes       &begin,
+                                                ibytes        end,
                                                 MappingEntry &me,
                                                 Errs         &errs) {
     OUT_OF_BOUNDS_GUARD_OFFSET("link_mappings", LINK_MAPPING_BYTE_LEN)
@@ -209,8 +209,8 @@ MRecordRadialIPMB0Topology::tryParseHubDescriptorImpl(T v, HubDescriptor &hd, Er
 }
 
 bool
-MRecordRadialIPMB0Topology::tryParseHubDescriptor(biterator     &begin,
-                                                  biterator      end,
+MRecordRadialIPMB0Topology::tryParseHubDescriptor(ibytes        &begin,
+                                                  ibytes         end,
                                                   HubDescriptor &hd,
                                                   Errs          &errs) {
     OUT_OF_BOUNDS_GUARD_OFFSET("hub_descriptors", HUB_DESCRIPTOR_BASE_BYTE_LEN)
@@ -337,7 +337,7 @@ MRecordRadialIPMB0Topology::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-MRecordRadialIPMB0Topology::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+MRecordRadialIPMB0Topology::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     OUT_OF_BOUNDS_GUARD_OFFSET("common", CONST_BYTE_LEN)
 
     begin += PICMG_HEADER_LEN;

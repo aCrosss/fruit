@@ -43,7 +43,7 @@ class MRecordRadialIPMB0Topology : public MRecordBase {
 
     template <typename T>
     bool tryParseLinkMappingImpl(T v, MappingEntry &hd, Errs &errs);
-    bool tryParseLinkMapping(biterator &begin, biterator end, MappingEntry &hd, Errs &errs);
+    bool tryParseLinkMapping(ibytes &begin, ibytes end, MappingEntry &hd, Errs &errs);
 
     void emitLinkMapping(nlohmann::json &j, MappingEntry &hd);
     void emitLinkMapping(toml::table &t, MappingEntry &hd);
@@ -61,7 +61,7 @@ class MRecordRadialIPMB0Topology : public MRecordBase {
 
     template <typename T>
     bool tryParseHubDescriptorImpl(T v, HubDescriptor &hd, Errs &errs);
-    bool tryParseHubDescriptor(biterator &begin, biterator end, HubDescriptor &hd, Errs &errs);
+    bool tryParseHubDescriptor(ibytes &begin, ibytes end, HubDescriptor &hd, Errs &errs);
 
     void emitHubDescriptor(nlohmann::json &j, HubDescriptor &hd);
     void emitHubDescriptor(toml::table &t, HubDescriptor &hd);
@@ -77,7 +77,7 @@ class MRecordRadialIPMB0Topology : public MRecordBase {
     bool tryParseImpl(T v, Errs &errs);
     bool tryParse(nlohmann::json j, Errs &errs) override;
     bool tryParse(toml::value &t, Errs &errs) override;
-    bool tryParseBinary(biterator begin, biterator end, Errs &errs) override;
+    bool tryParseBinary(ibytes begin, ibytes end, Errs &errs) override;
 
     void emitJSON(nlohmann::json &j) override;
     void emitTOML(toml::table &t) override;

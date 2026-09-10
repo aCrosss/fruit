@@ -47,9 +47,9 @@ class MRecordBase : public Section {
   public:
     uchar getLength() override = 0;
 
-    bool tryParse(nlohmann::json j, Errs &errs) override                     = 0;
-    bool tryParse(toml::value &t, Errs &errs) override                       = 0;
-    bool tryParseBinary(biterator begin, biterator end, Errs &errs) override = 0;
+    bool tryParse(nlohmann::json j, Errs &errs) override               = 0;
+    bool tryParse(toml::value &t, Errs &errs) override                 = 0;
+    bool tryParseBinary(ibytes begin, ibytes end, Errs &errs) override = 0;
 
     void         emitJSON(nlohmann::json &j) override             = 0;
     void         emitTOML(toml::table &t) override                = 0;

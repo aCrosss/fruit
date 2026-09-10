@@ -22,7 +22,7 @@ class MRecordAddressTable : public MRecordBase {
 
     template <typename T>
     bool tryParseTableEntryImpl(T v, TableEntry &sd, Errs &errs);
-    bool tryParseTableEntry(biterator &begin, biterator end, TableEntry &sd, Errs &errs);
+    bool tryParseTableEntry(ibytes &begin, ibytes end, TableEntry &sd, Errs &errs);
 
   public:
     uchar getLength() override;
@@ -31,7 +31,7 @@ class MRecordAddressTable : public MRecordBase {
     bool tryParseImpl(T v, Errs &errs);
     bool tryParse(nlohmann::json j, Errs &errs) override;
     bool tryParse(toml::value &t, Errs &errs) override;
-    bool tryParseBinary(biterator begin, biterator end, Errs &errs) override;
+    bool tryParseBinary(ibytes begin, ibytes end, Errs &errs) override;
 
     void emitJSON(nlohmann::json &j) override;
     void emitTOML(toml::table &t) override;

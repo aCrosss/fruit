@@ -48,8 +48,7 @@ Section::tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs)
 //@param &str out encoded string
 //@param Err class object for errors output
 bool
-Section::tryDecodeStr(
-    biterator &inb, biterator end, std::string ftag, encodedStr &str, Errs &errs) {
+Section::tryDecodeStr(ibytes &inb, ibytes end, std::string ftag, encodedStr &str, Errs &errs) {
     std::string err;
 
     if (!decode(str.str, str.enc, inb, end, err)) {
@@ -76,10 +75,10 @@ Section::calcZeroChecksum(bytes bs) {
 }
 
 std::byte
-Section::calcZeroChecksum(biterator begin, biterator end) {
+Section::calcZeroChecksum(ibytes begin, ibytes end) {
     uchar sum = 0;
 
-    for (biterator it = begin; it <= end; it++) {
+    for (ibytes it = begin; it <= end; it++) {
         sum += static_cast<uchar>(*it);
     }
 
@@ -91,7 +90,7 @@ Section::calcZeroChecksum(biterator begin, biterator end) {
 }
 
 bool
-Section::checkChecksums(biterator cs1p, biterator cs2beg, biterator cs2end, Errs &errs) {
+Section::checkChecksums(ibytes cs1p, ibytes cs2beg, ibytes cs2end, Errs &errs) {
     uchar checksum     = static_cast<uchar>(*(cs1p));
     uchar checksum_rec = static_cast<uchar>(calcZeroChecksum(cs2beg, cs2end));
     if (checksum != checksum_rec) {

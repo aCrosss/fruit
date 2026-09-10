@@ -78,7 +78,7 @@ AreaInternalUse::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-AreaInternalUse::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+AreaInternalUse::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     if (begin >= end) {
         errs.append(tag, "data", "out of bounds");
         return false;

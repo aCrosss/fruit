@@ -11,7 +11,7 @@ class MRecordIPConnection : public MRecordBase {
         uchar     raw[IP_BYTE_LEN];
     };
 
-    void bytesToIP(biterator begin, IP &ip);
+    void bytesToIP(ibytes begin, IP &ip);
     bool strToIP(std::string s, IP &ip, std::string &err);
     void IPtoStr(IP ip, std::string &out);
 
@@ -29,7 +29,7 @@ class MRecordIPConnection : public MRecordBase {
     bool tryParseImpl(T v, Errs &errs);
     bool tryParse(nlohmann::json j, Errs &errs) override;
     bool tryParse(toml::value &t, Errs &errs) override;
-    bool tryParseBinary(biterator begin, biterator end, Errs &errs) override;
+    bool tryParseBinary(ibytes begin, ibytes end, Errs &errs) override;
 
     void emitJSON(nlohmann::json &j) override;
     void emitTOML(toml::table &t) override;

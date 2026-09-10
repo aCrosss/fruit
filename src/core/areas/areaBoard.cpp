@@ -17,7 +17,7 @@
 //@param &err output error
 //@return minutes from 00:00 01-01-1996 or -1 on error
 int
-parseDateTime(biterator dtb, std::string &err) {
+parseDateTime(ibytes dtb, std::string &err) {
     UNUSED(err);
 
     int dtime = 0;
@@ -201,10 +201,10 @@ AreaBoard::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-AreaBoard::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+AreaBoard::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     clear();
 
-    biterator beg = begin;
+    ibytes beg = begin;
 
     // get area length byte at index 1
     uchar length = IPMI_TO_REAL_LEN(static_cast<uchar>(*(++begin)));

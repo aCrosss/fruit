@@ -14,7 +14,7 @@ class MRecordPowerDistribuiton : public MRecordBase {
     void debug_printOutVals();
     void clear() override;
 
-    void bytesToFloat(biterator b, float &out);
+    void bytesToFloat(ibytes b, float &out);
     void floatToBytes(float f, bytes &out);
 
     struct MapEntry {
@@ -32,7 +32,7 @@ class MRecordPowerDistribuiton : public MRecordBase {
 
     template <typename T>
     bool tryParsePowerFeedsImpl(T v, Map &m, Errs &errs);
-    bool tryParsePowerFeeds(biterator &begin, biterator end, Map &m, Errs &errs);
+    bool tryParsePowerFeeds(ibytes &begin, ibytes end, Map &m, Errs &errs);
 
     void emitPowerFeed(bytes &out_bin, Map &power_feed);
 
@@ -45,7 +45,7 @@ class MRecordPowerDistribuiton : public MRecordBase {
     bool tryParseImpl(T v, Errs &errs);
     bool tryParse(nlohmann::json j, Errs &errs) override;
     bool tryParse(toml::value &t, Errs &errs) override;
-    bool tryParseBinary(biterator begin, biterator end, Errs &errs) override;
+    bool tryParseBinary(ibytes begin, ibytes end, Errs &errs) override;
 
     void emitJSON(nlohmann::json &j) override;
     void emitTOML(toml::table &t) override;

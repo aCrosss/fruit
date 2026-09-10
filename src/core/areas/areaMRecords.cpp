@@ -58,7 +58,7 @@ AreaMRecords::getLength() {
 //    ##     ## ########  ######   #######  ##     ## ########   ######
 
 bool
-AreaMRecords::validateMRecordHeader(biterator begin, Errs &errs) {
+AreaMRecords::validateMRecordHeader(ibytes begin, Errs &errs) {
     int  record_id       = DR_INT(begin);
     int  byte9           = DR_INT(begin + 8);
     bool is_PICMG_record = record_id == MRECORD_PICMG_RECORD;
@@ -85,8 +85,8 @@ AreaMRecords::validateMRecordHeader(biterator begin, Errs &errs) {
         t << "multirecord(id=" << record_id << ")";
     }
 
-    biterator header_cs  = begin + HDR_OFFSET_HDR_CS;
-    biterator payload_cs = begin + HDR_OFFSET_PLD_CS;
+    ibytes header_cs  = begin + HDR_OFFSET_HDR_CS;
+    ibytes payload_cs = begin + HDR_OFFSET_PLD_CS;
 
     if (!checkChecksums(header_cs, begin, begin + HDR_OFFSET_PLD_CS, errs)) {
         std::stringstream s;
@@ -95,8 +95,8 @@ AreaMRecords::validateMRecordHeader(biterator begin, Errs &errs) {
         return false;
     }
 
-    biterator data_begin = begin + IPMI_HEADER_LEN;
-    biterator data_end   = begin + record_len - 1;
+    ibytes data_begin = begin + IPMI_HEADER_LEN;
+    ibytes data_end   = begin + record_len - 1;
 
     if (!checkChecksums(payload_cs, data_begin, data_end, errs)) {
         std::stringstream s;
@@ -241,7 +241,7 @@ AreaMRecords::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-AreaMRecords::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+AreaMRecords::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     clear();
 
     while (true) {
@@ -254,8 +254,8 @@ AreaMRecords::tryParseBinary(biterator begin, biterator end, Errs &errs) {
             return false;
         }
 
-        size_t    rlen       = DR_INT(begin + HDR_OFFSET_LEN);
-        biterator record_end = begin + rlen;
+        size_t rlen       = DR_INT(begin + HDR_OFFSET_LEN);
+        ibytes record_end = begin + rlen;
         if (!record->tryParseBinary(begin, record_end, errs)) {
             return false;
         }

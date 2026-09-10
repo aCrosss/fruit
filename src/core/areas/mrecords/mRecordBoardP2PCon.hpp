@@ -40,7 +40,7 @@ class MRecordBoardP2PCon : public MRecordBase {
 
     template <typename T>
     bool tryParseLDescriptor(T v, LinkDescriptor &ld, Errs &errs);
-    bool tryParseLDescriptor(biterator begin, LinkDescriptor &ld, Errs &errs);
+    bool tryParseLDescriptor(ibytes begin, LinkDescriptor &ld, Errs &errs);
     void emitLDescriptor(nlohmann::json &j, LinkDescriptor &ld);
     void emitLDescriptor(toml::table &t, LinkDescriptor &ld);
     void emitLDescriptor(bytes &out_bin, LinkDescriptor &ld);
@@ -54,7 +54,7 @@ class MRecordBoardP2PCon : public MRecordBase {
     bool tryParseImpl(T v, Errs &errs);
     bool tryParse(nlohmann::json j, Errs &errs) override;
     bool tryParse(toml::value &t, Errs &errs) override;
-    bool tryParseBinary(biterator begin, biterator end, Errs &errs) override;
+    bool tryParseBinary(ibytes begin, ibytes end, Errs &errs) override;
 
     void emitJSON(nlohmann::json &j) override;
     void emitTOML(toml::table &t) override;

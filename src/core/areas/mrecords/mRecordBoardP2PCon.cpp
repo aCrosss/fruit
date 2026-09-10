@@ -149,7 +149,7 @@ MRecordBoardP2PCon::tryParseLDescriptor(T v, LinkDescriptor &ld, Errs &errs) {
 }
 
 bool
-MRecordBoardP2PCon::tryParseLDescriptor(biterator begin, LinkDescriptor &ld, Errs &errs) {
+MRecordBoardP2PCon::tryParseLDescriptor(ibytes begin, LinkDescriptor &ld, Errs &errs) {
     UNUSED(errs);
 
     // lsb first
@@ -361,7 +361,7 @@ MRecordBoardP2PCon::tryParse(toml::value &t, Errs &errs) {
 }
 
 bool
-MRecordBoardP2PCon::tryParseBinary(biterator begin, biterator end, Errs &errs) {
+MRecordBoardP2PCon::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     begin += PICMG_HEADER_LEN;
 
     uchar count = DR_BYTE(begin++);
