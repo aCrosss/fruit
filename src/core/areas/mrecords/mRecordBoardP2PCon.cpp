@@ -257,7 +257,7 @@ MRecordBoardP2PCon::emitLDescriptor(bytes &out_bin, LinkDescriptor &ld) {
 bool
 MRecordBoardP2PCon::strToGUID(std::string s, bytes &guid, std::string err) {
     // guid - 16 bytes - 32 chars w/o '-' symbols at minimum
-    if (s.length() < 32) {
+    if (s.length() < GUID_BYTE_LEN * 2) {
         err = "not enough hex symbols in GUID string";
         return false;
     }
@@ -266,7 +266,7 @@ MRecordBoardP2PCon::strToGUID(std::string s, bytes &guid, std::string err) {
         return false;
     }
 
-    if (guid.size() != 16) {
+    if (guid.size() != GUID_BYTE_LEN) {
         err = "not enough bytes in GUID";
         return false;
     }
@@ -347,7 +347,6 @@ MRecordBoardP2PCon::tryParseImpl(T v, Errs &errs) {
     }
 
     debug_printOutVals();
-    // present = true;
     return valid;
 }
 
@@ -368,27 +367,32 @@ MRecordBoardP2PCon::tryParseBinary(biterator begin, biterator end, Errs &errs) {
     uchar count = DR_BYTE(begin++);
     for (uchar i = 0; i < count; i++) {
         bytes guid;
-        guid.insert(guid.begin(), begin, begin + 16);
+
+        OUT_OF_BOUNDS_GUARD_OFFSET("guids", GUID_BYTE_LEN);
+        guid.insert(guid.begin(), begin, begin + GUID_BYTE_LEN);
         guids.push_back(guid);
-        begin += 16;
+
+        begin += GUID_BYTE_LEN;
+        OUT_OF_BOUNDS_GUARD("guids")
     }
 
     count = end - begin;
-    if (count % 4 != 0) {
+    if (count % LINK_DESCR_BYTE_LEN != 0) {
         errs.append(
             tag,
-            "common",
-            "leftover bytes count not multiple of 4: can't divide into link descriptors");
+            "link_descriptors",
+            "leftover bytes count is not multiple of 4: can't divide into link descriptors");
         return false;
     }
 
-    for (uchar i = 0; i < count / 4; i++) {
+    for (uchar i = 0; i < count / LINK_DESCR_BYTE_LEN; i++) {
         LinkDescriptor ld;
         if (!tryParseLDescriptor(begin, ld, errs)) {
             return false;
         }
 
-        begin += 4;
+        begin += LINK_DESCR_BYTE_LEN;
+        OUT_OF_BOUNDS_GUARD("link_descriptors")
         link_descriptors.push_back(ld);
     }
 

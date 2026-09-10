@@ -4,6 +4,9 @@
 
 class MRecordBoardP2PCon : public MRecordBase {
   private:
+    const size_t GUID_BYTE_LEN       = 16;
+    const size_t LINK_DESCR_BYTE_LEN = 4;
+
     void debug_printOutVals();
     void clear() override;
 
