@@ -310,8 +310,6 @@ FieldArr::FieldArr(std::string  tag,
 
     container.add(array_container);
     container.reorder_child(array_container, 1);
-
-    appendEntry();
 }
 
 FieldArr::~FieldArr() {
