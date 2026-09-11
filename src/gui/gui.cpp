@@ -23,10 +23,6 @@
 #include "manager.hpp"
 #include "types.hpp"
 
-#ifdef DGUI_EXTERNAL
-#    define UI_FILE "iface.ui"
-#endif
-
 #define RES_PATH "/org/akber-soft/fruit"
 #define UI_PATH  RES_PATH "/iface.ui"
 
@@ -565,11 +561,7 @@ void
 on_app_activate() {
     auto refBuilder = Gtk::Builder::create();
     try {
-#ifdef DGUI_EXTERNAL
-        refBuilder->add_from_file(UI_FILE);
-#else
         refBuilder->add_from_resource(UI_PATH);
-#endif
     } catch (...) { return; }
 
     // load make window and make it visible

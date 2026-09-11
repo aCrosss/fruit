@@ -19,7 +19,6 @@ INCLUDES := -I$(SRC_DIR) -I$(CORE_DIR) -I$(GUI_DIR) -I$(CLI_DIR)
 # Output binary
 CLI_BIN := $(BIN_DIR)/fruit-cli
 GUI_BIN := $(BIN_DIR)/fruit-gui
-GUI_EXT_BIN := $(BIN_DIR)/fruit-gui-external
 
 # Libs flags
 GTKMM_FLAGS := $(shell pkg-config --cflags --libs gtkmm-3.0)
@@ -47,7 +46,7 @@ GUI_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(GUI_SRCS))
 GRES_SRC := $(GUI_DIR)/gres.c
 GRES_OBJ := $(BUILD_DIR)/gui/gres.o
 
-.PHONY: all cli gui gui_external clean remove_res
+.PHONY: all cli gui clean remove_res
 
 all: cli gui
 
@@ -64,15 +63,6 @@ gui: $(GUI_BIN)
 $(GUI_BIN):  $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GUI_AREAS_OBJS) $(GRES_OBJ)
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS)
-
-# Build GUI external
-gui_external: $(GUI_EXT_BIN)
-
-$(GUI_EXT_BIN): CXXFLAGS += -DGUI_EXTERNAL
-$(GUI_EXT_BIN): $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GUI_AREAS_OBJS) $(GRES_OBJ)
-	@mkdir -p $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS)
-	@cp $(GUI_DIR)/iface.ui $(BIN_DIR)/iface.ui
 
 # Compile resource file
 $(GRES_SRC): $(GUI_DIR)/gres.xml
