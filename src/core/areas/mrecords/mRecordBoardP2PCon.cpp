@@ -1,4 +1,6 @@
 #include "mRecordBoardP2PCon.hpp"
+#include "mROutBuff.hpp"
+#include "types.hpp"
 
 //    ##        #######   ######     ###    ##
 //    ##       ##     ## ##    ##   ## ##   ##
@@ -225,7 +227,7 @@ MRecordBoardP2PCon::emitLDescriptor(bytes &out_bin, LinkDescriptor &ld) {
     int b  = 0;
     b     |= ld.ch_number & MASK_5b;
     b     |= (static_cast<int>(ld.iface) & MASK_2b) << 6;
-    out_bin.emplace_back(std::byte{static_cast<uchar>(b)});
+    out_bin.emplace_back(BYTE_CAST(b));
     // first byte out
 
     b  = 0;
@@ -234,13 +236,13 @@ MRecordBoardP2PCon::emitLDescriptor(bytes &out_bin, LinkDescriptor &ld) {
     b |= (static_cast<int>(ld.port_2) & MASK_1b) << 2;
     b |= (static_cast<int>(ld.port_3) & MASK_1b) << 3;
     b |= (ld.link_type & MASK_4b) << 4;
-    out_bin.emplace_back(std::byte{static_cast<uchar>(b)});
+    out_bin.emplace_back(BYTE_CAST(b));
     // second byte out
 
     b  = 0;
     b |= (ld.link_type >> 4) & MASK_4b;
     b |= (ld.link_type_extension & MASK_4b) << 4;
-    out_bin.emplace_back(std::byte{static_cast<uchar>(b)});
+    out_bin.emplace_back(BYTE_CAST(b));
     // third byte out
 
     out_bin.emplace_back(std::byte{ld.link_grouping_id});
@@ -458,27 +460,34 @@ bool
 MRecordBoardP2PCon::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     UNUSED(errs);
 
-    bytes header;
-    bytes payload;
+    bytes picmg_header;
+    prependPICMGHeader(picmg_header);
 
-    prependPICMGHeader(payload);
+    MROutBuff buff(record_id, eol);
+    buff.appendConst(picmg_header);
+    // guid counter: all guids will fit in first record so every counter after that is 0
+    buff.appendConst(ZERO_BYTE);
 
-    payload.emplace_back(std::byte{static_cast<uchar>(guids.size())});
-    for (auto &&i : guids) {
-        APPEND_BYTES(payload, i);
+    if (!guids.empty()) {
+        bytes tmpguid;
+        tmpguid.reserve(GUID_BYTE_LEN * guids.size() + 1);
+
+        tmpguid.emplace_back(BYTE_CAST(guids.size()));
+        for (auto &&i : guids) {
+            APPEND_BYTES(tmpguid, i);
+        }
+
+        // overwrite only guids counter byte
+        buff.overwriteConstOnce(tmpguid, 1);
     }
 
     for (auto &&i : link_descriptors) {
-        bytes bs;
-        emitLDescriptor(bs, i);
-        APPEND_BYTES(payload, bs);
+        bytes tmp;
+        emitLDescriptor(tmp, i);
+        buff.append(tmp);
     }
 
-    buildMRecordHeader(header, eol, payload);
-
-    APPEND_BYTES(out_bin, header);
-    APPEND_BYTES(out_bin, payload);
-
+    APPEND_BYTES(out_bin, buff.dump());
     return true;
 }
 
