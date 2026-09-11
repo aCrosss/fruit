@@ -69,3 +69,33 @@ parseDateTime(std::string dtime, std::string &err) {
     // return minutes
     return (seconds - SECONDS_AT_96) / 60;
 }
+
+std::byte
+calcZeroChecksum(bytes bs) {
+    uchar sum = 0;
+
+    for (auto &&b : bs) {
+        sum += static_cast<uchar>(b);
+    }
+
+    if (sum == 0) {
+        return std::byte{0};
+    } else {
+        return std::byte{static_cast<uchar>(256 - sum)};
+    }
+}
+
+std::byte
+calcZeroChecksum(ibytes begin, ibytes end) {
+    uchar sum = 0;
+
+    for (ibytes it = begin; it <= end; it++) {
+        sum += static_cast<uchar>(*it);
+    }
+
+    if (sum == 0) {
+        return std::byte{0};
+    } else {
+        return std::byte{static_cast<uchar>(256 - sum)};
+    }
+}

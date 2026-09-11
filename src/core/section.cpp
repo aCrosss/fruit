@@ -59,36 +59,6 @@ Section::tryDecodeStr(ibytes &inb, ibytes end, std::string ftag, encodedStr &str
     return true;
 }
 
-std::byte
-Section::calcZeroChecksum(bytes bs) {
-    uchar sum = 0;
-
-    for (auto &&b : bs) {
-        sum += static_cast<uchar>(b);
-    }
-
-    if (sum == 0) {
-        return std::byte{0};
-    } else {
-        return std::byte{static_cast<uchar>(256 - sum)};
-    }
-}
-
-std::byte
-Section::calcZeroChecksum(ibytes begin, ibytes end) {
-    uchar sum = 0;
-
-    for (ibytes it = begin; it <= end; it++) {
-        sum += static_cast<uchar>(*it);
-    }
-
-    if (sum == 0) {
-        return std::byte{0};
-    } else {
-        return std::byte{static_cast<uchar>(256 - sum)};
-    }
-}
-
 bool
 Section::checkChecksums(ibytes cs1p, ibytes cs2beg, ibytes cs2end, Errs &errs) {
     uchar checksum     = static_cast<uchar>(*(cs1p));

@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <variant>
 
+#include "common.hpp"
 #include "encoding.hpp"
 #include "errs.hpp"
 #include "json.hpp"
@@ -67,9 +68,7 @@ class Section {
     bool tryEncodeStr(std::string ftag, encodedStr str, bytes &outb, Errs &errs);
     bool tryDecodeStr(ibytes &inb, ibytes end, std::string ftag, encodedStr &str, Errs &errs);
 
-    std::byte calcZeroChecksum(bytes bs);
-    std::byte calcZeroChecksum(ibytes begin, ibytes end);
-    bool      checkChecksums(ibytes cs1p, ibytes cs2beg, ibytes cs2end, Errs &errs);
+    bool checkChecksums(ibytes cs1p, ibytes cs2beg, ibytes cs2end, Errs &errs);
 
     bool tryParseField_bool(json j, std::string ftag, bool &val, Errs &errs);
     bool tryParseField_bool(toml::value t, std::string ftag, bool &val, Errs &errs);
