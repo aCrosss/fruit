@@ -7,6 +7,7 @@ class MROutBuff {
     MRecID record_id;
     bool   eol;
 
+    bool   counting    = false;
     size_t counter_ind = 0;
     uchar  counter     = 0;
 

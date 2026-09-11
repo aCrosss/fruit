@@ -56,7 +56,7 @@ MROutBuff::emit(bool eol) {
         overwrite.clear();
     }
 
-    if (counter_ind != 0) {
+    if (counting) {
         auto counter_byte = &part_dynamic.data()[counter_ind];
         *counter_byte     = std::byte{counter};
     }
@@ -66,7 +66,7 @@ MROutBuff::emit(bool eol) {
     APPEND_BYTES(out, srdata)
 
     part_dynamic.clear();
-    if (counter_ind != 0) {
+    if (counting) {
         counter_ind = reserveCounter();
     }
 }
@@ -96,7 +96,7 @@ MROutBuff::append(std::byte b) {
     }
 
     part_dynamic.emplace_back(b);
-    if (counter_ind != 0) {
+    if (counting) {
         counter++;
     }
 }
@@ -108,7 +108,7 @@ MROutBuff::append(bytes bs) {
     }
 
     APPEND_BYTES(part_dynamic, bs);
-    if (counter_ind != 0) {
+    if (counting) {
         counter++;
     }
 }
@@ -127,6 +127,7 @@ MROutBuff::reserveCounter() {
     part_dynamic.emplace_back(std::byte{0});
     counter_ind = part_dynamic.size() - 1;
     counter     = 0;
+    counting    = true;
 
     return counter_ind;
 }
