@@ -474,8 +474,12 @@ void
 on_tree_selection_changed() {
     Glib::RefPtr<Gtk::TreeSelection> selection = nav_tree->get_selection();
     Gtk::TreeModel::iterator         iter      = selection->get_selected();
-    Gtk::TreeModel::Path             path(iter);
-    size_t                           row_number = static_cast<size_t>(path[0]);
+    if (!iter) {
+        return;
+    }
+
+    Gtk::TreeModel::Path path(iter);
+    size_t               row_number = static_cast<size_t>(path[0]);
 
     if (row_number == curent_area) {
         return;
