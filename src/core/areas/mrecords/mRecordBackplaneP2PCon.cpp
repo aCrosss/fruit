@@ -1,4 +1,5 @@
 #include "mRecordBackplaneP2PCon.hpp"
+#include "mROutBuff.hpp"
 #include "section.hpp"
 #include "types.hpp"
 
@@ -407,44 +408,19 @@ MRecordBackplaneP2PCon::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
         return true;
     }
 
-    bytes header;
-    bytes payload;
-    bytes tmp;
-    bytes tmppl;
+    bytes picmg_header;
+    prependPICMGHeader(picmg_header);
 
-    size_t i = 0;
+    MROutBuff buff(record_id, eol);
+    buff.appendConst(picmg_header);
 
-    while (i < slots.size()) {
-        // one full record: push into out_bin, prepend next one
-        if (payload.size() + tmp.size() + MRECORD_HEADER_LEN_IPMI >= MAX_AREA_LEN) {
-            prependPICMGHeader(payload);
-            APPEND_BYTES(payload, tmppl);
-
-            buildMRecordHeader(header, false, payload);
-            APPEND_BYTES(out_bin, header);
-            APPEND_BYTES(out_bin, payload);
-
-            header.clear();
-            payload.clear();
-            tmppl.clear();
-        }
-
-        APPEND_BYTES(tmppl, tmp);
-        tmp.clear();
-
-        emitSlotDescr(tmp, slots[i]);
-        i++;
+    for (auto &&i : slots) {
+        bytes tmp;
+        emitSlotDescr(tmp, i);
+        buff.append(tmp);
     }
 
-    APPEND_BYTES(tmppl, tmp);
-
-    prependPICMGHeader(payload);
-    APPEND_BYTES(payload, tmppl);
-
-    buildMRecordHeader(header, eol, payload);
-    APPEND_BYTES(out_bin, header);
-    APPEND_BYTES(out_bin, payload);
-
+    APPEND_BYTES(out_bin, buff.dump());
     return true;
 }
 

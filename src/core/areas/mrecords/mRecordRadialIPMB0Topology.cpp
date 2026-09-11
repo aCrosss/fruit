@@ -4,6 +4,7 @@
 #include <string>
 
 #include "encoding.hpp"
+#include "mROutBuff.hpp"
 #include "mRecordBase.hpp"
 #include "mRecordRadialIPMB0Topology.hpp"
 #include "types.hpp"
@@ -134,14 +135,14 @@ MRecordRadialIPMB0Topology::tryParseLinkMapping(ibytes       &begin,
 
 void
 MRecordRadialIPMB0Topology::emitLinkMapping(nlohmann::json &j, MappingEntry &me) {
-    j["local_channel"]  = me.hardware_address;
-    j["remote_channel"] = me.ipmb0_link_entry;
+    j["hardware_address"] = me.hardware_address;
+    j["ipmb0_link_entry"] = me.ipmb0_link_entry;
 }
 
 void
 MRecordRadialIPMB0Topology::emitLinkMapping(toml::table &t, MappingEntry &me) {
-    t["local_channel"]  = toml::value(me.hardware_address);
-    t["remote_channel"] = toml::value(me.ipmb0_link_entry);
+    t["hardware_address"] = toml::value(me.hardware_address);
+    t["ipmb0_link_entry"] = toml::value(me.ipmb0_link_entry);
 }
 
 void
@@ -342,12 +343,16 @@ MRecordRadialIPMB0Topology::tryParseBinary(ibytes begin, ibytes end, Errs &errs)
 
     begin += PICMG_HEADER_LEN;
 
-    connector_definer.push_back(std::byte{DR_BYTE(begin + 0)});
-    connector_definer.push_back(std::byte{DR_BYTE(begin + 1)});
-    connector_definer.push_back(std::byte{DR_BYTE(begin + 2)});
+    if (connector_definer.empty()) {
+        connector_definer.push_back(std::byte{DR_BYTE(begin + 0)});
+        connector_definer.push_back(std::byte{DR_BYTE(begin + 1)});
+        connector_definer.push_back(std::byte{DR_BYTE(begin + 2)});
+    }
 
-    connector_version_id.push_back(std::byte{DR_BYTE(begin + 3)});
-    connector_version_id.push_back(std::byte{DR_BYTE(begin + 4)});
+    if (connector_version_id.empty()) {
+        connector_version_id.push_back(std::byte{DR_BYTE(begin + 3)});
+        connector_version_id.push_back(std::byte{DR_BYTE(begin + 4)});
+    }
 
     uchar count  = DR_BYTE(begin + CONNECTOR_INFO_BYE_LEN);
     begin       += CONNECTOR_INFO_BYE_LEN + 1; /*+1 count byte*/
@@ -426,55 +431,24 @@ MRecordRadialIPMB0Topology::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
         return true;
     }
 
-    bytes header;
-    bytes payload;
-    bytes tmp;
-    bytes tmppl;
+    bytes picmg_header;
+    prependPICMGHeader(picmg_header);
 
-    size_t i         = 0;
-    uchar  out_count = 0; // count of power feed in current record
+    MROutBuff buff(record_id, eol);
+    buff.appendConst(picmg_header);
 
-    while (i < hub_descriptors.size()) {
-        // +5: 3 bytes of connector definer + 2 bytes of connector version id
-        size_t len = payload.size() + tmp.size() + MRECORD_HEADER_LEN_IPMI + 5;
-        if (len >= MAX_AREA_LEN) {
-            prependPICMGHeader(payload);
-            APPEND_BYTES(payload, connector_definer);
-            APPEND_BYTES(payload, connector_version_id);
-            payload.emplace_back(std::byte{static_cast<uchar>(out_count - 1)});
-            APPEND_BYTES(payload, tmppl);
+    buff.appendConst(connector_definer);
+    buff.appendConst(connector_version_id);
 
-            buildMRecordHeader(header, false, payload);
-            APPEND_BYTES(out_bin, header);
-            APPEND_BYTES(out_bin, payload);
+    buff.reserveCounter();
 
-            header.clear();
-            payload.clear();
-            tmppl.clear();
-            out_count = 1; // we still have one buffered
-        }
-
-        APPEND_BYTES(tmppl, tmp);
-        tmp.clear();
-
-        emitHubDescriptor(tmp, hub_descriptors[i]);
-        out_count++;
-        i++;
+    for (auto &&i : hub_descriptors) {
+        bytes tmp;
+        emitHubDescriptor(tmp, i);
+        buff.append(tmp);
     }
 
-    APPEND_BYTES(tmppl, tmp);
-    tmp.clear();
-
-    prependPICMGHeader(payload);
-    APPEND_BYTES(payload, connector_definer);
-    APPEND_BYTES(payload, connector_version_id);
-    payload.emplace_back(std::byte{out_count});
-    APPEND_BYTES(payload, tmppl);
-
-    buildMRecordHeader(header, eol, payload);
-    APPEND_BYTES(out_bin, header);
-    APPEND_BYTES(out_bin, payload);
-
+    APPEND_BYTES(out_bin, buff.dump());
     return true;
 }
 

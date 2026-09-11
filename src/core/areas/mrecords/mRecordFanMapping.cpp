@@ -1,4 +1,5 @@
 #include "mRecordFanMapping.hpp"
+#include "mROutBuff.hpp"
 
 //    ##        #######   ######     ###    ##
 //    ##       ##     ## ##    ##   ## ##   ##
@@ -217,50 +218,21 @@ MRecordFanMapping::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
         return true;
     }
 
-    bytes header;
-    bytes payload;
-    bytes tmp;
-    bytes tmppl;
+    bytes picmg_header;
+    prependPICMGHeader(picmg_header);
 
-    size_t i         = 0;
-    uchar  out_count = 0; // count of entries in current record
+    MROutBuff buff(record_id, eol);
+    buff.appendConst(picmg_header);
 
-    while (i < entries.size()) {
-        size_t len = tmp.size() + tmppl.size() + MRECORD_HEADER_LEN_PICMG + /*entry count*/ 1;
-        if (len >= MAX_AREA_LEN) {
-            prependPICMGHeader(payload);
-            payload.emplace_back(std::byte{static_cast<uchar>(out_count - 1)});
-            APPEND_BYTES(payload, tmppl);
+    buff.reserveCounter();
 
-            buildMRecordHeader(header, false, payload);
-            APPEND_BYTES(out_bin, header);
-            APPEND_BYTES(out_bin, payload);
-
-            header.clear();
-            payload.clear();
-            tmppl.clear();
-            out_count = 1; // we still have one buffered
-        }
-
-        APPEND_BYTES(tmppl, tmp);
-        tmp.clear();
-
-        emitEntry(tmp, entries[i]);
-        out_count++;
-        i++;
+    for (auto &&i : entries) {
+        bytes tmp;
+        emitEntry(tmp, i);
+        buff.append(tmp);
     }
 
-    APPEND_BYTES(tmppl, tmp);
-    tmp.clear();
-
-    prependPICMGHeader(payload);
-    payload.emplace_back(std::byte{out_count});
-    APPEND_BYTES(payload, tmppl);
-
-    buildMRecordHeader(header, eol, payload);
-    APPEND_BYTES(out_bin, header);
-    APPEND_BYTES(out_bin, payload);
-
+    APPEND_BYTES(out_bin, buff.dump());
     return true;
 }
 
