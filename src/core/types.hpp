@@ -6,6 +6,9 @@
 
 #define UNUSED(x) (void)(x)
 
+#define BYTE_CAST(b) (std::byte{static_cast<uchar>(b)})
+
+#define ZERO_BYTE                   (std::byte{0})
 // 7:4 - reserved, written as 0000b
 // 0:3 - format version number = 1h
 #define DEFAULT_SECTION_HEADER_BYTE std::byte{0x01}
