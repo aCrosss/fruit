@@ -39,7 +39,7 @@ MROutBuff::shouldEmmit(size_t appended_len) {
 }
 
 void
-MROutBuff::emit(bool eol) {
+MROutBuff::emit(bool eol, bool last_part) {
     bytes srdata;
 
     APPEND_BYTES(srdata, part_const);
@@ -66,7 +66,7 @@ MROutBuff::emit(bool eol) {
     APPEND_BYTES(out, srdata)
 
     part_dynamic.clear();
-    if (counting) {
+    if (counting && !last_part) {
         counter_ind = reserveCounter();
     }
 }
@@ -78,6 +78,10 @@ MROutBuff::appendConst(std::byte b) {
 
 void
 MROutBuff::appendConst(bytes bs) {
+    if (bs.empty()) {
+        throw "MROutBuff: trying to append empty byte vector at const part";
+    }
+
     APPEND_BYTES(part_const, bs);
 }
 
@@ -92,7 +96,7 @@ MROutBuff::overwriteConstOnce(bytes overwrite, uchar overwrite_offset) {
 void
 MROutBuff::append(std::byte b) {
     if (shouldEmmit(1)) {
-        emit(false);
+        emit(false, false);
     }
 
     part_dynamic.emplace_back(b);
@@ -103,8 +107,12 @@ MROutBuff::append(std::byte b) {
 
 void
 MROutBuff::append(bytes bs) {
+    if (bs.empty()) {
+        throw "MROutBuff: trying to append empty byte vector at dynamic part";
+    }
+
     if (shouldEmmit(bs.size())) {
-        emit(false);
+        emit(false, false);
     }
 
     APPEND_BYTES(part_dynamic, bs);
@@ -116,7 +124,11 @@ MROutBuff::append(bytes bs) {
 bytes &
 MROutBuff::dump() {
     if (!part_dynamic.empty()) {
-        emit(eol);
+        emit(eol, true);
+    }
+
+    if (out.empty()) {
+        throw "MROutBuff: trying to dump empty out byte vector";
     }
 
     return out;

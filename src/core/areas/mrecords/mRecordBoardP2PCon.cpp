@@ -1,6 +1,8 @@
 #include "mRecordBoardP2PCon.hpp"
+#include "encoding.hpp"
 #include "mROutBuff.hpp"
 #include "types.hpp"
+#include <string>
 
 //    ##        #######   ######     ###    ##
 //    ##       ##     ## ##    ##   ## ##   ##
@@ -459,6 +461,10 @@ MRecordBoardP2PCon::emitTOML(toml::table &t) {
 bool
 MRecordBoardP2PCon::emitBinary(bytes &out_bin, bool eol, Errs &errs) {
     UNUSED(errs);
+
+    if (link_descriptors.empty()) {
+        return true;
+    }
 
     bytes picmg_header;
     prependPICMGHeader(picmg_header);

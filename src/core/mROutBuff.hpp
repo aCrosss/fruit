@@ -21,7 +21,7 @@ class MROutBuff {
 
     void buildMRecordHeader(bool eol, bytes &data);
     bool shouldEmmit(size_t appended_len);
-    void emit(bool eol);
+    void emit(bool eol, bool last_part);
 
   public:
     void appendConst(std::byte b);
