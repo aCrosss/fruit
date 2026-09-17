@@ -31,6 +31,11 @@ validate_ip(std::string ip, std::string &err) {
     char dot;
     int  bs[4];
 
+    if (std::count(ip.begin(), ip.end(), '.') != 3) {
+        err = "ip must be in [0-255].[0-255].[0-255].[0-255] format";
+        return false;
+    }
+
     std::istringstream iss(ip);
     if (iss >> bs[0] >> dot >> bs[1] >> dot >> bs[2] >> dot >> bs[3]) {
         for (size_t i = 0; i < 4; i++) {
