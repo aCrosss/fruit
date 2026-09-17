@@ -19,9 +19,18 @@ INCLUDES := -I$(SRC_DIR) -I$(CORE_DIR) -I$(GUI_DIR) -I$(CLI_DIR)
 # Output binary
 CLI_BIN := $(BIN_DIR)/fruit-cli
 GUI_BIN := $(BIN_DIR)/fruit-gui
+GUI_STATIC_BIN := $(BIN_DIR)/fruit-gui-static
+
+STATIC_LIB_DIR := static_libs/
+GTKMM_STATIC_LIBS := -L$(STATIC_LIB_DIR) \
+	-lgtkmm-3.0 -lgdkmm-3.0 -latkmm-1.6 -lcairomm-1.0 -lpangomm-1.4
 
 # Libs flags
 GTKMM_FLAGS := $(shell pkg-config --cflags --libs gtkmm-3.0)
+# Libs static flags
+GTKMM_STATIC_FLAGS := -L$(STATIC_LIB_DIR) -Wl,-Bstatic $(GTKMM_STATIC_LIBS) -Wl,-Bdynamic \
+	$(shell pkg-config --cflags --libs --static gtkmm-3.0) \
+	-static-libgcc -static-libstdc++
 
 # Sources
 CORE_SRCS := $(wildcard $(CORE_DIR)/*.cpp)
@@ -46,7 +55,7 @@ GUI_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(GUI_SRCS))
 GRES_SRC := $(GUI_DIR)/gres.c
 GRES_OBJ := $(BUILD_DIR)/gui/gres.o
 
-.PHONY: all cli gui clean remove_res
+.PHONY: all cli gui gui-static clean remove_res
 
 all: cli gui
 
@@ -63,6 +72,12 @@ gui: $(GUI_BIN)
 $(GUI_BIN):  $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GUI_AREAS_OBJS) $(GRES_OBJ)
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_FLAGS)
+
+gui-static: $(GUI_STATIC_BIN)
+
+$(GUI_STATIC_BIN): $(CORE_OBJS) $(AREAS_OBJS) $(MRECORDS_OBJS) $(GUI_OBJS) $(GUI_AREAS_OBJS) $(GRES_OBJ)
+	@mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(GTKMM_STATIC_FLAGS)
 
 # Compile resource file
 $(GRES_SRC): $(GUI_DIR)/gres.xml
