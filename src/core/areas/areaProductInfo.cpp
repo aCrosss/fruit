@@ -122,6 +122,7 @@ AreaProductInfo::tryParseImpl(T v, Errs &errs) {
     // custom field is optional
     if (!v.contains("custom")) {
         debug_printOutVals();
+        present = true;
         return valid;
     }
 

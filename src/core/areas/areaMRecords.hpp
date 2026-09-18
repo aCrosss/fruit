@@ -9,7 +9,7 @@ class AreaMRecords : public Section {
   private:
     std::vector<MRecord> mrecords;
 
-    bool validateMRecordHeader(ibytes begin, Errs &errs);
+    bool validateMRecordHeader(ibytes begin, ibytes end, Errs &errs);
     bool tryAppendMRecord(std::byte type, std::byte byte8, MRecord &mrecord, Errs &errs);
 
     void debug_printOutVals();

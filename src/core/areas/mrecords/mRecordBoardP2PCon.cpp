@@ -366,6 +366,8 @@ MRecordBoardP2PCon::tryParse(toml::value &t, Errs &errs) {
 
 bool
 MRecordBoardP2PCon::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
+    OUT_OF_BOUNDS_GUARD_OFFSET("common", PICMG_HEADER_LEN + 1)
+
     begin += PICMG_HEADER_LEN;
 
     uchar count = DR_BYTE(begin++);
@@ -417,7 +419,7 @@ MRecordBoardP2PCon::emitJSON(nlohmann::json &j) {
     j["record_id"]       = record_id;
     j["picmg_record_id"] = picmg_record_id;
 
-    json jguids;
+    json jguids = json::array();
     for (auto &&i : guids) {
         std::string str;
         GUIDToStr(i, str);
@@ -425,7 +427,7 @@ MRecordBoardP2PCon::emitJSON(nlohmann::json &j) {
     }
     j["guids"] = jguids;
 
-    json array;
+    json array = json::array();
     for (auto &&i : link_descriptors) {
         json entry;
         emitLDescriptor(entry, i);

@@ -58,9 +58,13 @@ AreaMRecords::getLength() {
 //    ##     ## ########  ######   #######  ##     ## ########   ######
 
 bool
-AreaMRecords::validateMRecordHeader(ibytes begin, Errs &errs) {
+AreaMRecords::validateMRecordHeader(ibytes begin, ibytes end, Errs &errs) {
+    if (begin >= end || static_cast<size_t>(end - begin) < MRECORD_HEADER_LEN_IPMI) {
+        errs.append(tag, "multirecord", "record header is truncated");
+        return false;
+    }
+
     int  record_id       = DR_INT(begin);
-    int  byte9           = DR_INT(begin + 8);
     bool is_PICMG_record = record_id == MRECORD_PICMG_RECORD;
     int  record_len      = DR_INT(begin + HDR_OFFSET_LEN);
 
@@ -71,6 +75,18 @@ AreaMRecords::validateMRecordHeader(ibytes begin, Errs &errs) {
         return false;
     }
 
+    const size_t total_len = MRECORD_HEADER_LEN_IPMI + static_cast<size_t>(record_len);
+    if (static_cast<size_t>(end - begin) < total_len) {
+        errs.append(tag, "multirecord", "record data is truncated");
+        return false;
+    }
+
+    if (is_PICMG_record && record_len < MRECORD_HEADER_LEN_PICMG - MRECORD_HEADER_LEN_IPMI) {
+        errs.append(tag, "multirecord", "PICMG record data is shorter than its header");
+        return false;
+    }
+
+    int byte9 = is_PICMG_record ? DR_INT(begin + 8) : 0;
     if (is_PICMG_record && !isPICMGMRecordIDValid(byte9)) {
         std::stringstream s;
         s << "invalid PICMG id=" << byte9;
@@ -95,10 +111,16 @@ AreaMRecords::validateMRecordHeader(ibytes begin, Errs &errs) {
         return false;
     }
 
-    ibytes data_begin = begin + IPMI_HEADER_LEN;
-    ibytes data_end   = begin + record_len - 1;
+    ibytes data_begin = begin + MRECORD_HEADER_LEN_IPMI;
+    ibytes data_end   = data_begin + record_len - 1;
 
-    if (!checkChecksums(payload_cs, data_begin, data_end, errs)) {
+    const bool payload_checksum_valid =
+        record_len == 0 ? DR_INT(payload_cs) == 0
+                        : checkChecksums(payload_cs, data_begin, data_end, errs);
+    if (!payload_checksum_valid) {
+        if (record_len == 0) {
+            errs.append(tag, "common", "checksum is invalid");
+        }
         std::stringstream s;
         s << "header data checksum is invalid to multirecord data";
         errs.append(tag, t.str(), s.str());
@@ -244,18 +266,20 @@ bool
 AreaMRecords::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
     clear();
 
-    while (true) {
-        if (!validateMRecordHeader(begin, errs)) {
+    while (begin < end) {
+        if (!validateMRecordHeader(begin, end, errs)) {
             return false;
         }
 
+        const bool is_picmg = DR_INT(begin) == MRECORD_PICMG_RECORD;
+        const std::byte subtype = is_picmg ? *(begin + 8) : std::byte{0};
         MRecord record;
-        if (!tryAppendMRecord(*begin, *(begin + 8), record, errs)) {
+        if (!tryAppendMRecord(*begin, subtype, record, errs)) {
             return false;
         }
 
-        size_t rlen       = DR_INT(begin + HDR_OFFSET_LEN);
-        ibytes record_end = begin + rlen;
+        const size_t data_len = DR_INT(begin + HDR_OFFSET_LEN);
+        ibytes record_end = begin + MRECORD_HEADER_LEN_IPMI + data_len;
         if (!record->tryParseBinary(begin, record_end, errs)) {
             return false;
         }
@@ -266,13 +290,14 @@ AreaMRecords::tryParseBinary(ibytes begin, ibytes end, Errs &errs) {
             return true;
         }
 
-        begin += rlen;
+        begin = record_end;
         if (begin >= end) {
             errs.append(tag, "common", "parsing went out of bounds");
             return false;
         }
     }
 
+    errs.append(tag, "common", "end-of-list record is missing");
     return false;
 }
 
