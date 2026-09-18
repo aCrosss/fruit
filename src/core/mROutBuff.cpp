@@ -8,14 +8,11 @@
 
 void
 MROutBuff::buildMRecordHeader(bool eol, bytes &data) {
-    uchar header_len = IPMI_HEADER_LEN;
-    uchar total_len  = static_cast<uchar>(header_len + data.size());
-
     uchar eolb = eol ? MREC_DEF_FORMAT_VER | MRECORD_EOL_BYTE : MREC_DEF_FORMAT_VER;
 
     out.emplace_back(BYTE_CAST(record_id));
     out.emplace_back(BYTE_CAST(eolb));
-    out.emplace_back(BYTE_CAST(total_len));
+    out.emplace_back(BYTE_CAST(data.size()));
     out.emplace_back(BYTE_CAST(calcZeroChecksum(data)));
 
     ibytes hstart = out.end() - HEADER_OFFSET_START;
@@ -25,9 +22,7 @@ MROutBuff::buildMRecordHeader(bool eol, bytes &data) {
 
 bool
 MROutBuff::shouldEmmit(size_t appended_len) {
-    size_t current_len = IPMI_HEADER_LEN;
-
-    current_len += part_const.size();
+    size_t current_len = part_const.size();
     if (should_overwrite) {
         current_len -= overwrite_offset;
         current_len += overwrite.size();
